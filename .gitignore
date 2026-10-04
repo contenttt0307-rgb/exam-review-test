@@ -1,0 +1,9 @@
+# 學生個資與課本檔案絕對不要上傳到 GitHub
+*.xlsx
+*.xls
+*.csv
+*.pdf
+
+# 系統檔
+.DS_Store
+Thumbs.db

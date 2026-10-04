@@ -1,0 +1,35 @@
+/* 題庫：所有數學式一律用 LaTeX，行內公式以 \( ... \) 包起來。
+   欄位：unit 單元、tag 觀念代碼、type（tf 是非 / mc 單選 / multi 多選 / num 數字填充）、
+   stem 題幹、opts 選項、ans 正解、stuck 全班卡關比例（範例數字）、reasons 錯因選項、key 最常見錯因、exp 解析、fast 補充快解 */
+window.QUESTIONS = [
+  {unit:"02", unitName:"絕對值", tag:String.raw`A04　\(\sqrt{a^2}=|a|\)`, type:"tf",
+   stem:String.raw`\(\sqrt{(2-\sqrt{5})^2}=2-\sqrt{5}\)`,
+   opts:["○ 正確","✕ 錯誤"], ans:[1], stuck:42,
+   reasons:[String.raw`忘了 \(\sqrt{a^2}=|a|\)`,"以為根號和平方可以直接抵消",String.raw`把 \(\sqrt{5}\) 的大小估錯`], key:0,
+   exp:String.raw`因為 \(\sqrt{5}\approx 2.236>2\)，所以 \(2-\sqrt{5}\) 是負數。<br>\(\sqrt{a^2}=|a|\)，因此結果是 \(|2-\sqrt{5}|=\sqrt{5}-2\)。`},
+  {unit:"01", unitName:"實數", tag:"R14　分母有理化", type:"mc",
+   stem:String.raw`<span class="k">化簡下式</span>\(\dfrac{1}{\sqrt{3}-\sqrt{2}}=\)？`,
+   opts:[String.raw`\(\sqrt{3}+\sqrt{2}\)`,String.raw`\(\sqrt{3}-\sqrt{2}\)`,String.raw`\(\dfrac{\sqrt{3}+\sqrt{2}}{5}\)`,String.raw`\(1\)`], ans:[0], stuck:35,
+   reasons:[String.raw`分母算成 \(3+2=5\)`,"乘的共軛式符號弄反","還不熟分母有理化的步驟"], key:0,
+   exp:String.raw`分子分母同乘 \(\sqrt{3}+\sqrt{2}\)：<br>分母 \(=(\sqrt{3})^2-(\sqrt{2})^2=3-2=1\)，所以答案是 \(\sqrt{3}+\sqrt{2}\)。`},
+  {unit:"03", unitName:"指數", tag:"E02　負整數指數", type:"tf",
+   stem:String.raw`\(3^{-1}\) 的值為 \(-3\)`,
+   opts:["○ 正確","✕ 錯誤"], ans:[1], stuck:18,
+   reasons:["把負指數當成負號",String.raw`以為 \(a^{-1}=-a\)`,String.raw`和 \(a^0\) 的定義搞混`], key:0,
+   exp:String.raw`負指數代表倒數：\(a^{-n}=\dfrac{1}{a^n}\)。<br>所以 \(3^{-1}=\dfrac{1}{3}\)，不是 \(-3\)。`},
+  {unit:"02", unitName:"絕對值", tag:String.raw`A07　\(|x-a|\le k\)`, type:"mc",
+   stem:String.raw`<span class="k">解不等式</span>\(|x-3|\le 2\)`,
+   opts:[String.raw`\(1\le x\le 5\)`,String.raw`\(x\le 5\)`,String.raw`\(x\le 1\) 或 \(x\ge 5\)`,String.raw`\(-1\le x\le 5\)`], ans:[0], stuck:38,
+   reasons:[String.raw`寫成 \(x-3\le\pm 2\)，只取一邊`,"把「夾在中間」和「分在兩邊」搞反","移項時算錯"], key:1,
+   exp:String.raw`\(|x-3|\le 2\) 表示 \(x\) 到 \(3\) 的距離不超過 \(2\)，<br>所以 \(-2\le x-3\le 2\)，也就是 \(1\le x\le 5\)。`},
+  {unit:"04", unitName:"科學記號與對數", tag:"L08　位數判斷", type:"num",
+   stem:String.raw`\(10^{19.1}\) 的整數部分是幾位數？`, ans:"20", unitWord:"位數", stuck:47,
+   reasons:["忘了位數 = 次方的整數部分 + 1",String.raw`以為 \(10^{19}\) 是 19 位數`,"把 0.1 進位成 1"], key:0,
+   exp:String.raw`\(10^{19}\le 10^{19.1}<10^{20}\)，而 \(10^{19}\) 是 1 後面接 19 個 0，共 20 位數。<br>所以答案是 \(19+1=20\) 位數。`,
+   fast:String.raw`<b>補充快解（對數律）</b>\(\log 10^{19.1}=19.1\)，整數部分為 \(19\)，位數 \(=19+1=20\)。`},
+  {unit:"01", unitName:"實數", tag:"R05　無理數的判別", type:"multi",
+   stem:`<span class="k">多選</span>下列哪些是無理數？`,
+   opts:[String.raw`\(\sqrt{4}\)`,String.raw`\(\sqrt{5}\)`,String.raw`\(0.\overline{3}\)`,String.raw`\(\pi\)`,String.raw`\(\dfrac{22}{7}\)`], ans:[1,3], stuck:51,
+   reasons:[String.raw`把 \(\sqrt{4}\) 也當成無理數`,"以為循環小數是無理數",String.raw`把 \(\dfrac{22}{7}\) 當成 \(\pi\)`], key:0,
+   exp:String.raw`\(\sqrt{4}=2\)、\(0.\overline{3}=\dfrac{1}{3}\)、\(\dfrac{22}{7}\) 都能寫成分數，是有理數。<br>\(\sqrt{5}\) 和 \(\pi\) 是不循環的無限小數，才是無理數。`}
+];
