@@ -56,7 +56,25 @@ function pick(mode, unit){
 /* ---------- 畫面狀態 ---------- */
 let S = {screen: P.user ? "home" : "welcome", mode: null, list: [], i: 0, sel: [], typed: "", done: false, why: null, log: [], newly: [], sheet: null};
 const app = document.getElementById("app");
-const set = p => { Object.assign(S, p); render(); };
+const scroller = document.getElementById("scroller") || document.scrollingElement;
+/* 作答中的這一回也存起來：不小心重新整理或切換 App，回來可以接著做 */
+const SKEY = (IS_TEST ? "exam-review-test" : "exam-review") + "-session";
+function persistSession(){
+  try {
+    if (S.screen === "quiz") localStorage.setItem(SKEY, JSON.stringify({t: Date.now(), mode: S.mode, ids: S.list.map(q => q.id), i: S.i, sel: S.sel, typed: S.typed, done: S.done, why: S.why, log: S.log, newly: S.newly}));
+    else localStorage.removeItem(SKEY);
+  } catch (_) {}
+}
+function restoreSession(){
+  try {
+    const v = JSON.parse(localStorage.getItem(SKEY));
+    if (!v || Date.now() - v.t > 3 * 3600e3) return;
+    const list = v.ids.map(id => BY_ID[id]).filter(Boolean);
+    if (!list.length || list.length !== v.ids.length) return;
+    Object.assign(S, {screen: "quiz", mode: v.mode, list, i: v.i, sel: v.sel, typed: v.typed, done: v.done, why: v.why, log: v.log, newly: v.newly});
+  } catch (_) {}
+}
+const set = p => { Object.assign(S, p); render(); persistSession(); };
 const badge = () => IS_TEST
   ? `<span class="proto test">試用站　這裡的改動不會影響學生</span>`
   : `<span class="proto">測試版　登入與全班統計尚未開放</span>`;
@@ -65,7 +83,7 @@ const tagLabel = t => `${t}　${CONCEPTS[t] || ""}`;
 function startSession(mode, unit){
   const list = pick(mode, unit);
   if (!list.length) { toast(mode === "weak" ? "目前沒有待攻克的觀念，先去快刷吧" : "這裡還沒有題目"); return; }
-  window.scrollTo(0, 0);
+  scroller.scrollTo(0, 0);
   set({screen: "quiz", mode, list, i: 0, sel: [], typed: "", done: false, why: null, log: [], newly: [], sheet: null});
 }
 function isRight(q){
@@ -83,7 +101,7 @@ function vWelcome(){
     <p class="muted">6 題快速健檢，不用登入。做完馬上告訴你最該補的觀念。</p>
   </div>
   <div class="facts">
-    <div class="fact"><b>${BANK.length}</b><span>題題庫</span></div>
+    <div class="fact"><b>${BANK.length}</b><span>道試題</span></div>
     <div class="fact"><b>4</b><span>個單元</span></div>
     <div class="fact"><b>${CORE.length}</b><span>個觀念</span></div>
   </div>
@@ -238,7 +256,7 @@ app.addEventListener("click", e => {
     case "key": { let t = S.typed; if (k === "⌫") t = t.slice(0, -1); else if (t.length < 6) t += k; set({typed: t}); break; }
     case "submit": { const r = isRight(q); S.log.push({i: S.i, right: r}); record(q, r); set({done: true}); break; }
     case "why": set({why: +k}); break;
-    case "next": window.scrollTo(0, 0);
+    case "next": scroller.scrollTo(0, 0);
       if (S.i === S.list.length - 1) set({screen: "result"}); else set({i: S.i + 1, sel: [], typed: "", done: false, why: null}); break;
     case "home": set({screen: P.user ? "home" : "welcome", sheet: null}); break;
     case "loginsheet": set({sheet: "login"}); break;
@@ -247,4 +265,5 @@ app.addEventListener("click", e => {
     case "logout": P.user = null; save(); set({screen: "welcome"}); break;
   }
 });
+restoreSession();
 render();

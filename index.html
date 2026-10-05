@@ -35,8 +35,9 @@
   --btn-bg:#F5C04A; --btn-fg:#13294B;
   --good:#4CC28A; --good-soft:#163A2B; --bad:#F07A6E; --bad-soft:#3E1F1E;
   --chip:#1F2B42; color-scheme:dark}
-html,body{height:100%;margin:0}
-:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
+/* 內容在 #scroller 裡捲動，避免手機往下滑時觸發瀏覽器的「下拉重新整理」 */
+#scroller{position:fixed;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
 *{box-sizing:border-box}
 button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
@@ -181,12 +182,12 @@ mjx-container{font-size:108%!important}
 .todo.done li::before{border-color:var(--good);background:var(--good)}
 .fast{border-top:1px dashed var(--line);padding-top:8px;margin-top:4px}
 .proto.test{background:var(--accent);color:#13294B;font-weight:700}
-html.test-site body{border-top:4px solid var(--accent)}
+html.test-site #scroller{border-top:4px solid var(--accent)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<div class="app" id="app"></div>
+<div id="scroller"><div class="app" id="app"></div></div>
 <script>
 window.MathJax = {
   tex: { inlineMath: [["\\(", "\\)"]] },
