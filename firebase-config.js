@@ -12,4 +12,4 @@ window.FIREBASE_CONFIG = {
 window.SCHOOL_DOMAIN = "sssh.tp.edu.tw";
 
 /* 老師帳號：可以登入老師後台。要新增老師，在這裡加 Email，並同步修改 Firestore 安全規則裡的名單 */
-window.TEACHERS = ["contenttt0307@gmail.com"];
+window.TEACHERS = ["contenttt0307@gmail.com", "0346@sssh.tp.edu.tw"];
