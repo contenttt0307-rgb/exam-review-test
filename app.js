@@ -28,13 +28,16 @@ const isSchoolEmail = e => (e || "").toLowerCase().endsWith("@" + DOMAIN);
 
 /* ---------- 進度 ---------- */
 const KEY = IS_TEST ? "exam-review-test-guest" : "exam-review-guest";   // 未登入時的暫存
+const OLD_KEY = IS_TEST ? "exam-review-test-v1" : "exam-review-v1";   // 舊版（免登入版）存在手機的進度，登入時一併帶進帳號
 let P = loadGuest();
 function emptyP(){ return {c: {}, answered: 0, qs: {}}; }
 function loadGuest(){
-  try { const v = JSON.parse(localStorage.getItem(KEY)); if (v && v.c) return {...emptyP(), ...v}; } catch (_) {}
+  for (const k of [KEY, OLD_KEY]) {
+    try { const v = JSON.parse(localStorage.getItem(k)); if (v && v.c) return {...emptyP(), c: v.c, answered: v.answered || 0, qs: v.qs || {}}; } catch (_) {}
+  }
   return emptyP();
 }
-function clearGuest(){ try { localStorage.removeItem(KEY); } catch (_) {} }
+function clearGuest(){ try { localStorage.removeItem(KEY); localStorage.removeItem(OLD_KEY); } catch (_) {} }
 let dirty = false;
 function save(){
   if (!ME) { try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (_) {} return; }
@@ -85,7 +88,7 @@ async function logout(){
   if (auth) await auth.signOut();
 }
 if (auth) auth.onAuthStateChanged(async u => {
-  if (!u) { ME = null; P = loadGuest(); set({screen: S.screen === "quiz" && S.mode === "health" ? "quiz" : "welcome", loading: false}); return; }
+  if (!u) { ME = null; P = loadGuest(); set({screen: S.screen === "quiz" ? "quiz" : P.answered ? "home" : "welcome", loading: false}); return; }
   const email = (u.email || "").toLowerCase();
   if (!isSchoolEmail(email) && !isTeacherEmail(email)) {
     await auth.signOut(); toast(`請改用 ${DOMAIN} 的學校帳號登入`); return;
@@ -134,7 +137,7 @@ function pick(mode, unit){
 }
 
 /* ---------- 畫面狀態 ---------- */
-let S = {screen: "welcome", loading: false, mode: null, list: [], i: 0, sel: [], typed: "", done: false, why: null, log: [], newly: [], sheet: null};
+let S = {screen: P.answered ? "home" : "welcome", loading: false, mode: null, list: [], i: 0, sel: [], typed: "", done: false, why: null, log: [], newly: [], sheet: null};
 const app = document.getElementById("app");
 const scroller = document.getElementById("scroller") || document.scrollingElement;
 /* 作答中的這一回也存起來：不小心重新整理或切換 App，回來可以接著做 */
@@ -159,7 +162,6 @@ const badge = () => IS_TEST ? `<span class="proto test">試用站　這裡的改
 const tagLabel = t => `${t}　${CONCEPTS[t] || ""}`;
 
 function startSession(mode, unit){
-  if (!ME && mode !== "health") { set({sheet: "login"}); return; } // 沒登入只能做健檢
   const list = pick(mode, unit);
   if (!list.length) { toast(mode === "weak" ? "目前沒有待攻克的觀念，先去快刷吧" : "這裡還沒有題目"); return; }
   scroller.scrollTo(0, 0);
@@ -188,6 +190,7 @@ function vWelcome(){
   <div class="stack">
     <button class="btn" data-a="start" data-k="health">開始健檢</button>
     <button class="link" data-a="loginsheet">已經用過？用學校 Google 帳號登入</button>
+    <button class="link" data-a="home">先跳過健檢，直接開始練習</button>
   </div>
   <p class="credit">系統製作：汪陽老師</p>`;
 }
@@ -266,7 +269,8 @@ function vResult(){
     <div class="grow"></div>
     <div class="stack">
       ${ME ? `<button class="btn" data-a="home">回到首頁</button>` : `<p class="small muted">登入後會保存結果，並幫你排好複習路線。</p>
-      <button class="gbtn" data-a="loginsheet">${gIcon()}使用學校 Google 帳號登入</button>`}
+      <button class="gbtn" data-a="loginsheet">${gIcon()}使用學校 Google 帳號登入</button>
+      <button class="btn ghost" data-a="home">先不登入，繼續練習</button>`}
     </div>`;
   }
   return `${badge()}
@@ -288,7 +292,9 @@ function vHome(){
   const units = UNITS.map(u => { const tags = CORE.filter(x => unitOf(x) === u.code), done = tags.filter(x => cs(x).m).length;
     return `<button class="unitrow" data-a="start" data-k="unit" data-u="${u.code}"><span class="un">${u.code}</span><span class="grow" style="min-width:0"><b>${u.name}</b><span class="bar"><i style="width:${done / tags.length * 100}%"></i></span></span><span class="num small muted">${done}/${tags.length}</span></button>`; }).join("");
   return `${badge()}
-  <div class="hello"><div class="av">${(ME && ME.name || "我").slice(0, 1)}</div><div class="grow"><p>${ME ? (ME.cls ? `${ME.cls} 班 ${ME.seat} 號　` : "") + ME.name : ""}</p><p style="font-weight:700">今天想怎麼複習？</p></div></div>
+  ${ME ? `<div class="hello"><div class="av">${(ME && ME.name || "我").slice(0, 1)}</div><div class="grow"><p>${ME ? (ME.cls ? `${ME.cls} 班 ${ME.seat} 號　` : "") + ME.name : ""}</p><p style="font-weight:700">今天想怎麼複習？</p></div></div>` : `<div class="card"><h2>要不要把進度存起來？</h2>
+    <p class="small muted" style="margin:0">現在的進度只存在這支手機。用學校帳號登入，進度會存到雲端，換手機也不會不見。</p>
+    <button class="gbtn" data-a="loginsheet">${gIcon()}使用學校 Google 帳號登入</button></div>`}
   <div class="score">${ring(readiness())}<div class="grow stack" style="gap:6px;min-width:0"><b>已攻克 <span class="num">${m}</span> / <span class="num">${CORE.length}</span> 個觀念</b><span class="small muted">${t.length ? `還有 <span class="num">${t.length}</span> 個待攻克。` : "還沒有待攻克的觀念。"}同一個觀念連續答對 2 次就攻克。</span></div></div>
   <div class="modes">
     <button class="mode main" data-a="start" data-k="quick"><span class="ic">5</span><b>5 分鐘快刷</b><span>8 題，混合各單元</span></button>
@@ -298,7 +304,7 @@ function vHome(){
   <div class="card"><h2>依單元練習</h2><div class="stack" style="gap:8px">${units}</div>
     <button class="unitrow supp" data-a="start" data-k="supp"><span class="un">+</span><span class="grow" style="min-width:0"><b>補充：對數律</b><span class="small muted">課綱外，不計入準備度</span></span></button></div>
   ${t.length ? `<div class="card"><h2>待攻克</h2><ul class="todo">${t.map(x => `<li>${tagLabel(x)}</li>`).join("")}</ul></div>` : ""}
-  <button class="link" data-a="logout">登出</button>`;
+  ${ME ? `<button class="link" data-a="logout">登出</button>` : ""}`;
 }
 
 /* ---------- 底部面板 ---------- */
@@ -339,7 +345,7 @@ app.addEventListener("click", e => {
     case "why": recordWhy(q, +k); set({why: +k}); break;
     case "next": scroller.scrollTo(0, 0);
       if (S.i === S.list.length - 1) set({screen: "result"}); else set({i: S.i + 1, sel: [], typed: "", done: false, why: null}); break;
-    case "home": set({screen: ME ? "home" : "welcome", sheet: null}); break;
+    case "home": set({screen: "home", sheet: null}); break;
     case "loginsheet": set({sheet: "login"}); break;
     case "close": set({sheet: null}); break;
     case "login": login(); break;
