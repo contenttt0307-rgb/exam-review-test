@@ -187,7 +187,8 @@ function vWelcome(){
   <div class="stack">
     <button class="btn" data-a="start" data-k="health">開始健檢</button>
     <button class="link" data-a="loginsheet">已經用過？用學校 Google 帳號登入</button>
-  </div>`;
+  </div>
+  <p class="credit">系統製作：汪陽老師</p>`;
 }
 
 /* ---------- 作答 ---------- */
