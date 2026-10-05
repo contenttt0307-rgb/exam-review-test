@@ -73,6 +73,14 @@ function recordWhy(q, k){
 }
 
 /* ---------- 登入 ---------- */
+/* LINE、IG、FB 等 App 內建的瀏覽器，Google 不允許在裡面登入 */
+const IN_APP = /\bLine\/|Instagram|FBAN|FBAV|FB_IAB|Messenger|MicroMessenger|Threads/i.test(navigator.userAgent || "");
+function copyLink(){
+  const url = location.origin + location.pathname;
+  const done = () => toast("已複製網址，請貼到 Safari 或 Chrome 開啟");
+  if (navigator.clipboard) navigator.clipboard.writeText(url).then(done, () => prompt("請複製這個網址：", url));
+  else prompt("請複製這個網址：", url);
+}
 async function login(){
   if (!auth) { toast("目前無法連線登入，請檢查網路後重新整理"); return; }
   const p = new firebase.auth.GoogleAuthProvider();
@@ -313,7 +321,9 @@ function vSheet(){
     <span class="grab"></span>
     <b>用學校 Google 帳號登入</b>
     <p class="small muted">請選 <b>學號@${DOMAIN}</b> 的帳號。登入後進度會存到雲端，換手機也不會不見。</p>
-    <button class="gbtn" data-a="login">${gIcon()}使用 Google 帳號登入</button>
+    ${IN_APP ? `<div class="card" style="gap:8px"><b>請改用 Safari 或 Chrome 開啟</b>
+      <p class="small muted" style="margin:0">你現在是在 LINE、IG 等 App 裡面開啟網頁，Google 不允許在這裡登入。請點右上角「⋯」或分享按鈕，選「用瀏覽器開啟」；或複製網址貼到 Safari / Chrome。</p></div>
+    <button class="btn" data-a="copylink">複製網址</button>` : `<button class="gbtn" data-a="login">${gIcon()}使用 Google 帳號登入</button>`}
   </div></div>`;
   return "";
 }
@@ -349,6 +359,7 @@ app.addEventListener("click", e => {
     case "loginsheet": set({sheet: "login"}); break;
     case "close": set({sheet: null}); break;
     case "login": login(); break;
+    case "copylink": copyLink(); break;
     case "logout": logout(); break;
   }
 });
