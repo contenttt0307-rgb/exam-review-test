@@ -85,7 +85,7 @@ async function logout(){
   if (auth) await auth.signOut();
 }
 if (auth) auth.onAuthStateChanged(async u => {
-  if (!u) { ME = null; P = loadGuest(); set({screen: S.screen === "quiz" ? "quiz" : "welcome", loading: false}); return; }
+  if (!u) { ME = null; P = loadGuest(); set({screen: S.screen === "quiz" && S.mode === "health" ? "quiz" : "welcome", loading: false}); return; }
   const email = (u.email || "").toLowerCase();
   if (!isSchoolEmail(email) && !isTeacherEmail(email)) {
     await auth.signOut(); toast(`請改用 ${DOMAIN} 的學校帳號登入`); return;
@@ -159,6 +159,7 @@ const badge = () => IS_TEST ? `<span class="proto test">試用站　這裡的改
 const tagLabel = t => `${t}　${CONCEPTS[t] || ""}`;
 
 function startSession(mode, unit){
+  if (!ME && mode !== "health") { set({sheet: "login"}); return; } // 沒登入只能做健檢
   const list = pick(mode, unit);
   if (!list.length) { toast(mode === "weak" ? "目前沒有待攻克的觀念，先去快刷吧" : "這裡還沒有題目"); return; }
   scroller.scrollTo(0, 0);
