@@ -183,6 +183,9 @@ mjx-container{font-size:108%!important}
 .fast{border-top:1px dashed var(--line);padding-top:8px;margin-top:4px}
 .proto.test{background:var(--accent);color:#13294B;font-weight:700}
 html.test-site #scroller{border-top:4px solid var(--accent)}
+.field{width:100%;min-height:52px;border-radius:var(--r);border:1.5px solid var(--line);background:var(--surface);color:var(--ink);padding:0 16px;font:inherit;font-size:20px;letter-spacing:.06em}
+.field:focus{outline:none;border-color:var(--ink)}
+.codebox{text-align:center;font-size:34px;font-weight:700;letter-spacing:.12em;background:var(--accent-soft);border-radius:var(--r);padding:16px;user-select:all}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -196,12 +199,16 @@ window.MathJax = {
   startup: { typeset: false, ready() { MathJax.startup.defaultReady(); if (typeof render === "function") render(); } }
 };
 </script>
-<script src="concepts.js?v=20261005"></script>
-<script src="unit01.js?v=20261005"></script>
-<script src="unit02.js?v=20261005"></script>
-<script src="unit03.js?v=20261005"></script>
-<script src="unit04.js?v=20261005"></script>
-<script src="app.js?v=20261005"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js?v=20261006"></script>
+<script src="concepts.js?v=20261006"></script>
+<script src="unit01.js?v=20261006"></script>
+<script src="unit02.js?v=20261006"></script>
+<script src="unit03.js?v=20261006"></script>
+<script src="unit04.js?v=20261006"></script>
+<script src="app.js?v=20261006"></script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" async></script>
 </body>
 </html>

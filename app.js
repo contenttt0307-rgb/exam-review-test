@@ -1,11 +1,11 @@
 /* 段考複習系統：主程式
-   題庫在 bank/unit0X.js，觀念清單在 concepts.js。
-   目前登入為模擬畫面；學習進度先存在這台裝置的瀏覽器裡，串接 Firebase 後改存雲端。 */
+   題庫在 unit0X.js，觀念清單在 concepts.js，Firebase 設定在 firebase-config.js。
+   未登入時進度暫存在這台裝置；用學校 Google 帳號登入後，進度存到雲端（Firestore）。 */
 
 const ICON = "icon-192.png";
 /* 同一套檔案放在兩個網址：網址含 -test 的是「試用站」，其餘是正式站。
    兩站在同一個網域，所以進度用不同的名稱分開保存，互不影響。 */
-const IS_TEST = /-test(\/|$)/.test(location.pathname) || ["localhost", "127.0.0.1"].includes(location.hostname);
+const IS_TEST = /-test(\/|$)/.test(location.pathname);
 if (IS_TEST) document.documentElement.classList.add("test-site");
 const UNITS = window.UNITS.map(u => ({...u, bank: (window[u.key] || []).map(q => ({...q, unit: u.code}))}));
 const BANK = UNITS.flatMap(u => u.bank);
@@ -15,21 +15,101 @@ const SUPP = new Set(window.SUPP_CONCEPTS);
 const CORE = Object.keys(CONCEPTS).filter(t => !SUPP.has(t));
 const unitOf = tag => ({R:"01", A:"02", E:"03", L:"04"})[tag[0]];
 
-/* ---------- 進度（存在這台裝置） ---------- */
-const KEY = IS_TEST ? "exam-review-test-v1" : "exam-review-v1";
-let P = load();
-function load(){
-  try { const v = JSON.parse(localStorage.getItem(KEY)); if (v && v.c) return v; } catch (_) {}
-  return {user: null, c: {}, answered: 0};
+/* ---------- 雲端（Firebase） ---------- */
+const ENV = IS_TEST ? "test" : "prod";              // 試用站與正式站的資料分開存
+const DOMAIN = window.SCHOOL_DOMAIN;
+let auth = null, db = null, ME = null;             // ME：目前登入的人
+try {
+  firebase.initializeApp(window.FIREBASE_CONFIG);
+  auth = firebase.auth(); db = firebase.firestore();
+} catch (e) { console.warn("Firebase 無法啟動", e); }
+const isTeacherEmail = e => (window.TEACHERS || []).map(x => x.toLowerCase()).includes((e || "").toLowerCase());
+const isSchoolEmail = e => (e || "").toLowerCase().endsWith("@" + DOMAIN);
+
+/* ---------- 進度 ---------- */
+const KEY = IS_TEST ? "exam-review-test-guest" : "exam-review-guest";   // 未登入時的暫存
+let P = loadGuest();
+function emptyP(){ return {c: {}, answered: 0, qs: {}}; }
+function loadGuest(){
+  try { const v = JSON.parse(localStorage.getItem(KEY)); if (v && v.c) return {...emptyP(), ...v}; } catch (_) {}
+  return emptyP();
 }
-function save(){ try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (_) {} }
+function clearGuest(){ try { localStorage.removeItem(KEY); } catch (_) {} }
+let dirty = false;
+function save(){
+  if (!ME) { try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (_) {} return; }
+  try { localStorage.setItem(KEY + "-" + ME.uid, JSON.stringify(P)); } catch (_) {}   // 先存在手機，避免斷線遺失
+  dirty = true;
+}
+/* 為了節省免費額度：每練完一回、回到首頁、或離開 App 時才上傳一次 */
+function pushCloud(force){
+  if (!ME || !db || (!dirty && !force)) return Promise.resolve();
+  dirty = false;
+  return db.doc(`envs/${ENV}/students/${ME.uid}`).set({
+    uid: ME.uid, email: ME.email, sid: ME.sid, name: ME.name, cls: ME.cls, seat: ME.seat,
+    c: P.c, qs: P.qs, answered: P.answered,
+    readiness: readiness(), mastered: mastered().length, todo: todo(),
+    lastActive: firebase.firestore.FieldValue.serverTimestamp()
+  }, {merge: true}).catch(e => { dirty = true; console.error(e); toast("進度暫時沒有上傳成功，下次會再試一次"); });
+}
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") pushCloud(); });
 const cs = tag => P.c[tag] || {s: 0, m: false, w: false};       // s 連續答對次數、m 已攻克、w 待攻克
 function record(q, right){
   const c = {...cs(q.tag)};
   if (right) { c.s += 1; if (c.s >= 2 && !c.m) { c.m = true; c.w = false; S.newly.push(q.tag); } }
   else { c.s = 0; c.m = false; c.w = true; }
-  P.c[q.tag] = c; P.answered += 1; save();
+  P.c[q.tag] = c; P.answered += 1;
+  const st = P.qs[q.id] || {a: 0, w: 0, r: [0, 0, 0]};
+  P.qs[q.id] = {...st, a: st.a + 1, w: st.w + (right ? 0 : 1)};
+  save();
 }
+function recordWhy(q, k){
+  const st = P.qs[q.id] || {a: 0, w: 0, r: [0, 0, 0]};
+  const r = [...(st.r || [0, 0, 0])]; r[k] = (r[k] || 0) + 1;
+  P.qs[q.id] = {...st, r}; save();
+}
+
+/* ---------- 登入 ---------- */
+async function login(){
+  if (!auth) { toast("目前無法連線登入，請檢查網路後重新整理"); return; }
+  const p = new firebase.auth.GoogleAuthProvider();
+  p.setCustomParameters({prompt: "select_account"});
+  try { await auth.signInWithPopup(p); }
+  catch (e) {
+    if (["auth/popup-blocked", "auth/operation-not-supported-in-this-environment"].includes(e.code)) await auth.signInWithRedirect(p);
+    else if (!["auth/popup-closed-by-user", "auth/cancelled-popup-request"].includes(e.code)) toast("登入失敗：" + e.code);
+  }
+}
+async function logout(){
+  if (ME) await pushCloud();
+  if (auth) await auth.signOut();
+}
+if (auth) auth.onAuthStateChanged(async u => {
+  if (!u) { ME = null; P = loadGuest(); set({screen: S.screen === "quiz" ? "quiz" : "welcome", loading: false}); return; }
+  const email = (u.email || "").toLowerCase();
+  if (!isSchoolEmail(email) && !isTeacherEmail(email)) {
+    await auth.signOut(); toast(`請改用 ${DOMAIN} 的學校帳號登入`); return;
+  }
+  const sid = email.split("@")[0];
+  ME = {uid: u.uid, email, sid, name: u.displayName || sid, cls: "", seat: "", teacher: isTeacherEmail(email)};
+  set({loading: true, sheet: null});
+  try {
+    if (!ME.teacher) {
+      const r = await db.doc(`envs/${ENV}/roster/${sid}`).get();
+      if (r.exists) { const d = r.data(); ME.name = d.name || ME.name; ME.cls = d.cls || ""; ME.seat = d.seat || ""; }
+    }
+    const doc = await db.doc(`envs/${ENV}/students/${u.uid}`).get();
+    const cloud = doc.exists ? doc.data() : null;
+    const guest = P;
+    P = cloud
+      ? {c: {...guest.c, ...(cloud.c || {})}, answered: cloud.answered || 0, qs: {...guest.qs, ...(cloud.qs || {})}}
+      : {...guest};
+    clearGuest();
+    await pushCloud(true);
+  } catch (e) { console.error(e); toast("讀取雲端進度失敗，請檢查網路後重新整理"); }
+  set({loading: false, screen: S.screen === "quiz" ? "quiz" : "home"});
+});
+
 const conceptScore = t => { const c = cs(t); return c.m ? 1 : c.s >= 1 ? 0.5 : 0; };
 const readiness = () => Math.round(CORE.reduce((s, t) => s + conceptScore(t), 0) / CORE.length * 100);
 const mastered = () => CORE.filter(t => cs(t).m);
@@ -54,7 +134,7 @@ function pick(mode, unit){
 }
 
 /* ---------- 畫面狀態 ---------- */
-let S = {screen: P.user ? "home" : "welcome", mode: null, list: [], i: 0, sel: [], typed: "", done: false, why: null, log: [], newly: [], sheet: null};
+let S = {screen: "welcome", loading: false, mode: null, list: [], i: 0, sel: [], typed: "", done: false, why: null, log: [], newly: [], sheet: null};
 const app = document.getElementById("app");
 const scroller = document.getElementById("scroller") || document.scrollingElement;
 /* 作答中的這一回也存起來：不小心重新整理或切換 App，回來可以接著做 */
@@ -74,10 +154,8 @@ function restoreSession(){
     Object.assign(S, {screen: "quiz", mode: v.mode, list, i: v.i, sel: v.sel, typed: v.typed, done: v.done, why: v.why, log: v.log, newly: v.newly});
   } catch (_) {}
 }
-const set = p => { Object.assign(S, p); render(); persistSession(); };
-const badge = () => IS_TEST
-  ? `<span class="proto test">試用站　這裡的改動不會影響學生</span>`
-  : `<span class="proto">測試版　登入與全班統計尚未開放</span>`;
+const set = p => { Object.assign(S, p); render(); persistSession(); if (p.screen && p.screen !== "quiz") pushCloud(); };
+const badge = () => IS_TEST ? `<span class="proto test">試用站　這裡的改動不會影響學生</span>` : "";
 const tagLabel = t => `${t}　${CONCEPTS[t] || ""}`;
 
 function startSession(mode, unit){
@@ -185,7 +263,7 @@ function vResult(){
     </div>
     <div class="grow"></div>
     <div class="stack">
-      ${P.user ? `<button class="btn" data-a="home">回到首頁</button>` : `<p class="small muted">登入後會保存結果，並幫你排好複習路線。</p>
+      ${ME ? `<button class="btn" data-a="home">回到首頁</button>` : `<p class="small muted">登入後會保存結果，並幫你排好複習路線。</p>
       <button class="gbtn" data-a="loginsheet">${gIcon()}使用學校 Google 帳號登入</button>`}
     </div>`;
   }
@@ -208,7 +286,7 @@ function vHome(){
   const units = UNITS.map(u => { const tags = CORE.filter(x => unitOf(x) === u.code), done = tags.filter(x => cs(x).m).length;
     return `<button class="unitrow" data-a="start" data-k="unit" data-u="${u.code}"><span class="un">${u.code}</span><span class="grow" style="min-width:0"><b>${u.name}</b><span class="bar"><i style="width:${done / tags.length * 100}%"></i></span></span><span class="num small muted">${done}/${tags.length}</span></button>`; }).join("");
   return `${badge()}
-  <div class="hello"><div class="av">示</div><div class="grow"><p>示範同學</p><p style="font-weight:700">今天想怎麼複習？</p></div></div>
+  <div class="hello"><div class="av">${(ME && ME.name || "我").slice(0, 1)}</div><div class="grow"><p>${ME ? (ME.cls ? `${ME.cls} 班 ${ME.seat} 號　` : "") + ME.name : ""}</p><p style="font-weight:700">今天想怎麼複習？</p></div></div>
   <div class="score">${ring(readiness())}<div class="grow stack" style="gap:6px;min-width:0"><b>已攻克 <span class="num">${m}</span> / <span class="num">${CORE.length}</span> 個觀念</b><span class="small muted">${t.length ? `還有 <span class="num">${t.length}</span> 個待攻克。` : "還沒有待攻克的觀念。"}同一個觀念連續答對 2 次就攻克。</span></div></div>
   <div class="modes">
     <button class="mode main" data-a="start" data-k="quick"><span class="ic">5</span><b>5 分鐘快刷</b><span>8 題，混合各單元</span></button>
@@ -223,17 +301,18 @@ function vHome(){
 
 /* ---------- 底部面板 ---------- */
 function vSheet(){
-  if (S.sheet === "login") return `<div class="scrim" data-a="close"><div class="sheet" role="dialog" aria-label="選擇帳號">
+  if (S.sheet === "login") return `<div class="scrim" data-a="close"><div class="sheet" role="dialog" aria-label="登入">
     <span class="grab"></span>
-    <div style="display:flex;align-items:center;gap:10px">${gIcon()}<b>選擇帳號以繼續使用「段考複習系統」</b></div>
-    <button class="acct" data-a="login"><span class="av">示</span><span class="grow" style="min-width:0"><b>示範同學</b><br><span class="small muted">（測試版：模擬登入）</span></span></button>
-    <p class="small muted">正式版只接受 sssh.tp.edu.tw 的學校帳號，登入後依學號自動對應班級。</p>
+    <b>用學校 Google 帳號登入</b>
+    <p class="small muted">請選 <b>學號@${DOMAIN}</b> 的帳號。登入後進度會存到雲端，換手機也不會不見。</p>
+    <button class="gbtn" data-a="login">${gIcon()}使用 Google 帳號登入</button>
   </div></div>`;
   return "";
 }
 
 /* ---------- 繪製與事件 ---------- */
 function render(){
+  if (S.loading) { app.innerHTML = `<div class="grow" style="display:grid;place-items:center"><p class="muted">讀取你的進度中…</p></div>`; return; }
   const v = {welcome: vWelcome, quiz: vQuiz, result: vResult, home: vHome}[S.screen]();
   app.innerHTML = v + vSheet();
   if (window.MathJax && MathJax.typesetPromise) {
@@ -255,14 +334,14 @@ app.addEventListener("click", e => {
       if (q.type === "multi") set({sel: S.sel.includes(n) ? S.sel.filter(x => x !== n) : [...S.sel, n]}); else set({sel: [n]}); break; }
     case "key": { let t = S.typed; if (k === "⌫") t = t.slice(0, -1); else if (t.length < 6) t += k; set({typed: t}); break; }
     case "submit": { const r = isRight(q); S.log.push({i: S.i, right: r}); record(q, r); set({done: true}); break; }
-    case "why": set({why: +k}); break;
+    case "why": recordWhy(q, +k); set({why: +k}); break;
     case "next": scroller.scrollTo(0, 0);
       if (S.i === S.list.length - 1) set({screen: "result"}); else set({i: S.i + 1, sel: [], typed: "", done: false, why: null}); break;
-    case "home": set({screen: P.user ? "home" : "welcome", sheet: null}); break;
+    case "home": set({screen: ME ? "home" : "welcome", sheet: null}); break;
     case "loginsheet": set({sheet: "login"}); break;
     case "close": set({sheet: null}); break;
-    case "login": P.user = "demo"; save(); set({sheet: null, screen: "home"}); toast("已登入，進度會保存在這台裝置"); break;
-    case "logout": P.user = null; save(); set({screen: "welcome"}); break;
+    case "login": login(); break;
+    case "logout": logout(); break;
   }
 });
 restoreSession();
