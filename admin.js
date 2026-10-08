@@ -92,7 +92,7 @@ function vClass(){
   // 最常答錯的題目：至少 3 人次作答
   const qAgg = {};
   for (const s of active) for (const [id, st] of Object.entries(s.qs || {})) {
-    const g = qAgg[id] || (qAgg[id] = {a: 0, w: 0, r: [0, 0, 0]});
+    const g = qAgg[id] || (qAgg[id] = {a: 0, w: 0, r: [0, 0, 0, 0]});
     g.a += st.a || 0; g.w += st.w || 0; (st.r || []).forEach((n, i) => g.r[i] += n || 0);
   }
   const hardQs = Object.entries(qAgg).filter(([id, g]) => g.a >= 3 && BY_ID[id])
@@ -107,7 +107,7 @@ function vClass(){
           <td class="num">${s.mastered || 0} / ${CORE.length}</td><td class="num">${(s.todo || []).length}</td><td>${fmtTime(s.lastActive)}</td></tr>`
       : `<tr><td class="num">${esc(m.seat)}</td><td>${esc(m.name)}</td><td class="num muted">${esc(m.sid)}</td><td colspan="4" class="none">尚未使用</td></tr>`;
     const detail = open && s ? `<tr class="detail"><td colspan="7"><b>待攻克的觀念：</b>${(s.todo || []).length ? s.todo.map(t => `<span class="pill bad">${t} ${esc(CONCEPTS[t] || "")}</span>`).join("") : "<span class='muted'>沒有</span>"}
-      <br><span class="small muted">累計作答 ${s.answered || 0} 題</span></td></tr>` : "";
+      <br><span class="small muted">累計作答 ${s.answered || 0} 題｜魔王關擊敗 ${Object.keys(s.boss || {}).length} / ${(window.BOSS || []).length} 題</span></td></tr>` : "";
     return main + detail;
   }).join("");
 
@@ -135,7 +135,7 @@ function vClass(){
     </div>
     <div class="card"><h2>最常答錯的題目</h2><p class="small muted" style="margin:0">至少 3 人次作答，依答錯率排序；並列出學生最常選的錯因。</p>
       ${hardQs.length ? hardQs.map(h => { const q = BY_ID[h.id], top = h.r.indexOf(Math.max(...h.r));
-        return `<div class="qrow"><div class="meta"><b>${h.id}</b><span class="rate">答錯率 ${h.rate}%</span><span>${h.a} 人次</span></div><div>${q.stem}</div>${Math.max(...h.r) > 0 ? `<div class="small muted">最常選的錯因：${q.reasons[top]}</div>` : ""}</div>`; }).join("") : `<p class="muted">還沒有足夠的作答資料。</p>`}
+        return `<div class="qrow"><div class="meta"><b>${h.id}</b><span class="rate">答錯率 ${h.rate}%</span><span>${h.a} 人次</span></div><div>${q.stem}</div>${Math.max(...h.r) > 0 ? `<div class="small muted">最常選的錯因：${top === 3 ? "不知道錯在哪" : q.reasons[top]}</div>` : ""}</div>`; }).join("") : `<p class="muted">還沒有足夠的作答資料。</p>`}
     </div>
   </div>`;
 }

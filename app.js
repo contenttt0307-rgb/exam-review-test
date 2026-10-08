@@ -10,6 +10,9 @@ if (IS_TEST) document.documentElement.classList.add("test-site");
 const UNITS = window.UNITS.map(u => ({...u, bank: (window[u.key] || []).map(q => ({...q, unit: u.code}))}));
 const BANK = UNITS.flatMap(u => u.bank);
 const BY_ID = Object.fromEntries(BANK.map(q => [q.id, q]));
+const BOSS = (window.BOSS || []).map(q => ({...q, unit: "BOSS"}));   // 魔王關：不算在題庫題數與準備度裡
+BOSS.forEach(q => { BY_ID[q.id] = q; });
+const BOSS_UNLOCK = 90;
 const CONCEPTS = window.CONCEPTS;
 const SUPP = new Set(window.SUPP_CONCEPTS);
 const CORE = Object.keys(CONCEPTS).filter(t => !SUPP.has(t));
@@ -30,10 +33,10 @@ const isSchoolEmail = e => (e || "").toLowerCase().endsWith("@" + DOMAIN);
 const KEY = IS_TEST ? "exam-review-test-guest" : "exam-review-guest";   // 未登入時的暫存
 const OLD_KEY = IS_TEST ? "exam-review-test-v1" : "exam-review-v1";   // 舊版（免登入版）存在手機的進度，登入時一併帶進帳號
 let P = loadGuest();
-function emptyP(){ return {c: {}, answered: 0, qs: {}}; }
+function emptyP(){ return {c: {}, answered: 0, qs: {}, boss: {}}; }
 function loadGuest(){
   for (const k of [KEY, OLD_KEY]) {
-    try { const v = JSON.parse(localStorage.getItem(k)); if (v && v.c) return {...emptyP(), c: v.c, answered: v.answered || 0, qs: v.qs || {}}; } catch (_) {}
+    try { const v = JSON.parse(localStorage.getItem(k)); if (v && v.c) return {...emptyP(), c: v.c, answered: v.answered || 0, qs: v.qs || {}, boss: v.boss || {}}; } catch (_) {}
   }
   return emptyP();
 }
@@ -50,7 +53,7 @@ function pushCloud(force){
   dirty = false;
   return db.doc(`envs/${ENV}/students/${ME.uid}`).set({
     uid: ME.uid, email: ME.email, sid: ME.sid, name: ME.name, cls: ME.cls, seat: ME.seat,
-    c: P.c, qs: P.qs, answered: P.answered,
+    c: P.c, qs: P.qs, answered: P.answered, boss: P.boss || {},
     readiness: readiness(), mastered: mastered().length, todo: todo(),
     lastActive: firebase.firestore.FieldValue.serverTimestamp()
   }, {merge: true}).catch(e => { dirty = true; console.error(e); toast("進度暫時沒有上傳成功，下次會再試一次"); });
@@ -58,6 +61,13 @@ function pushCloud(force){
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") pushCloud(); });
 const cs = tag => P.c[tag] || {s: 0, m: false, w: false};       // s 連續答對次數、m 已攻克、w 待攻克
 function record(q, right){
+  if (q.boss) {   // 魔王題只記錄有沒有擊敗，不影響觀念攻克
+    P.answered += 1;
+    const st = P.qs[q.id] || {a: 0, w: 0, r: [0, 0, 0, 0]};
+    P.qs[q.id] = {...st, a: st.a + 1, w: st.w + (right ? 0 : 1)};
+    if (right) P.boss = {...(P.boss || {}), [q.id]: true};
+    save(); return;
+  }
   const c = {...cs(q.tag)};
   if (right) { c.s += 1; if (c.s >= 2 && !c.m) { c.m = true; c.w = false; S.newly.push(q.tag); } }
   else { c.s = 0; c.m = false; c.w = true; }
@@ -67,8 +77,8 @@ function record(q, right){
   save();
 }
 function recordWhy(q, k){
-  const st = P.qs[q.id] || {a: 0, w: 0, r: [0, 0, 0]};
-  const r = [...(st.r || [0, 0, 0])]; r[k] = (r[k] || 0) + 1;
+  const st = P.qs[q.id] || {a: 0, w: 0, r: [0, 0, 0, 0]};
+  const r = [...(st.r || [0, 0, 0, 0])]; r[k] = (r[k] || 0) + 1;
   P.qs[q.id] = {...st, r}; save();
 }
 
@@ -113,7 +123,7 @@ if (auth) auth.onAuthStateChanged(async u => {
     const cloud = doc.exists ? doc.data() : null;
     const guest = P;
     P = cloud
-      ? {c: {...guest.c, ...(cloud.c || {})}, answered: cloud.answered || 0, qs: {...guest.qs, ...(cloud.qs || {})}}
+      ? {c: {...guest.c, ...(cloud.c || {})}, answered: cloud.answered || 0, qs: {...guest.qs, ...(cloud.qs || {})}, boss: {...(guest.boss || {}), ...(cloud.boss || {})}}
       : {...guest};
     clearGuest();
     await pushCloud(true);
@@ -130,6 +140,7 @@ const todo = () => Object.keys(CONCEPTS).filter(t => cs(t).w && !cs(t).m);
 const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const coreQs = () => BANK.filter(q => !q.supp);
 function pick(mode, unit){
+  if (mode === "boss") return BOSS;
   if (mode === "health") return window.HEALTH_CHECK.map(id => BY_ID[id]).filter(Boolean);
   if (mode === "quick") { // 還沒攻克的觀念優先，每個觀念最多 1 題
     const seen = new Set(), out = [];
@@ -170,6 +181,7 @@ const badge = () => IS_TEST ? `<span class="proto test">試用站　這裡的改
 const tagLabel = t => `${t}　${CONCEPTS[t] || ""}`;
 
 function startSession(mode, unit){
+  if (mode === "boss" && readiness() < BOSS_UNLOCK) { toast(`準備度達到 ${BOSS_UNLOCK}% 才能挑戰魔王關`); return; }
   const list = pick(mode, unit);
   if (!list.length) { toast(mode === "weak" ? "目前沒有待攻克的觀念，先去快刷吧" : "這裡還沒有題目"); return; }
   scroller.scrollTo(0, 0);
@@ -227,11 +239,14 @@ function vQuiz(){
   if (S.done) {
     const peers = typeof q.stuck === "number" ? `<div class="peers"><span class="dots"><i></i><i></i><i></i></span>全班有 <b class="num">${q.stuck}%</b> 的人也在這題卡過</div>` : `<p class="small">卡住很正常，弄懂它就是一個新攻克的觀念。</p>`;
     const why = right ? "" : `<div class="why"><span class="small">你覺得錯在哪？</span>
-      ${q.reasons.map((r, k) => { let c = ""; if (S.why !== null) { if (k === q.key) c = "key"; else if (k === S.why) c = "pick"; } return `<button class="${c}" data-a="why" data-k="${k}" ${S.why !== null ? "disabled" : ""}>${r}</button>`; }).join("")}</div>`;
+      ${[...q.reasons, "我不知道錯在哪"].map((r, k) => { let c = k === 3 ? "idk" : ""; if (S.why !== null) { if (k === q.key) c += " key"; else if (k === S.why) c += " pick"; } return `<button class="${c}" data-a="why" data-k="${k}" ${S.why !== null ? "disabled" : ""}>${r}</button>`; }).join("")}</div>`;
     const showExp = right || S.why !== null;
-    const whyMsg = (!right && S.why !== null) ? `<p class="small">${S.why === q.key ? "對，關鍵就在這裡。" : "最常見的卡點其實是：「" + q.reasons[q.key] + "」。"}</p>` : "";
+    const card = window.CARDS && CARDS[q.tag];
+    const whyMsg = (right || S.why === null) ? "" : S.why === 3
+      ? `<p class="small">沒關係，先想想這題最常卡在：「${q.reasons[q.key]}」。</p>${card ? `<div class="cardx"><b>觀念小卡｜${CONCEPTS[q.tag]}</b><p>${card.pt}</p><p class="cex"><b>例</b>${card.ex}</p></div>` : ""}`
+      : `<p class="small">${S.why === q.key ? "對，關鍵就在這裡。" : "最常見的卡點其實是：「" + q.reasons[q.key] + "」。"}</p>`;
     const c = cs(q.tag);
-    const okMsg = S.newly.includes(q.tag) ? `攻克了「${CONCEPTS[q.tag]}」！` : c.m ? "這個觀念已經攻克，保持住！" : "答對一次，這個觀念再答對一次就攻克。";
+    const okMsg = q.boss ? "你擊敗了這一題魔王！" : S.newly.includes(q.tag) ? `攻克了「${CONCEPTS[q.tag]}」！` : c.m ? "這個觀念已經攻克，保持住！" : "答對一次，這個觀念再答對一次就攻克。";
     fb = `<div class="fb ${right ? "ok" : "no"}">
       <h2>${right ? "答對了" : "這題你還沒掌握"}</h2>
       ${right ? `<p class="small">${okMsg}</p>` : peers}
@@ -244,7 +259,7 @@ function vQuiz(){
   <div class="top"><button aria-label="離開" data-a="home" style="font-size:22px;line-height:1">×</button>
     <div class="bar"><i style="width:${(S.i + (S.done ? 1 : 0)) / n * 100}%"></i></div>
     <span class="num small muted">${S.i + 1}/${n}</span></div>
-  <div class="stack" style="gap:8px"><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="chip">單元${q.unit}</span><span class="chip">${tagLabel(q.tag)}</span>${q.supp ? '<span class="chip supp">補充</span>' : ""}</div>
+  <div class="stack" style="gap:8px"><div style="display:flex;gap:6px;flex-wrap:wrap">${q.boss ? '<span class="chip bosschip">魔王關</span>' : `<span class="chip">單元${q.unit}</span><span class="chip">${tagLabel(q.tag)}</span>`}${q.supp ? '<span class="chip supp">補充</span>' : ""}</div>
   <div class="stem">${q.stem}</div></div>
   ${body}
   ${fb}
@@ -283,6 +298,7 @@ function vResult(){
   }
   return `${badge()}
   <h1>這回答對 <span class="num">${right}</span> / <span class="num">${n}</span></h1>
+  ${S.mode === "boss" ? `<div class="card"><h2>魔王關</h2><p class="small" style="margin:0">累計擊敗 <b class="num">${BOSS.filter(q => P.boss && P.boss[q.id]).length} / ${BOSS.length}</b> 題。答錯的題目可以再來一回，直到全部擊敗。</p></div>` : ""}
   ${S.newly.length ? `<div class="card win"><h2>這回攻克了</h2><ul class="todo done">${S.newly.map(t => `<li>${tagLabel(t)}</li>`).join("")}</ul></div>` : ""}
   ${wrongTags.length ? `<div class="card"><h2>加入待攻克</h2><ul class="todo">${wrongTags.map(t => `<li>${tagLabel(t)}</li>`).join("")}</ul></div>` : ""}
   <div class="score">${ring(readiness())}<div class="grow stack" style="gap:6px;min-width:0"><b>已攻克 <span class="num">${mastered().length}</span> / <span class="num">${CORE.length}</span> 個觀念</b><span class="small muted">同一個觀念連續答對 2 次就攻克。</span></div></div>
@@ -293,6 +309,17 @@ function vResult(){
   </div>`;
 }
 function gIcon(){return `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.6 12.2c0-.8-.1-1.5-.2-2.2H12v4.2h6c-.3 1.4-1 2.5-2.2 3.3v2.7h3.5c2.1-1.9 3.3-4.7 3.3-8z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.5-2.7c-1 .7-2.3 1.1-3.8 1.1-2.9 0-5.4-2-6.3-4.6H2.1v2.8C3.9 20.5 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.7 14.1c-.2-.7-.4-1.4-.4-2.1s.1-1.4.4-2.1V7.1H2.1C1.4 8.6 1 10.2 1 12s.4 3.4 1.1 4.9l3.6-2.8z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2C17.5 2.1 15 1 12 1 7.7 1 3.9 3.5 2.1 7.1l3.6 2.8c.9-2.6 3.4-4.5 6.3-4.5z"/></svg>`}
+
+/* ---------- 魔王關入口 ---------- */
+function bossCard(){
+  const rd = readiness(), beat = BOSS.filter(q => P.boss && P.boss[q.id]).length;
+  if (!BOSS.length) return "";
+  if (rd < BOSS_UNLOCK) return `<div class="boss locked"><span class="bic"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2"/></svg></span><div class="grow" style="min-width:0"><b>魔王關</b>
+    <span class="small">準備度達到 <b class="num">${BOSS_UNLOCK}%</b> 解鎖，目前 <span class="num">${rd}%</span></span>
+    <span class="bar"><i style="width:${Math.min(100, rd / BOSS_UNLOCK * 100)}%"></i></span></div></div>`;
+  return `<button class="boss" data-a="start" data-k="boss"><span class="bic">♛</span><div class="grow" style="min-width:0"><b>魔王關</b>
+    <span class="small">${BOSS.length} 題段考範圍的綜合難題，已擊敗 <span class="num">${beat} / ${BOSS.length}</span></span></div><span class="go">挑戰</span></button>`;
+}
 
 /* ---------- 首頁 ---------- */
 function vHome(){
@@ -309,6 +336,7 @@ function vHome(){
     <button class="mode" data-a="start" data-k="weak"><span class="ic">!</span><b>攻弱點</b><span>只練待攻克</span></button>
     <button class="mode" data-a="start" data-k="hard"><span class="ic">↑</span><b>挑戰難題</b><span>段考壓軸等級</span></button>
   </div>
+  ${bossCard()}
   <div class="card"><h2>依單元練習</h2><div class="stack" style="gap:8px">${units}</div>
     <button class="unitrow supp" data-a="start" data-k="supp"><span class="un">+</span><span class="grow" style="min-width:0"><b>補充：對數律</b><span class="small muted">課綱外，不計入準備度</span></span></button></div>
   ${t.length ? `<div class="card"><h2>待攻克</h2><ul class="todo">${t.map(x => `<li>${tagLabel(x)}</li>`).join("")}</ul></div>` : ""}

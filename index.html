@@ -120,6 +120,21 @@ p{margin:0}
 .why button{text-align:left;background:var(--surface);border:1.5px solid transparent;border-radius:12px;padding:10px 14px;font-size:15px}
 .why button.pick{border-color:var(--ink)}
 .why button.key{border-color:var(--good)}
+.why button.idk{background:transparent;border:1.5px dashed var(--line);color:var(--muted)}
+.why button.idk.pick{border-style:solid;border-color:var(--ink);color:var(--ink)}
+.boss{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border-radius:var(--r);padding:14px 16px;background:var(--btn-bg);color:var(--btn-fg)}
+.boss > div > b{display:block;font-size:17px}
+.boss .small{display:block;opacity:.85}
+.boss .bic{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:var(--accent);color:#13294B}
+.boss .go{flex:none;font-weight:700;background:var(--accent);color:#13294B;border-radius:99px;padding:4px 14px}
+.boss.locked{background:var(--surface);color:var(--ink);border:1.5px dashed var(--line)}
+.boss.locked .bic{background:var(--chip);font-size:18px}
+.boss.locked .bar{display:block;margin-top:6px}
+.chip.bosschip{background:var(--btn-bg);color:var(--btn-fg)}
+.cardx{background:var(--surface);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;font-size:15px}
+.cardx p{margin:0}
+.cardx .cex{background:var(--accent-soft);border-radius:8px;padding:8px 10px;overflow-x:auto}
+.cardx .cex b{font-size:13px;margin-right:6px}
 .exp{background:var(--surface);border-radius:12px;padding:14px;font-size:15px;line-height:1.75;display:flex;flex-direction:column;gap:6px}
 .exp b{font-size:13px;letter-spacing:.06em;color:var(--muted);font-weight:500}
 .fast{border-top:1px dashed var(--line);padding-top:8px;margin-top:4px}
@@ -193,6 +208,10 @@ html.test-site #scroller{border-top:4px solid var(--accent)}
 <body>
 <div id="scroller"><div class="app" id="app"></div></div>
 <script>
+/* LINE 內建瀏覽器無法完成 Google 登入：自動改用手機的 Safari / Chrome 開啟 */
+(function(){try{var ua=navigator.userAgent||"";if(/\bLine\//i.test(ua)&&!/openExternalBrowser=1/.test(location.search)){var u=new URL(location.href);u.searchParams.set("openExternalBrowser","1");location.replace(u.toString());}}catch(e){}})();
+</script>
+<script>
 window.MathJax = {
   tex: { inlineMath: [["\\(", "\\)"]] },
   svg: { fontCache: "global" },
@@ -203,13 +222,15 @@ window.MathJax = {
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js?v=20261012"></script>
-<script src="concepts.js?v=20261012"></script>
-<script src="unit01.js?v=20261012"></script>
-<script src="unit02.js?v=20261012"></script>
-<script src="unit03.js?v=20261012"></script>
-<script src="unit04.js?v=20261012"></script>
-<script src="app.js?v=20261012"></script>
+<script src="firebase-config.js?v=20261016"></script>
+<script src="concepts.js?v=20261016"></script>
+<script src="cards.js?v=20261016"></script>
+<script src="boss.js?v=20261016"></script>
+<script src="unit01.js?v=20261016"></script>
+<script src="unit02.js?v=20261016"></script>
+<script src="unit03.js?v=20261016"></script>
+<script src="unit04.js?v=20261016"></script>
+<script src="app.js?v=20261016"></script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" async></script>
 </body>
 </html>
