@@ -2,10 +2,16 @@
    只有 firebase-config.js 裡 TEACHERS 名單上的帳號能使用（Firestore 安全規則也會再檢查一次）。 */
 
 const root = document.getElementById("root");
-const CONCEPTS = window.CONCEPTS;
+const CONCEPTS = {...window.CONCEPTS, ...(window.CONCEPTS2 || {})};
 const SUPP = new Set(window.SUPP_CONCEPTS);
-const CORE = Object.keys(CONCEPTS).filter(t => !SUPP.has(t));
-const BANK = window.UNITS.flatMap(u => (window[u.key] || []));
+const CORE1 = Object.keys(window.CONCEPTS).filter(t => !SUPP.has(t)), CORE2 = Object.keys(window.CONCEPTS2 || {});
+const rangeOf = tag => "SCT".includes(tag[0]) ? "2" : "1";
+const BANK = [...window.UNITS, ...(window.UNITS2 || [])].flatMap(u => (window[u.key] || []));
+/* 依目前選的段考範圍取資料：第二次段考的準備度存在 readiness2、mastered2、todo2 */
+const RD = s => (A.range === "2" ? s.readiness2 : s.readiness) || 0;
+const MS = s => (A.range === "2" ? s.mastered2 : s.mastered) || 0;
+const TD = s => (A.range === "2" ? s.todo2 : (s.todo || []).filter(t => rangeOf(t) === "1")) || [];
+const CORE_ = () => A.range === "2" ? CORE2 : CORE1;
 const BY_ID = Object.fromEntries(BANK.map(q => [q.id, q]));
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"})[c]);
 
@@ -15,7 +21,7 @@ catch (e) { console.error(e); }
 
 const A = {
   user: null, env: /-test(\/|$)/.test(location.pathname) ? "test" : "prod",
-  tab: "class", roster: [], students: [], cls: null, open: null, loading: false, err: "",
+  tab: "class", range: "2", roster: [], students: [], cls: null, open: null, loading: false, err: "",
   imp: null, impMsg: ""
 };
 const set = p => { Object.assign(A, p); render(); };
@@ -45,10 +51,15 @@ function header(){
       <button class="${A.env === "prod" ? "on" : ""}" data-a="env" data-k="prod">正式站資料</button>
       <button class="${A.env === "test" ? "on" : ""}" data-a="env" data-k="test">試用站資料</button>
     </div>
+    <div class="seg" role="group" aria-label="段考範圍">
+      <button class="${A.range === "2" ? "on" : ""}" data-a="range" data-k="2">第二次段考</button>
+      <button class="${A.range === "1" ? "on" : ""}" data-a="range" data-k="1">第一次段考</button>
+    </div>
     <div class="seg" role="tablist">
       <button class="${A.tab === "class" ? "on" : ""}" data-a="tab" data-k="class">班級進度</button>
       <button class="${A.tab === "import" ? "on" : ""}" data-a="tab" data-k="import">匯入名單</button>
     </div>
+    <button class="btn ghost" data-a="export">匯出 CSV</button>
     <button class="btn ghost" data-a="logout">登出</button>
   </header>`;
 }
@@ -61,6 +72,26 @@ function vLogin(msg){
     ${msg ? `<p class="err" style="margin:0">${esc(msg)}</p>` : ""}
     <button class="btn" data-a="login">使用 Google 帳號登入</button>
   </div></div>`;
+}
+
+/* 匯出全部學生（名單 + 練習紀錄）成 CSV，Excel 可直接開啟 */
+function exportCSV(){
+  const bySid = Object.fromEntries((A.students || []).map(x => [x.sid, x]));
+  const head = ["學號","班級","座號","姓名","有登入使用","累計作答次數","做過的不同題數","答錯次數","第一次段考準備度(%)","第一次已攻克觀念數","第一次待攻克觀念數","魔王關擊敗題數","第二次段考準備度(%)","第二次已攻克觀念數","第二次待攻克觀念數","檢查錯誤練習題數","最後使用時間"];
+  const rows = [...(A.roster || [])].sort((x, y) => (x.cls + x.seat).localeCompare(y.cls + y.seat)).map(m => {
+    const s = bySid[m.sid];
+    if (!s) return [m.sid, m.cls, m.seat, m.name, "否", 0, 0, 0, "", "", "", 0, "", "", "", 0, ""];
+    const qs = Object.values(s.qs || {});
+    const t = s.lastActive && s.lastActive.toDate ? s.lastActive.toDate() : null;
+    return [m.sid, m.cls, m.seat, m.name, "是", s.answered || 0, qs.length, qs.reduce((n, q) => n + (q.w || 0), 0),
+      s.readiness || 0, s.mastered || 0, (s.todo || []).filter(t => rangeOf(t) === "1").length, Object.keys(s.boss || {}).length,
+      s.readiness2 || 0, s.mastered2 || 0, (s.todo2 || []).length, Object.keys(s.x || {}).length,
+      t ? `${t.getFullYear()}/${t.getMonth() + 1}/${t.getDate()} ${t.toTimeString().slice(0, 5)}` : ""];
+  });
+  const csv = "\uFEFF" + [head, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\r\n");
+  const url = URL.createObjectURL(new Blob([csv], {type: "text/csv;charset=utf-8"}));
+  const link = document.createElement("a"); link.href = url; link.download = `段考複習系統_${A.env === "prod" ? "正式站" : "試用站"}_使用紀錄.csv`;
+  document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
 const fmtTime = t => {
@@ -80,10 +111,10 @@ function vClass(){
   const bySid = Object.fromEntries(A.students.map(s => [s.sid, s]));
   const members = A.roster.filter(r => r.cls === A.cls).sort((a, b) => String(a.seat).localeCompare(String(b.seat), undefined, {numeric: true}));
   const active = members.map(m => bySid[m.sid]).filter(Boolean);
-  const avg = active.length ? Math.round(active.reduce((s, x) => s + (x.readiness || 0), 0) / active.length) : 0;
+  const avg = active.length ? Math.round(active.reduce((s, x) => s + RD(x), 0) / active.length) : 0;
 
   // 觀念掌握：使用過的學生中，已攻克的比例（由低到高）
-  const conceptRows = CORE.map(t => {
+  const conceptRows = CORE_().map(t => {
     const tried = active.filter(s => s.c && s.c[t]);
     const m = active.filter(s => s.c && s.c[t] && s.c[t].m).length;
     return {t, pct: active.length ? Math.round(m / active.length * 100) : 0, tried: tried.length};
@@ -95,7 +126,7 @@ function vClass(){
     const g = qAgg[id] || (qAgg[id] = {a: 0, w: 0, r: [0, 0, 0, 0]});
     g.a += st.a || 0; g.w += st.w || 0; (st.r || []).forEach((n, i) => g.r[i] += n || 0);
   }
-  const hardQs = Object.entries(qAgg).filter(([id, g]) => g.a >= 3 && BY_ID[id])
+  const hardQs = Object.entries(qAgg).filter(([id, g]) => g.a >= 3 && BY_ID[id] && rangeOf(BY_ID[id].tag) === A.range)
     .map(([id, g]) => ({id, ...g, rate: Math.round(g.w / g.a * 100)})).sort((a, b) => b.rate - a.rate).slice(0, 8);
 
   const rows = members.map(m => {
@@ -103,11 +134,11 @@ function vClass(){
     const open = A.open === m.sid;
     const main = s
       ? `<tr class="stu" data-a="open" data-k="${esc(m.sid)}"><td class="num">${esc(m.seat)}</td><td>${esc(m.name)}</td><td class="num muted">${esc(m.sid)}</td>
-          <td><div style="display:flex;gap:8px;align-items:center"><div class="bar" style="flex:1"><i style="width:${s.readiness || 0}%"></i></div><span class="num">${s.readiness || 0}%</span></div></td>
-          <td class="num">${s.mastered || 0} / ${CORE.length}</td><td class="num">${(s.todo || []).length}</td><td>${fmtTime(s.lastActive)}</td></tr>`
+          <td><div style="display:flex;gap:8px;align-items:center"><div class="bar" style="flex:1"><i style="width:${RD(s)}%"></i></div><span class="num">${RD(s)}%</span></div></td>
+          <td class="num">${MS(s)} / ${CORE_().length}</td><td class="num">${TD(s).length}</td><td>${fmtTime(s.lastActive)}</td></tr>`
       : `<tr><td class="num">${esc(m.seat)}</td><td>${esc(m.name)}</td><td class="num muted">${esc(m.sid)}</td><td colspan="4" class="none">尚未使用</td></tr>`;
-    const detail = open && s ? `<tr class="detail"><td colspan="7"><b>待攻克的觀念：</b>${(s.todo || []).length ? s.todo.map(t => `<span class="pill bad">${t} ${esc(CONCEPTS[t] || "")}</span>`).join("") : "<span class='muted'>沒有</span>"}
-      <br><span class="small muted">累計作答 ${s.answered || 0} 題｜魔王關擊敗 ${Object.keys(s.boss || {}).length} / ${(window.BOSS || []).length} 題</span></td></tr>` : "";
+    const detail = open && s ? `<tr class="detail"><td colspan="7"><b>待攻克的觀念：</b>${TD(s).length ? TD(s).map(t => `<span class="pill bad">${t} ${esc(CONCEPTS[t] || "")}</span>`).join("") : "<span class='muted'>沒有</span>"}
+      <br><span class="small muted">累計作答 ${s.answered || 0} 題｜${A.range === "2" ? `檢查錯誤練過 ${Object.keys(s.x || {}).length} 題` : `魔王關擊敗 ${Object.keys(s.boss || {}).length} / ${(window.BOSS || []).length} 題`}</span></td></tr>` : "";
     return main + detail;
   }).join("");
 
@@ -123,7 +154,7 @@ function vClass(){
   <div class="tiles">
     <div class="tile"><b>${members.length}</b><span>班級人數</span></div>
     <div class="tile"><b>${active.length}</b><span>已開始使用</span></div>
-    <div class="tile"><b>${avg}%</b><span>平均段考準備度（使用者）</span></div>
+    <div class="tile"><b>${avg}%</b><span>平均${A.range === "2" ? "第二次" : "第一次"}段考準備度（使用者）</span></div>
     <div class="tile"><b>${active.reduce((s, x) => s + (x.answered || 0), 0)}</b><span>全班累計作答題數</span></div>
   </div>
   <div class="card"><h2>學生進度</h2><p class="small muted" style="margin:0">點一下學生可以看他的待攻克觀念。</p>
@@ -207,9 +238,11 @@ root.addEventListener("click", async e => {
   if (a === "logout") auth.signOut();
   if (a === "env") { set({env: k, open: null}); loadData(); }
   if (a === "tab") set({tab: k, impMsg: ""});
+  if (a === "range") set({range: k, open: null});
   if (a === "reload") loadData();
   if (a === "open") set({open: A.open === k ? null : k});
   if (a === "doimport") doImport();
+  if (a === "export") exportCSV();
 });
 root.addEventListener("change", async e => {
   const t = e.target;

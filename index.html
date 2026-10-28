@@ -4,41 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>段考複習系統</title>
-<meta name="description" content="高一數學第一次段考複習：60 秒健檢、觀念刷題與錯題攻克。">
-<meta name="theme-color" content="#13294B">
+<meta name="description" content="高一數學段考複習：依題型練習、檢查計算錯誤與觀念攻克。">
+<meta name="theme-color" content="#22332D">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Sora:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap">
 <style>
-/* Layout: one phone-width column, one task per screen; navy ink + chalk-yellow highlight taken from the app icon */
+/* Layout: one phone-width column, one task per screen.
+   風格「黑板」：深綠黑板＋粉筆白、粉筆黃、粉筆粉紅。刻意只做深色版本，晚上看也不刺眼。
+   字型用手機內建黑體（iPhone 蘋方、Android 思源黑體、電腦微軟正黑體）。 */
 :root{
-  --bg:#F3F5F9; --surface:#FFFFFF; --ink:#13294B; --muted:#5D6880; --line:#DDE3EC;
-  --accent:#F5B82E; --accent-soft:#FDF1D3;
-  --btn-bg:#13294B; --btn-fg:#FFFFFF;
-  --good:#1E8556; --good-soft:#E3F3EA; --bad:#C2453A; --bad-soft:#FBE8E6;
-  --chip:#EBEFF5;
-  --f-body:"Noto Sans TC",system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;
-  --f-num:"Sora","Noto Sans TC",system-ui,sans-serif;
-  --r:14px;
+  --bg:#22332D; --surface:#2B3F38; --ink:#F3F1E8; --muted:#AEBDB5; --line:#405850;
+  --accent:#F4D35E; --accent-soft:#3D4A35; --pink:#F28FAD; --on-accent:#1E2B26;
+  --btn-bg:#F4D35E; --btn-fg:#1E2B26;
+  --good:#9BE3B0; --good-soft:#2F4A3C; --bad:#FF9A8B; --bad-soft:#4A3431;
+  --chip:#33493F;
+  --f-body:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Noto Sans CJK TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-num:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang TC","Noto Sans TC",sans-serif;
+  --r:14px; color-scheme:dark;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0D1422; --surface:#162034; --ink:#E7ECF5; --muted:#9AA6BD; --line:#26324A;
-  --accent:#F5C04A; --accent-soft:#3A3220;
-  --btn-bg:#F5C04A; --btn-fg:#13294B;
-  --good:#4CC28A; --good-soft:#163A2B; --bad:#F07A6E; --bad-soft:#3E1F1E;
-  --chip:#1F2B42; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0D1422; --surface:#162034; --ink:#E7ECF5; --muted:#9AA6BD; --line:#26324A;
-  --accent:#F5C04A; --accent-soft:#3A3220;
-  --btn-bg:#F5C04A; --btn-fg:#13294B;
-  --good:#4CC28A; --good-soft:#163A2B; --bad:#F07A6E; --bad-soft:#3E1F1E;
-  --chip:#1F2B42; color-scheme:dark}
 html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
 /* 內容在 #scroller 裡捲動，避免手機往下滑時觸發瀏覽器的「下拉重新整理」 */
 #scroller{position:fixed;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body{background:radial-gradient(120% 70% at 30% 0%,#2A3D36 0%,var(--bg) 60%) fixed,var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
 *{box-sizing:border-box}
 button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
@@ -60,7 +50,7 @@ p{margin:0}
 .grow{flex:1}
 /* welcome */
 .hero{display:flex;flex-direction:column;align-items:flex-start;gap:16px;padding-top:24px}
-.hero img{width:96px;height:96px;border-radius:24px;background:var(--surface);padding:8px;box-shadow:0 6px 24px rgba(19,41,75,.08)}
+.hero img{width:96px;height:96px;border-radius:24px;background:var(--surface);padding:8px;box-shadow:0 6px 24px rgba(0,0,0,.25)}
 .eyebrow{font-size:13px;letter-spacing:.08em;color:var(--muted);font-weight:500}
 .hl{background:linear-gradient(transparent 62%,var(--accent-soft) 62%)}
 .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
@@ -84,16 +74,16 @@ p{margin:0}
 .opt.sel{border-color:var(--ink)}
 .opt.sel .mk{background:var(--ink);border-color:var(--ink);color:var(--surface)}
 .opt.right{border-color:var(--good);background:var(--good-soft)}
-.opt.right .mk{background:var(--good);border-color:var(--good);color:#fff}
+.opt.right .mk{background:var(--good);border-color:var(--good);color:var(--on-accent)}
 .opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
-.opt.wrong .mk{background:var(--bad);border-color:var(--bad);color:#fff}
+.opt.wrong .mk{background:var(--bad);border-color:var(--bad);color:var(--on-accent)}
 .opt[disabled]{cursor:default}
 .tfrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .tfrow .opt{justify-content:center;font-size:20px;min-height:72px}
 .conf{display:flex;flex-direction:column;gap:8px}
 .seg{display:grid;grid-template-columns:repeat(3,1fr);background:var(--chip);border-radius:12px;padding:4px;gap:4px}
 .seg button{border-radius:9px;padding:8px 4px;font-size:15px;color:var(--muted)}
-.seg button.on{background:var(--surface);color:var(--ink);font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.seg button.on{background:var(--surface);color:var(--ink);font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.3)}
 .dock{position:sticky;bottom:0;padding-top:8px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,var(--bg) 30%)}
 /* keypad */
 .numbox{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1.5px solid var(--ink);border-radius:var(--r);padding:12px 16px;font-size:28px;min-height:64px}
@@ -125,8 +115,8 @@ p{margin:0}
 .boss{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border-radius:var(--r);padding:14px 16px;background:var(--btn-bg);color:var(--btn-fg)}
 .boss > div > b{display:block;font-size:17px}
 .boss .small{display:block;opacity:.85}
-.boss .bic{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:var(--accent);color:#13294B}
-.boss .go{flex:none;font-weight:700;background:var(--accent);color:#13294B;border-radius:99px;padding:4px 14px}
+.boss .bic{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:var(--accent);color:var(--on-accent)}
+.boss .go{flex:none;font-weight:700;background:var(--accent);color:var(--on-accent);border-radius:99px;padding:4px 14px}
 .boss.locked{background:var(--surface);color:var(--ink);border:1.5px dashed var(--line)}
 .boss.locked .bic{background:var(--chip);font-size:18px}
 .boss.locked .bar{display:block;margin-top:6px}
@@ -161,7 +151,7 @@ p{margin:0}
 .gbtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:52px;border-radius:var(--r);background:var(--surface);border:1.5px solid var(--line);font-weight:500;font-size:16px}
 .gbtn svg{width:20px;height:20px}
 /* sheet */
-.scrim{position:fixed;inset:0;background:rgba(8,14,26,.45);display:flex;align-items:flex-end;justify-content:center;z-index:10;animation:fade .2s}
+.scrim{position:fixed;inset:0;background:rgba(5,10,8,.6);display:flex;align-items:flex-end;justify-content:center;z-index:10;animation:fade .2s}
 .sheet{background:var(--bg);width:100%;max-width:440px;border-radius:22px 22px 0 0;padding:20px 20px calc(24px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:16px;animation:up .25s ease-out}
 .grab{width:40px;height:4px;border-radius:9px;background:var(--line);align-self:center}
 @keyframes fade{from{opacity:0}}
@@ -196,12 +186,52 @@ mjx-container{font-size:108%!important}
 .card.win{background:var(--good-soft)}
 .todo.done li::before{border-color:var(--good);background:var(--good)}
 .fast{border-top:1px dashed var(--line);padding-top:8px;margin-top:4px}
-.proto.test{background:var(--accent);color:#13294B;font-weight:700}
+.proto.test{background:var(--accent);color:var(--on-accent);font-weight:700}
 html.test-site #scroller{border-top:4px solid var(--accent)}
 .field{width:100%;min-height:52px;border-radius:var(--r);border:1.5px solid var(--line);background:var(--surface);color:var(--ink);padding:0 16px;font:inherit;font-size:20px;letter-spacing:.06em}
 .field:focus{outline:none;border-color:var(--ink)}
 .codebox{text-align:center;font-size:34px;font-weight:700;letter-spacing:.12em;background:var(--accent-soft);border-radius:var(--r);padding:16px;user-select:all}
+/* 段考範圍切換 */
+.seg.rng{grid-template-columns:1fr 1fr}
+.seg.rng button{display:flex;flex-direction:column;align-items:center;gap:0;line-height:1.3;padding:8px 4px}
+.seg.rng small{font-size:12px;color:var(--muted);font-weight:400}
+.modes.two{grid-template-columns:1fr 1fr}
+/* 依題型練習 */
+.cats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.catbtn{display:flex;flex-direction:column;gap:4px;text-align:left;background:var(--bg);border-radius:12px;padding:12px;border-top:3px solid var(--line);min-width:0}
+.catbtn b{font-size:16px}
+.catbtn span{font-size:12px;color:var(--muted);line-height:1.4}
+.catbtn .cnt{margin-top:2px}
+.catbtn.c0{border-top-color:var(--good)}.catbtn.c1{border-top-color:var(--accent)}.catbtn.c2{border-top-color:var(--pink)}.catbtn.c3{border-top-color:#9CC8FF}
+.chip.cat{font-weight:700}
+.chip.cat.c0{color:var(--good)}.chip.cat.c1{color:var(--accent)}.chip.cat.c2{color:var(--pink)}.chip.cat.c3{color:#9CC8FF}.chip.cat.cx{color:var(--bad)}
+/* 練習檢查錯誤 */
+.xbtn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border-radius:var(--r);padding:14px 16px;background:var(--surface);border:1.5px solid var(--pink)}
+.xbtn > div > b{display:block;font-size:17px}
+.xbtn .small{display:block;color:var(--muted)}
+.xbtn .bic{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:15px;font-weight:700;background:var(--pink);color:var(--on-accent)}
+.xbtn .go{flex:none;font-weight:700;color:var(--pink);border:1.5px solid var(--pink);border-radius:99px;padding:3px 12px}
+.lines{display:flex;flex-direction:column;gap:8px}
+.ln{display:flex;align-items:center;gap:12px;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:10px 14px;min-height:52px;font-size:17px;min-width:0}
+.ln .no{flex:none;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:13px;color:var(--muted)}
+.ln .lt{min-width:0;overflow-x:auto}
+.ln.sel{border-color:var(--ink)}
+.ln.sel .no{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.ln.bad{border-color:var(--bad);background:var(--bad-soft)}
+.ln.bad .no{background:var(--bad);border-color:var(--bad);color:var(--on-accent)}
+.ln.bad.good{border-color:var(--good);background:var(--good-soft)}
+.ln.bad.good .no{background:var(--good);border-color:var(--good)}
+.ln.wrong{border-style:dashed;border-color:var(--ink)}
+.ln.allok{background:transparent;border-style:dashed;color:var(--muted);font-size:15px}
+.ln.allok.sel{color:var(--ink);border-style:solid}
+.ln[disabled]{cursor:default}
+.fixl{overflow-x:auto}
+/* 數字鍵盤（4 欄：數字、根號、分數線、正負號） */
+.keys.k4{grid-template-columns:repeat(4,1fr)}
+.keys button.fn{background:var(--chip);font-size:20px}
+.numbox .rt>span{border-top-width:2px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.mail{color:var(--accent);text-decoration:underline;text-underline-offset:3px;word-break:break-all}
 .credit{margin:4px 0 0;text-align:center;font-size:12px;color:var(--muted)}
 </style>
 </head>
@@ -222,15 +252,23 @@ window.MathJax = {
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js?v=20261016"></script>
-<script src="concepts.js?v=20261016"></script>
-<script src="cards.js?v=20261016"></script>
-<script src="boss.js?v=20261016"></script>
-<script src="unit01.js?v=20261016"></script>
-<script src="unit02.js?v=20261016"></script>
-<script src="unit03.js?v=20261016"></script>
-<script src="unit04.js?v=20261016"></script>
-<script src="app.js?v=20261016"></script>
+<script src="firebase-config.js?v=20261028"></script>
+<script src="concepts.js?v=20261028"></script>
+<script src="concepts2.js?v=20261028"></script>
+<script src="fig.js?v=20261028"></script>
+<script src="cards.js?v=20261028"></script>
+<script src="boss.js?v=20261028"></script>
+<script src="unit01.js?v=20261028"></script>
+<script src="unit02.js?v=20261028"></script>
+<script src="unit03.js?v=20261028"></script>
+<script src="unit04.js?v=20261028"></script>
+<script src="unit05.js?v=20261028"></script>
+<script src="unit06.js?v=20261028"></script>
+<script src="unit07.js?v=20261028"></script>
+<script src="catch05.js?v=20261028"></script>
+<script src="catch06.js?v=20261028"></script>
+<script src="catch07.js?v=20261028"></script>
+<script src="app.js?v=20261028"></script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" async></script>
 </body>
 </html>
