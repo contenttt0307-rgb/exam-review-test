@@ -123,7 +123,7 @@ p{margin:0}
 .chip.bosschip{background:var(--btn-bg);color:var(--btn-fg)}
 .cardx{background:var(--surface);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;font-size:15px}
 .cardx p{margin:0}
-.cardx .cex{background:var(--accent-soft);border-radius:8px;padding:8px 10px;overflow-x:auto}
+.cardx .cex{background:var(--accent-soft);border-radius:8px;padding:8px 10px}
 .cardx .cex b{font-size:13px;margin-right:6px}
 .exp{background:var(--surface);border-radius:12px;padding:14px;font-size:15px;line-height:1.75;display:flex;flex-direction:column;gap:6px}
 .exp b{font-size:13px;letter-spacing:.06em;color:var(--muted);font-weight:500}
@@ -214,7 +214,7 @@ html.test-site #scroller{border-top:4px solid var(--accent)}
 .lines{display:flex;flex-direction:column;gap:8px}
 .ln{display:flex;align-items:center;gap:12px;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:10px 14px;min-height:52px;font-size:17px;min-width:0}
 .ln .no{flex:none;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:13px;color:var(--muted)}
-.ln .lt{min-width:0;overflow-x:auto}
+.ln .lt{min-width:0;flex:1;padding:4px 0;line-height:1.5}
 .ln.sel{border-color:var(--ink)}
 .ln.sel .no{background:var(--ink);border-color:var(--ink);color:var(--surface)}
 .ln.bad{border-color:var(--bad);background:var(--bad-soft)}
@@ -225,11 +225,17 @@ html.test-site #scroller{border-top:4px solid var(--accent)}
 .ln.allok{background:transparent;border-style:dashed;color:var(--muted);font-size:15px}
 .ln.allok.sel{color:var(--ink);border-style:solid}
 .ln[disabled]{cursor:default}
-.fixl{overflow-x:auto}
+.fixl{padding:4px 0}
 /* 數字鍵盤（4 欄：數字、根號、分數線、正負號） */
 .keys.k4{grid-template-columns:repeat(4,1fr)}
 .keys button.fn{background:var(--chip);font-size:20px}
 .numbox .rt>span{border-top-width:2px}
+/* 選項、算式行：高度跟著算式（例如分式）長高，一般選項維持同樣的最低高度，不出現捲動箭頭 */
+.opt>span:last-child{min-width:0;overflow-wrap:anywhere;padding:2px 0}
+.opt,.ln{height:auto}
+/* 算式太寬時整條等比例縮小，不出現捲軸（Windows 的捲軸會有上下左右箭頭） */
+.ln mjx-container,.fixl mjx-container,.cex mjx-container,.fb .exp mjx-container,.opt mjx-container{display:inline-block;max-width:100%}
+.ln mjx-container>svg,.fixl mjx-container>svg,.cex mjx-container>svg,.fb .exp mjx-container>svg,.opt mjx-container>svg{max-width:100%;height:auto}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 .mail{color:var(--accent);text-decoration:underline;text-underline-offset:3px;word-break:break-all}
 .credit{margin:4px 0 0;text-align:center;font-size:12px;color:var(--muted)}
@@ -252,23 +258,23 @@ window.MathJax = {
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js?v=20261028"></script>
-<script src="concepts.js?v=20261028"></script>
-<script src="concepts2.js?v=20261028"></script>
-<script src="fig.js?v=20261028"></script>
-<script src="cards.js?v=20261028"></script>
-<script src="boss.js?v=20261028"></script>
-<script src="unit01.js?v=20261028"></script>
-<script src="unit02.js?v=20261028"></script>
-<script src="unit03.js?v=20261028"></script>
-<script src="unit04.js?v=20261028"></script>
-<script src="unit05.js?v=20261028"></script>
-<script src="unit06.js?v=20261028"></script>
-<script src="unit07.js?v=20261028"></script>
-<script src="catch05.js?v=20261028"></script>
-<script src="catch06.js?v=20261028"></script>
-<script src="catch07.js?v=20261028"></script>
-<script src="app.js?v=20261028"></script>
+<script src="firebase-config.js?v=20261030"></script>
+<script src="concepts.js?v=20261030"></script>
+<script src="concepts2.js?v=20261030"></script>
+<script src="fig.js?v=20261030"></script>
+<script src="cards.js?v=20261030"></script>
+<script src="boss.js?v=20261030"></script>
+<script src="unit01.js?v=20261030"></script>
+<script src="unit02.js?v=20261030"></script>
+<script src="unit03.js?v=20261030"></script>
+<script src="unit04.js?v=20261030"></script>
+<script src="unit05.js?v=20261030"></script>
+<script src="unit06.js?v=20261030"></script>
+<script src="unit07.js?v=20261030"></script>
+<script src="catch05.js?v=20261030"></script>
+<script src="catch06.js?v=20261030"></script>
+<script src="catch07.js?v=20261030"></script>
+<script src="app.js?v=20261030"></script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" async></script>
 </body>
 </html>
