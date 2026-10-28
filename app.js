@@ -59,13 +59,13 @@ const RG = () => P.range === "1" ? "1" : "2";   // 目前首頁選的段考範�
 function clearGuest(){ try { localStorage.removeItem(KEY); localStorage.removeItem(OLD_KEY); } catch (_) {} }
 let dirty = false;
 function save(){
-  if (!ME) { try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (_) {} return; }
+  if (!ME || ME.guest) { try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (_) {} return; }
   try { localStorage.setItem(KEY + "-" + ME.uid, JSON.stringify(P)); } catch (_) {}   // 先存在手機，避免斷線遺失
   dirty = true;
 }
 /* 為了節省免費額度：每練完一回、回到首頁、或離開 App 時才上傳一次 */
 function pushCloud(force){
-  if (!ME || !db || (!dirty && !force)) return Promise.resolve();
+  if (!ME || ME.guest || !db || (!dirty && !force)) return Promise.resolve();
   dirty = false;
   return db.doc(`envs/${ENV}/students/${ME.uid}`).set({
     uid: ME.uid, email: ME.email, sid: ME.sid, name: ME.name, cls: ME.cls, seat: ME.seat,
@@ -135,16 +135,28 @@ async function login(){
     else if (!["auth/popup-closed-by-user", "auth/cancelled-popup-request"].includes(e.code)) toast("登入失敗：" + e.code);
   }
 }
+/* 試用站可以免登入試用：進度只存在這台裝置，不會上傳、老師後台也看不到 */
+const GUEST_FLAG = "exam-review-test-guest-mode";
+function enterGuest(){
+  if (!IS_TEST) return;
+  try { localStorage.setItem(GUEST_FLAG, "1"); } catch (_) {}
+  ME = {uid: "guest", guest: true, email: "", sid: "", name: "試用者", cls: "", seat: "", teacher: false};
+  P = loadGuest(); S.err = "";
+  set({screen: S.screen === "quiz" ? "quiz" : "home", loading: false, sheet: null});
+}
+const guestOn = () => { try { return IS_TEST && localStorage.getItem(GUEST_FLAG) === "1"; } catch (_) { return false; } };
 async function logout(){
+  if (ME && ME.guest) { try { localStorage.removeItem(GUEST_FLAG); } catch (_) {} ME = null; set({screen: "welcome", sheet: null}); return; }
   if (ME) await pushCloud();
   if (auth) await auth.signOut();
 }
 if (auth) auth.onAuthStateChanged(async u => {
-  if (!u) { ME = null; P = loadGuest(); set({screen: "welcome", loading: false, sheet: null}); return; }   // 只開放登入使用
+  if (!u) { if (guestOn()) { enterGuest(); return; } ME = null; P = loadGuest(); set({screen: "welcome", loading: false, sheet: null}); return; }   // 正式站只開放登入使用
   const email = (u.email || "").toLowerCase();
   if (!isSchoolEmail(email) && !isTeacherEmail(email)) {
     S.err = `請改用 ${DOMAIN} 的學校帳號登入。`; await auth.signOut(); return;
   }
+  try { localStorage.removeItem(GUEST_FLAG); } catch (_) {}
   const sid = email.split("@")[0];
   ME = {uid: u.uid, email, sid, name: u.displayName || sid, cls: "", seat: "", teacher: isTeacherEmail(email)};
   set({loading: true, sheet: null});
@@ -291,6 +303,8 @@ function vWelcome(){
     ${IN_APP ? `<div class="card" style="gap:8px"><b>請改用 Safari 或 Chrome 開啟</b>
       <p class="small muted" style="margin:0">你現在是在 LINE、IG 等 App 裡面開啟網頁，Google 不允許在這裡登入。請點右上角「⋯」選「用瀏覽器開啟」，或複製網址貼到 Safari／Chrome。</p></div>
       <button class="btn" data-a="copylink">複製網址</button>` : `<button class="gbtn" data-a="login">${gIcon()}使用學校 Google 帳號登入</button>`}
+    ${IS_TEST ? `<button class="btn ghost" data-a="guest">免登入試用</button>
+    <p class="small muted" style="text-align:center;margin:0">免登入試用的進度只存在這台裝置，不會上傳。</p>` : ""}
     <p class="small muted" style="text-align:center;margin:0">本系統只開放任教班級的同學使用<br>若有興趣請洽詢汪陽老師，<a class="mail" href="mailto:0346@sssh.tp.edu.tw">0346@sssh.tp.edu.tw</a></p>
   </div>
   <p class="credit">系統製作：汪陽老師</p>`;
@@ -456,7 +470,7 @@ function bossCard(){
 
 /* ---------- 首頁 ---------- */
 const rangeSwitch = () => `<div class="seg rng" role="tablist" aria-label="段考範圍">${["2", "1"].map(r => `<button role="tab" class="${RG() === r ? "on" : ""}" data-a="range" data-k="${r}" aria-selected="${RG() === r}">${RANGES[r].name}<small class="num">單元 ${RANGES[r].span}</small></button>`).join("")}</div>`;
-const hello = () => ME ? `<div class="hello"><div class="av">${(ME.name || "我").slice(0, 1)}</div><div class="grow"><p>${(ME.cls ? `${ME.cls} 班 ${ME.seat} 號　` : "") + ME.name}</p><p style="font-weight:700">今天想怎麼複習？</p></div></div>` : "";
+const hello = () => ME ? `<div class="hello"><div class="av">${(ME.name || "我").slice(0, 1)}</div><div class="grow"><p>${ME.guest ? "免登入試用（進度只存在這台裝置）" : (ME.cls ? `${ME.cls} 班 ${ME.seat} 號　` : "") + ME.name}</p><p style="font-weight:700">今天想怎麼複習？</p></div></div>` : "";
 const unitRows = r => RANGES[r].units.map(u => { const tags = RANGES[r].core.filter(x => unitOf(x) === u.code), done = tags.filter(x => cs(x).m).length;
   return `<button class="unitrow" data-a="start" data-k="unit" data-u="${u.code}"><span class="un">${u.code}</span><span class="grow" style="min-width:0"><b>${u.name}</b><span class="bar"><i style="width:${tags.length ? done / tags.length * 100 : 0}%"></i></span></span><span class="num small muted">${done}/${tags.length}</span></button>`; }).join("");
 const scoreCard = () => { const t = todo(); return `<div class="score">${ring(readiness())}<div class="grow stack" style="gap:6px;min-width:0"><b>已攻克 <span class="num">${mastered().length}</span> / <span class="num">${RANGES[RG()].core.length}</span> 個觀念</b><span class="small muted">${t.length ? `還有 <span class="num">${t.length}</span> 個待攻克。` : "還沒有待攻克的觀念。"}${ruleText()}</span></div></div>`; };
@@ -479,7 +493,7 @@ function vHome2(){
     <span class="small">找出同學的計算從哪一行開始錯，練習自己檢查。已練 <span class="num">${xdone} / ${CATCH.length}</span></span></div><span class="go">開始</span></button>
   <div class="card"><h2>依單元練習</h2><div class="stack" style="gap:8px">${unitRows("2")}</div></div>
   ${todoCard()}
-  ${ME ? `<button class="link" data-a="logout">登出</button>` : ""}`;
+  ${ME ? `<button class="link" data-a="logout">${ME.guest ? "結束試用" : "登出"}</button>` : ""}`;
 }
 /* 第一次段考：維持原本的配置 */
 function vHome1(){
@@ -499,7 +513,7 @@ function vHome1(){
   <div class="card"><h2>依單元練習</h2><div class="stack" style="gap:8px">${unitRows("1")}</div>
     <button class="unitrow supp" data-a="start" data-k="supp"><span class="un">+</span><span class="grow" style="min-width:0"><b>補充：對數律</b><span class="small muted">課綱外，不計入準備度</span></span></button></div>
   ${todoCard()}
-  ${ME ? `<button class="link" data-a="logout">登出</button>` : ""}`;
+  ${ME ? `<button class="link" data-a="logout">${ME.guest ? "結束試用" : "登出"}</button>` : ""}`;
 }
 
 /* ---------- 底部面板 ---------- */
@@ -558,6 +572,7 @@ app.addEventListener("click", e => {
     case "login": login(); break;
     case "copylink": copyLink(); break;
     case "logout": logout(); break;
+    case "guest": enterGuest(); break;
   }
 });
 restoreSession();
