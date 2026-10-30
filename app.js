@@ -15,7 +15,9 @@ const BANK = UNITS.flatMap(u => u.bank);
 const unitOf = tag => ({R:"01", A:"02", E:"03", L:"04", S:"05", C:"06", T:"07"})[tag[0]];
 const rangeOf = tag => "SCT".includes(tag[0]) ? "2" : "1";
 const CATCH = (window.CATCH_KEYS || []).flatMap(k => (window[k] || []).map(x => ({...x, kind: "catch", unit: unitOf(x.tag)})));
-const BY_ID = Object.fromEntries([...BANK, ...CATCH].map(q => [q.id, q]));
+/* 大考題：依歷屆學測改編，獨立一類，不計入觀念攻克與準備度 */
+const CEEC = (window.BANK_CEEC || []).map(q => ({...q, kind: "ceec", unit: unitOf(q.tag)}));
+const BY_ID = Object.fromEntries([...BANK, ...CATCH, ...CEEC].map(q => [q.id, q]));
 const BOSS = (window.BOSS || []).map(q => ({...q, unit: "BOSS"}));   // 魔王關：不算在題庫題數與準備度裡
 BOSS.forEach(q => { BY_ID[q.id] = q; });
 const BOSS_UNLOCK = 90;
@@ -82,6 +84,12 @@ function record(q, right){
     const st = P.qs[q.id] || {a: 0, w: 0, r: [0, 0, 0, 0]};
     P.qs[q.id] = {...st, a: st.a + 1, w: st.w + (right ? 0 : 1)};
     if (right) P.boss = {...(P.boss || {}), [q.id]: true};
+    save(); return;
+  }
+  if (q.kind === "ceec") {   // 大考題：記錄對錯，不影響觀念攻克
+    P.answered += 1;
+    const st = P.qs[q.id] || {a: 0, w: 0, r: [0, 0, 0]};
+    P.qs[q.id] = {...st, a: st.a + 1, w: st.w + (right ? 0 : 1), l: right ? 1 : 0};
     save(); return;
   }
   if (q.kind === "catch") {   // 抓錯題：只記錄練習次數，不影響觀念攻克
@@ -184,6 +192,29 @@ const TAG_QS = {}; BANK.forEach(q => { if (!q.supp) (TAG_QS[q.tag] = TAG_QS[q.ta
 const okCount = t => (TAG_QS[t] || []).filter(id => P.qs[id] && P.qs[id].l === 1).length;
 const needCount = t => Math.ceil((TAG_QS[t] || []).length * 0.8);
 const practiceRatio = t => Math.min(1, okCount(t) / (needCount(t) || 1));
+/* 第二次段考的五個等級：0 未開始、1 練習中、2 會做、3 熟練、4 穩定 */
+const dayKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const LV = [{name: "未開始", c: "l0"}, {name: "練習中", c: "l1"}, {name: "會做", c: "l2"}, {name: "熟練", c: "l3"}, {name: "穩定", c: "l4"}];
+function level(t){
+  const ch = (P.ch || {})[t];
+  if (ch && ch.stable) return 4;
+  if (cs(t).m) return 3;
+  if (practiceRatio(t) >= 1) return 2;
+  return (TAG_QS[t] || []).some(id => P.qs[id]) ? 1 : 0;
+}
+const levelCounts = tags => { const n = [0, 0, 0, 0, 0]; tags.forEach(t => n[level(t)]++); return n; };
+const levelBar = (tags, h) => { const n = levelCounts(tags), tot = tags.length || 1;
+  return `<div class="lvbar"${h ? ` style="height:${h}px"` : ""} role="img" aria-label="${[4, 3, 2, 1, 0].map(k => LV[k].name + " " + n[k]).join("、")}">${[4, 3, 2, 1, 0].map(k => n[k] ? `<i class="${LV[k].c}" style="width:${n[k] / tot * 100}%"></i>` : "").join("")}</div>`; };
+function nextStep(t){
+  const lv = level(t), done = okCount(t), goal = needCount(t);
+  if (lv === 0) return "下一步：開始練習";
+  if (lv === 1) return `下一步：再答對 ${goal - done} 題（共 ${goal} / ${(TAG_QS[t] || []).length} 題）→ 會做`;
+  const p = examPlan(t);
+  if (lv === 2) return `下一步：通過限時挑戰（${p.n} 題 ${minTxt(p.sec)}，錯 ${p.wrong} 題內）→ 熟練`;
+  if (lv === 3) { const ch = (P.ch || {})[t]; return ch && ch.passDay === dayKey() ? "下一步：明天以後再通過一次限時挑戰 → 穩定" : "下一步：再通過一次限時挑戰 → 穩定"; }
+  return "已經穩定，保持住！";
+}
+const catStat = (tag, cat) => { const qs = BANK.filter(q => q.tag === tag && q.cat === cat); return {ok: qs.filter(q => !need(q)).length, n: qs.length}; };
 const conceptScore = t => { const c = cs(t); if (c.m) return 1; if (rangeOf(t) === "2") return 0.8 * practiceRatio(t); return c.s >= 1 ? 0.5 : 0; };
 const readiness = (r = RG()) => { const core = RANGES[r].core; return core.length ? Math.round(core.reduce((s, t) => s + conceptScore(t), 0) / core.length * 100) : 0; };
 const mastered = (r = RG()) => RANGES[r].core.filter(t => cs(t).m);
@@ -206,8 +237,11 @@ function pick(mode, arg){
   }
   if (mode === "weak") { const t = new Set(todo()); return unmasteredFirst(BANK.filter(q => t.has(q.tag))).slice(0, 8); }
   if (mode === "cat") return unmasteredFirst(rangeQs().filter(q => q.cat === arg)).slice(0, arg === "拉分題" ? 6 : 8);
+  if (mode === "ceec") { const rank = q => !P.qs[q.id] ? 0 : P.qs[q.id].l === 1 ? 2 : 1;   // 沒做過的優先，其次是上次答錯的
+    return shuffle(CEEC).sort((a, b) => rank(a) - rank(b)).slice(0, 5); }
   if (mode === "catch") return shuffle(CATCH).sort((a, b) => ((P.x || {})[a.id] ? 1 : 0) - ((P.x || {})[b.id] ? 1 : 0)).slice(0, 5);   // 沒做過的優先
   if (mode === "hard") return shuffle(rangeQs().filter(q => q.level === "難")).slice(0, 6);
+  if (mode === "tag") return unmasteredFirst(BANK.filter(q => q.tag === arg && !q.supp)).slice(0, 8);
   if (mode === "unit") return unmasteredFirst(rangeQs().filter(q => q.unit === arg)).slice(0, 8);
   if (mode === "supp") return shuffle(BANK.filter(q => q.supp));
   return [];
@@ -367,8 +401,8 @@ function vQuiz(){
       ? `<p class="small">沒關係，先想想這題最常卡在：「${q.reasons[q.key]}」。</p>${card ? `<div class="cardx"><b>觀念小卡｜${CONCEPTS[q.tag]}</b><p>${card.pt}</p><p class="cex"><b>例</b>${card.ex}</p></div>` : ""}`
       : `<p class="small">${S.why === q.key ? "對，關鍵就在這裡。" : "最常見的卡點其實是：「" + q.reasons[q.key] + "」。"}</p>`;
     const c = cs(q.tag);
-    const okMsg = q.boss ? "你擊敗了這一題魔王！" : S.newly.includes(q.tag) ? `攻克了「${CONCEPTS[q.tag]}」！` : c.m ? "這個觀念已經攻克，保持住！"
-      : rangeOf(q.tag) === "2" ? (okCount(q.tag) >= needCount(q.tag) ? `這個觀念已答對 ${okCount(q.tag)} / ${(TAG_QS[q.tag] || []).length} 題，可以去挑戰限時檢測了！` : `這個觀念已答對 ${okCount(q.tag)} / ${(TAG_QS[q.tag] || []).length} 題，答對 ${needCount(q.tag)} 題後建議去挑戰限時檢測。`)
+    const okMsg = q.boss ? "你擊敗了這一題魔王！" : q.kind === "ceec" ? "學測等級的題目也拿下了！大考題不計入觀念攻克。" : S.newly.includes(q.tag) ? `攻克了「${CONCEPTS[q.tag]}」！` : c.m && rangeOf(q.tag) !== "2" ? "這個觀念已經攻克，保持住！"
+      : rangeOf(q.tag) === "2" && q.kind !== "ceec" ? `「${CONCEPTS[q.tag]}」目前等級：${LV[level(q.tag)].name}。${nextStep(q.tag)}` : rangeOf(q.tag) === "2" ? (okCount(q.tag) >= needCount(q.tag) ? `這個觀念已答對 ${okCount(q.tag)} / ${(TAG_QS[q.tag] || []).length} 題，可以去挑戰限時檢測了！` : `這個觀念已答對 ${okCount(q.tag)} / ${(TAG_QS[q.tag] || []).length} 題，答對 ${needCount(q.tag)} 題後建議去挑戰限時檢測。`)
       : "答對一次，這個觀念再答對一次就攻克。";
     fb = `<div class="fb ${right ? "ok" : "no"}">
       <h2>${right ? "答對了" : "這題你還沒掌握"}</h2>
@@ -382,7 +416,7 @@ function vQuiz(){
   <div class="top"><button aria-label="離開" data-a="home" style="font-size:22px;line-height:1">×</button>
     <div class="bar"><i style="width:${(S.i + (S.done ? 1 : 0)) / n * 100}%"></i></div>
     <span class="num small muted">${S.i + 1}/${n}</span></div>
-  <div class="stack" style="gap:8px"><div style="display:flex;gap:6px;flex-wrap:wrap">${q.boss ? '<span class="chip bosschip">魔王關</span>' : `${q.cat ? `<span class="chip cat c${CATS.indexOf(q.cat)}">${q.cat}</span>` : ""}<span class="chip">單元${q.unit}</span><span class="chip">${tagLabel(q.tag)}</span>`}${q.supp ? '<span class="chip supp">補充</span>' : ""}${q.type === "multi" && !/多選/.test(q.stem) ? '<span class="chip supp">多選</span>' : ""}</div>
+  <div class="stack" style="gap:8px"><div style="display:flex;gap:6px;flex-wrap:wrap">${q.boss ? '<span class="chip bosschip">魔王關</span>' : `${q.kind === "ceec" ? '<span class="chip cat c3">大考題</span>' : ""}${q.cat && q.kind !== "ceec" ? `<span class="chip cat c${CATS.indexOf(q.cat)}">${q.cat}</span>` : ""}<span class="chip">單元${q.unit}</span><span class="chip">${tagLabel(q.tag)}</span>`}${q.supp ? '<span class="chip supp">補充</span>' : ""}${q.type === "multi" && !/多選/.test(q.stem) ? '<span class="chip supp">多選</span>' : ""}</div>
   <div class="stem">${q.stem}</div>${q.fig && window.figSVG ? figSVG(q.fig) : ""}</div>
   ${body}
   ${fb}
@@ -471,11 +505,14 @@ function finishExam(){
   const ok = res.filter(r => r.right).length, n = S.list.length, pass = n - ok <= S.ex.allow;
   const tag = S.ex.tag, prev = (P.ch || {})[tag] || {};
   const better = !prev.best || ok > prev.best.ok || (ok === prev.best.ok && used < prev.best.sec);
-  P.ch = {...(P.ch || {}), [tag]: {tries: (prev.tries || 0) + 1, pass: !!prev.pass || pass, best: better ? {ok, n, sec: used} : prev.best, last: Date.now()}};
+  /* 穩定：第一次通過之後，隔天以後再通過一次 */
+  const today = dayKey(), passDay = prev.passDay || (pass ? today : null);
+  const stable = !!prev.stable || (pass && !!prev.passDay && today > prev.passDay);
+  P.ch = {...(P.ch || {}), [tag]: {tries: (prev.tries || 0) + 1, pass: !!prev.pass || pass, passDay, stable, best: better ? {ok, n, sec: used} : prev.best, last: Date.now()}};
   const c = {...cs(tag)}, newly = pass && !c.m;
   if (pass) { c.m = true; c.w = false; } else c.w = true;
   P.c[tag] = c; save();
-  S.exres = {tag, res, ok, n, used, pass, newly, allow: S.ex.allow, sec: S.ex.sec, ids: S.list.map(q => q.id), perms: S.list.map(q => q.perm || null)};
+  S.exres = {tag, res, ok, n, used, pass, newly, nowStable: stable && !prev.stable, allow: S.ex.allow, sec: S.ex.sec, ids: S.list.map(q => q.id), perms: S.list.map(q => q.perm || null)};
   S.ex = null; clearInterval(examTimer); examTimer = null;
   scroller.scrollTo(0, 0);
   set({screen: "examres", sheet: null, sel: [], typed: ""});
@@ -514,7 +551,7 @@ function vExamRes(){
   return `${badge()}
   <div class="card ${R.pass ? "win" : ""}" style="align-items:flex-start">
     <span class="chip cat c1">限時挑戰｜${tagLabel(R.tag)}</span>
-    <h1>${R.pass ? (R.newly ? "通過！攻克這個觀念" : "通過！") : "這次沒通過"}</h1>
+    <h1>${R.pass ? (R.nowStable ? "通過！這個觀念升到「穩定」" : R.newly ? "通過！這個觀念升到「熟練」" : "通過！") : "這次沒通過"}</h1>
     <p>答對 <b class="num">${R.ok} / ${R.n}</b>　用時 <b class="num">${mmss(R.used)}</b>（限時 ${mmss(R.sec)}）</p>
     <p class="small muted">${R.pass ? "在時間內錯 " + R.allow + " 題以內，代表這個觀念你真的會了。" : `通過條件：${mmss(R.sec)} 內最多錯 ${R.allow} 題。看完下面的解析再挑戰一次。`}</p>
   </div>
@@ -586,10 +623,14 @@ function vResult(){
   }
   return `${badge()}
   <h1>這回答對 <span class="num">${right}</span> / <span class="num">${n}</span></h1>
+  ${S.mode === "ceec" ? `<div class="card"><h2>大考題</h2><p class="small" style="margin:0">累計答對 <b class="num">${CEEC.filter(q => P.qs[q.id] && P.qs[q.id].l === 1).length} / ${CEEC.length}</b> 題（看最近一次作答）。大考題不計入觀念攻克，答錯的題目下一回會優先再出。</p></div>` : ""}
   ${S.mode === "boss" ? `<div class="card"><h2>魔王關</h2><p class="small" style="margin:0">累計擊敗 <b class="num">${BOSS.filter(q => P.boss && P.boss[q.id]).length} / ${BOSS.length}</b> 題。答錯的題目可以再來一回，直到全部擊敗。</p></div>` : ""}
   ${S.newly.length ? `<div class="card win"><h2>這回攻克了</h2><ul class="todo done">${S.newly.map(t => `<li>${tagLabel(t)}</li>`).join("")}</ul></div>` : ""}
   ${wrongTags.length ? `<div class="card"><h2>加入待攻克</h2><ul class="todo">${wrongTags.map(t => `<li>${tagLabel(t)}</li>`).join("")}</ul></div>` : ""}
-  <div class="score">${ring(readiness())}<div class="grow stack" style="gap:6px;min-width:0"><b>已攻克 <span class="num">${mastered().length}</span> / <span class="num">${RANGES[RG()].core.length}</span> 個觀念</b><span class="small muted">${ruleText()}</span></div></div>
+  ${RG() === "2" ? `<div class="card lvcard"><h2 class="hrow">觀念練到哪了<span class="small muted num">熟練以上 ${CORE2.filter(t => level(t) >= 3).length} / ${CORE2.length}</span></h2>${levelBar(CORE2, 12)}
+    <div class="legend">${[4, 3, 2, 1, 0].map(k => `<div><b class="num">${levelCounts(CORE2)[k]}</b><span><i class="${LV[k].c}"></i>${LV[k].name}</span></div>`).join("")}</div>
+    ${[...new Set(S.list.map(q => q.tag))].filter(t => rangeOf(t) === "2").slice(0, 4).map(t => `<p class="small" style="margin:0">${tagLabel(t)}：<b>${LV[level(t)].name}</b>　<span class="muted">${nextStep(t)}</span></p>`).join("")}</div>`
+  : `<div class="score">${ring(readiness())}<div class="grow stack" style="gap:6px;min-width:0"><b>已攻克 <span class="num">${mastered().length}</span> / <span class="num">${RANGES[RG()].core.length}</span> 個觀念</b><span class="small muted">${ruleText()}</span></div></div>`}
   <div class="grow"></div>
   <div class="stack">
     <button class="btn" data-a="again">再來一回</button>
@@ -619,24 +660,65 @@ const todoCard = () => { const t = todo(); return t.length ? `<div class="card">
 function vHome(){ return RG() === "1" ? vHome1() : vHome2(); }
 /* 第二次段考：依題型練習＋練習檢查錯誤 */
 function vHome2(){
-  const qs = rangeQs(), xdone = CATCH.filter(x => (P.x || {})[x.id]).length;
-  const cats = CATS.map((c, i) => `<button class="catbtn c${i}" data-a="start" data-k="cat" data-u="${c}"><b>${c}</b><span>${CAT_INFO[c]}</span><span class="num cnt">已答對 ${qs.filter(q => q.cat === c && !need(q)).length} / ${qs.filter(q => q.cat === c).length} 題</span></button>`).join("");
+  const qs = rangeQs(), xdone = CATCH.filter(x => (P.x || {})[x.id]).length, n = levelCounts(CORE2);
+  const pct = c => { const a = qs.filter(q => q.cat === c); return {ok: a.filter(q => !need(q)).length, n: a.length, p: a.length ? Math.round(a.filter(q => !need(q)).length / a.length * 100) : 0}; };
+  const st = Object.fromEntries(CATS.map(c => [c, pct(c)]));
+  /* 建議下一步：先把基本分練到 8 成，再顧必考題與陷阱題中較弱的，必考題到 8 成再碰拉分題 */
+  let tip;
+  if (!P.answered) tip = "先從<b>基本分</b>開始，把課本例題程度的題目拿穩。";
+  else if (st["基本分"].p < 80) tip = `先把<b style="color:var(--good)">基本分</b>練到 8 成（目前 ${st["基本分"].p}%），這是段考最不該丟的分數。`;
+  else if (st["必考題"].p < 80 || st["陷阱題"].p < 80) { const w = st["陷阱題"].p < st["必考題"].p ? "陷阱題" : "必考題";
+    tip = `基本分很穩了。先練<b style="color:${w === "陷阱題" ? "var(--pink)" : "var(--accent)"}">${w}</b>${w === "陷阱題" ? "，這類題段考最容易白白丟分" : "，段考一定會考"}；拉分題等必考題到 8 成再挑戰。`; }
+  else if (st["拉分題"].p < 80) tip = `必考題和陷阱題都到 8 成了，可以挑戰<b style="color:#9CC8FF">拉分題</b>。`;
+  else tip = "四類題目都到 8 成了！去限時挑戰把觀念升到「熟練」吧。";
+  const cats = CATS.map((c, i) => `<button class="catbtn c${i}" data-a="start" data-k="cat" data-u="${c}"><span class="t"><b>${c}</b><span class="pct num">${st[c].p}%</span></span>
+    <span class="bar"><i style="width:${st[c].p}%"></i></span><span class="num cnt">${st[c].ok} / ${st[c].n} 題　${CAT_INFO[c]}</span></button>`).join("");
+  const units = RANGES["2"].units.map(u => { const tags = CORE2.filter(x => unitOf(x) === u.code), hi = tags.filter(x => level(x) >= 3).length;
+    return `<button class="unitrow" data-a="unitlv" data-k="${u.code}"><span class="un">${u.code}</span><span class="grow" style="min-width:0"><b>${u.name}</b>${levelBar(tags)}</span><span class="num small muted">${hi} / ${tags.length}</span></button>`; }).join("");
+  const canChal = CORE2.filter(t => level(t) === 2).length;
   return `${badge()}
   ${hello()}
   ${rangeSwitch()}
-  ${scoreCard()}
+  <div class="card lvcard">
+    <h2 class="hrow">觀念練到哪了<span class="small muted num">共 ${CORE2.length} 個</span></h2>
+    <div class="headline"><b class="num">${n[3] + n[4]}</b><span>個觀念已經熟練以上（通過限時挑戰）</span></div>
+    ${levelBar(CORE2, 12)}
+    <div class="legend">${[4, 3, 2, 1, 0].map(k => `<div><b class="num">${n[k]}</b><span><i class="${LV[k].c}"></i>${LV[k].name}</span></div>`).join("")}</div>
+    <p class="small muted" style="margin:0">會做＝練習答對 8 成；熟練＝通過限時挑戰；穩定＝隔天以後再通過一次。</p>
+  </div>
   <div class="modes two">
     <button class="mode main" data-a="start" data-k="quick"><span class="ic">5</span><b>5 分鐘快刷</b><span>8 題，混合各單元</span></button>
-    <button class="mode" data-a="start" data-k="weak"><span class="ic">!</span><b>攻弱點</b><span>只練待攻克</span></button>
+    <button class="mode" data-a="start" data-k="weak"><span class="ic">!</span><b>攻弱點</b><span>${todo().length ? `只練待攻克的 ${todo().length} 個` : "只練待攻克"}</span></button>
   </div>
-  <div class="card"><h2>依題型練習</h2><div class="cats">${cats}</div></div>
+  <div class="card"><h2 class="hrow">依題型練習<span class="small muted">最近一次答對的比例</span></h2><div class="cats">${cats}</div>
+    <p class="note" style="margin:0"><b>建議下一步：</b>${tip}</p></div>
   <button class="xbtn chalbtn" data-a="chal"><span class="bic">⏱</span><div class="grow" style="min-width:0"><b>限時挑戰</b>
-    <span class="small">每個觀念 10 題 15 分鐘，錯 2 題以內才算攻克。已攻克 <span class="num">${mastered().length} / ${CORE2.length}</span></span></div><span class="go">挑戰</span></button>
+    <span class="small">${canChal ? `「會做」的觀念有 <span class="num">${canChal}</span> 個可以挑戰` : "每個觀念 10 題 15 分鐘，錯 2 題以內升到「熟練」"}</span></div><span class="go">挑戰</span></button>
+  ${CEEC.length ? `<button class="xbtn ceecbtn" data-a="start" data-k="ceec"><span class="bic">學測</span><div class="grow" style="min-width:0"><b>大考題</b>
+    <span class="small">改編自歷屆學測，一回 5 題。已答對 <span class="num">${CEEC.filter(q => P.qs[q.id] && P.qs[q.id].l === 1).length} / ${CEEC.length}</span></span></div><span class="go">開始</span></button>` : ""}
   <button class="xbtn" data-a="start" data-k="catch"><span class="bic">✓?</span><div class="grow" style="min-width:0"><b>練習檢查錯誤</b>
-    <span class="small">找出同學的計算從哪一行開始錯，練習自己檢查。已練 <span class="num">${xdone} / ${CATCH.length}</span></span></div><span class="go">開始</span></button>
-  <div class="card"><h2>依單元練習</h2><div class="stack" style="gap:8px">${unitRows("2")}</div></div>
-  ${todoCard()}
+    <span class="small">找出同學的計算從哪一行開始錯。已練 <span class="num">${xdone} / ${CATCH.length}</span></span></div><span class="go">開始</span></button>
+  <div class="card"><h2>依單元練習</h2><div class="stack" style="gap:8px">${units}</div>
+    <p class="small muted" style="margin:0">右邊數字＝熟練以上的觀念數。點單元可以看每個觀念的等級。</p></div>
   ${ME ? `<button class="link" data-a="logout">${ME.guest ? "結束試用" : "登出"}</button>` : ""}`;
+}
+/* 單元裡的觀念清單：等級、四類題各答對幾題、下一步 */
+function vUnitLv(){
+  const u = RANGES["2"].units.find(x => x.code === S.arg) || RANGES["2"].units[0];
+  const tags = CORE2.filter(x => unitOf(x) === u.code);
+  const rows = tags.map(t => { const lv = level(t);
+    return `<div class="citem lv${lv}">
+      <div class="r1"><span class="nm">${tagLabel(t)}</span><span class="pill ${LV[lv].c}">${LV[lv].name}</span></div>
+      <div class="steps">${[1, 2, 3, 4].map(k => `<i class="${lv >= k ? LV[lv].c : ""}"></i>`).join("")}</div>
+      <div class="r3">${CATS.map((c, i) => { const s = catStat(t, c); return s.n ? `<em class="t${i}">${c} ${s.ok}/${s.n}</em>` : ""; }).join("")}</div>
+      <span class="next">${nextStep(t)}</span>
+      <div class="r4"><button class="mini" data-a="start" data-k="tag" data-u="${t}">練這個觀念</button>${lv >= 2 ? `<button class="mini hot" data-a="exask" data-k="${t}">限時挑戰</button>` : ""}</div>
+    </div>`; }).join("");
+  return `${badge()}
+  <div class="top"><button aria-label="返回" data-a="home" style="font-size:22px;line-height:1">×</button><b class="grow">${u.code} ${u.name}</b><span class="num small muted">熟練以上 ${tags.filter(x => level(x) >= 3).length} / ${tags.length}</span></div>
+  ${levelBar(tags, 10)}
+  <button class="btn" data-a="start" data-k="unit" data-u="${u.code}">練這個單元（8 題）</button>
+  <div class="stack" style="gap:8px">${rows}</div>`;
 }
 /* 第一次段考：維持原本的配置 */
 function vHome1(){
@@ -694,7 +776,7 @@ function vSheet(){
 function render(){
   if (!ME && !S.loading && S.screen !== "welcome") S.screen = "welcome";   // 只開放登入使用
   if (S.loading) { app.innerHTML = `<div class="grow" style="display:grid;place-items:center"><p class="muted">讀取你的進度中…</p></div>`; return; }
-  const v = {welcome: vWelcome, quiz: vQuiz, result: vResult, home: vHome, exam: vExam, examres: vExamRes, chal: vChal}[S.screen]();
+  const v = {welcome: vWelcome, quiz: vQuiz, result: vResult, home: vHome, exam: vExam, examres: vExamRes, chal: vChal, unitlv: vUnitLv}[S.screen]();
   app.innerHTML = v + vSheet();
   if (window.MathJax && MathJax.typesetPromise) {
     try { MathJax.typesetClear && MathJax.typesetClear([app]); } catch (_) {}
@@ -731,6 +813,7 @@ app.addEventListener("click", e => {
       if (S.screen === "exam") { toast("限時挑戰進行中，要離開請先交卷"); break; }
       set({screen: "home", sheet: null}); break;
     case "chal": scroller.scrollTo(0, 0); set({screen: "chal", sheet: null}); break;
+    case "unitlv": scroller.scrollTo(0, 0); set({screen: "unitlv", arg: k, sheet: null}); break;
     case "exask": set({sheet: "exask:" + k}); break;
     case "exstart": startExam(k); break;
     case "exgo": { const n = +k; if (n >= 0 && n < S.list.length) examGo(n); break; }
