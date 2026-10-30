@@ -25,7 +25,6 @@ const CORE = Object.keys(window.CONCEPTS).filter(t => !SUPP.has(t));   // 第一
 const CORE2 = Object.keys(window.CONCEPTS2 || {});                    // 第二次段考的觀念
 const CATS = ["基本分", "必考題", "陷阱題", "拉分題"];
 const CAT_INFO = {"基本分": "課本例題程度，先拿穩", "必考題": "段考一定會考的題型", "陷阱題": "最容易粗心看錯的地方", "拉分題": "段考壓軸等級"};
-const COUNTS = cat => cat === "必考題" || cat === "拉分題";            // 第二次段考：只有這兩類算進攻克與準備度
 const XTYPE = ["正負號", "分數計算", "移項／乘開", "公式或漏步驟"];
 const RANGES = {
   "1": {name: "第一次段考", span: "01–04", units: UNITS1, core: CORE},
@@ -48,10 +47,10 @@ const isSchoolEmail = e => (e || "").toLowerCase().endsWith("@" + DOMAIN);
 const KEY = IS_TEST ? "exam-review-test-guest" : "exam-review-guest";   // 未登入時的暫存
 const OLD_KEY = IS_TEST ? "exam-review-test-v1" : "exam-review-v1";   // 舊版（免登入版）存在手機的進度，登入時一併帶進帳號
 let P = loadGuest();
-function emptyP(){ return {c: {}, answered: 0, qs: {}, boss: {}, x: {}, range: "2"}; }
+function emptyP(){ return {c: {}, answered: 0, qs: {}, boss: {}, x: {}, ch: {}, range: "2"}; }
 function loadGuest(){
   for (const k of [KEY, OLD_KEY]) {
-    try { const v = JSON.parse(localStorage.getItem(k)); if (v && v.c) return {...emptyP(), c: v.c, answered: v.answered || 0, qs: v.qs || {}, boss: v.boss || {}, x: v.x || {}, range: v.range || "2"}; } catch (_) {}
+    try { const v = JSON.parse(localStorage.getItem(k)); if (v && v.c) return {...emptyP(), c: v.c, answered: v.answered || 0, qs: v.qs || {}, boss: v.boss || {}, x: v.x || {}, ch: v.ch || {}, range: v.range || "2"}; } catch (_) {}
   }
   return emptyP();
 }
@@ -69,7 +68,7 @@ function pushCloud(force){
   dirty = false;
   return db.doc(`envs/${ENV}/students/${ME.uid}`).set({
     uid: ME.uid, email: ME.email, sid: ME.sid, name: ME.name, cls: ME.cls, seat: ME.seat,
-    c: P.c, qs: P.qs, answered: P.answered, boss: P.boss || {}, x: P.x || {}, range: RG(),
+    c: P.c, qs: P.qs, answered: P.answered, boss: P.boss || {}, x: P.x || {}, ch: P.ch || {}, range: RG(),
     readiness: readiness("1"), mastered: mastered("1").length, todo: todo("1"),
     readiness2: readiness("2"), mastered2: mastered("2").length, todo2: todo("2"),
     lastActive: firebase.firestore.FieldValue.serverTimestamp()
@@ -91,23 +90,18 @@ function record(q, right){
     P.x = {...(P.x || {}), [q.id]: {a: st.a + 1, w: st.w + (right ? 0 : 1)}};
     save(); return;
   }
+  const st = P.qs[q.id] || {a: 0, w: 0, r: [0, 0, 0]};
+  P.qs[q.id] = {...st, a: st.a + 1, w: st.w + (right ? 0 : 1), l: right ? 1 : 0};   // l：最近一次是否答對
   const c = {...cs(q.tag)};
   if (rangeOf(q.tag) === "2") {
-    /* 第二次段考（較嚴格）：必考題、拉分題連續答對 3 道「不同的題目」才攻克；
-       基本分、陷阱題答對不加分；任何一類答錯都會歸零、列入待攻克。 */
-    if (right) {
-      if (COUNTS(q.cat)) {
-        const h = (c.h || []).filter(id => id !== q.id); h.push(q.id);
-        c.h = h.slice(-3); c.s = c.h.length;
-        if (c.s >= 3 && !c.m) { c.m = true; c.w = false; S.newly.push(q.tag); }
-      }
-    } else { c.s = 0; c.h = []; c.m = false; c.w = true; }
+    /* 第二次段考：平常練習只累積「已答對題數」（最多算到 80%），
+       要通過這個觀念的「限時挑戰」才算攻克（見 finishExam）。 */
+    c.s = okCount(q.tag);
+    if (!right && !c.m) c.w = true;
   }
   else if (right) { c.s += 1; if (c.s >= 2 && !c.m) { c.m = true; c.w = false; S.newly.push(q.tag); } }
   else { c.s = 0; c.m = false; c.w = true; }
   P.c[q.tag] = c; P.answered += 1;
-  const st = P.qs[q.id] || {a: 0, w: 0, r: [0, 0, 0]};
-  P.qs[q.id] = {...st, a: st.a + 1, w: st.w + (right ? 0 : 1)};
   save();
 }
 function recordWhy(q, k){
@@ -119,6 +113,8 @@ function recordWhy(q, k){
 /* ---------- 登入 ---------- */
 /* LINE、IG、FB 等 App 內建的瀏覽器，Google 不允許在裡面登入 */
 const IN_APP = /\bLine\/|Instagram|FBAN|FBAV|FB_IAB|Messenger|MicroMessenger|Threads/i.test(navigator.userAgent || "");
+/* 從手機主畫面的圖示開啟（加入主畫面）時，Google 登入視窗打不開 */
+const STANDALONE = !!(navigator.standalone || (window.matchMedia && matchMedia("(display-mode: standalone)").matches));
 function copyLink(){
   const url = location.origin + location.pathname;
   const done = () => toast("已複製網址，請貼到 Safari 或 Chrome 開啟");
@@ -131,7 +127,9 @@ async function login(){
   p.setCustomParameters({prompt: "select_account"});
   try { await auth.signInWithPopup(p); }
   catch (e) {
-    if (["auth/popup-blocked", "auth/operation-not-supported-in-this-environment"].includes(e.code)) await auth.signInWithRedirect(p);
+    /* 不改用「跳轉登入」：Safari、新版 Chrome 會擋掉跨網站的暫存資料，跳轉回來會出現 missing initial state 的錯誤 */
+    if (e.code === "auth/popup-blocked") toast("登入視窗被擋住了，請允許這個網站開啟彈出式視窗後再試一次");
+    else if (e.code === "auth/operation-not-supported-in-this-environment") toast("這裡無法登入，請用 Safari 或 Chrome 開啟網址");
     else if (!["auth/popup-closed-by-user", "auth/cancelled-popup-request"].includes(e.code)) toast("登入失敗：" + e.code);
   }
 }
@@ -142,7 +140,7 @@ function enterGuest(){
   try { localStorage.setItem(GUEST_FLAG, "1"); } catch (_) {}
   ME = {uid: "guest", guest: true, email: "", sid: "", name: "試用者", cls: "", seat: "", teacher: false};
   P = loadGuest(); S.err = "";
-  set({screen: S.screen === "quiz" ? "quiz" : "home", loading: false, sheet: null});
+  set({screen: (S.screen === "quiz" || S.screen === "exam") ? S.screen : "home", loading: false, sheet: null});
 }
 const guestOn = () => { try { return IS_TEST && localStorage.getItem(GUEST_FLAG) === "1"; } catch (_) { return false; } };
 async function logout(){
@@ -171,26 +169,33 @@ if (auth) auth.onAuthStateChanged(async u => {
     const guest = P;
     P = cloud
       ? {c: {...guest.c, ...(cloud.c || {})}, answered: cloud.answered || 0, qs: {...guest.qs, ...(cloud.qs || {})}, boss: {...(guest.boss || {}), ...(cloud.boss || {})},
-         x: {...(guest.x || {}), ...(cloud.x || {})}, range: cloud.range || guest.range || "2"}
+         x: {...(guest.x || {}), ...(cloud.x || {})}, ch: {...(guest.ch || {}), ...(cloud.ch || {})}, range: cloud.range || guest.range || "2"}
       : {...guest};
     clearGuest();
     await pushCloud(true);
   } catch (e) { console.error(e); toast("讀取雲端進度失敗，請檢查網路後重新整理"); }
   S.err = "";
-  set({loading: false, screen: S.screen === "quiz" ? "quiz" : "home"});
+  set({loading: false, screen: (S.screen === "quiz" || S.screen === "exam") ? S.screen : "home"});
 });
 
 /* 準備度：第一次段考每個觀念答對 1 次算一半、攻克算滿；第二次段考依連續答對的必考題／拉分題數（0～3 題）計分 */
-const conceptScore = t => { const c = cs(t); if (c.m) return 1; return rangeOf(t) === "2" ? Math.min(c.s || 0, 3) / 3 : c.s >= 1 ? 0.5 : 0; };
+/* 第二次段考：每個觀念要有 80% 的題目「最近一次答對」 */
+const TAG_QS = {}; BANK.forEach(q => { if (!q.supp) (TAG_QS[q.tag] = TAG_QS[q.tag] || []).push(q.id); });
+const okCount = t => (TAG_QS[t] || []).filter(id => P.qs[id] && P.qs[id].l === 1).length;
+const needCount = t => Math.ceil((TAG_QS[t] || []).length * 0.8);
+const practiceRatio = t => Math.min(1, okCount(t) / (needCount(t) || 1));
+const conceptScore = t => { const c = cs(t); if (c.m) return 1; if (rangeOf(t) === "2") return 0.8 * practiceRatio(t); return c.s >= 1 ? 0.5 : 0; };
 const readiness = (r = RG()) => { const core = RANGES[r].core; return core.length ? Math.round(core.reduce((s, t) => s + conceptScore(t), 0) / core.length * 100) : 0; };
 const mastered = (r = RG()) => RANGES[r].core.filter(t => cs(t).m);
 const todo = (r = RG()) => Object.keys(CONCEPTS).filter(t => rangeOf(t) === r && cs(t).w && !cs(t).m);
-const ruleText = (r = RG()) => r === "2" ? "必考題、拉分題連續答對 3 道不同的題目才攻克，基本分和陷阱題不計。" : "同一個觀念連續答對 2 次就攻克。";
+const ruleText = (r = RG()) => r === "2" ? "平常練習最多累積到 80%，通過觀念的限時挑戰才算攻克。" : "同一個觀念連續答對 2 次就攻克。";
 
 /* ---------- 出題 ---------- */
 const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const rangeQs = () => BANK.filter(q => !q.supp && rangeOf(q.tag) === RG());
-const unmasteredFirst = qs => shuffle(qs).sort((a, b) => (cs(a.tag).m ? 1 : 0) - (cs(b.tag).m ? 1 : 0));
+/* 出題順序：還沒攻克的觀念優先；第二次段考再優先出「還沒答對過或最近答錯」的題目 */
+const need = q => !(P.qs[q.id] && P.qs[q.id].l === 1);
+const unmasteredFirst = qs => shuffle(qs).sort((a, b) => ((cs(a.tag).m ? 2 : 0) + (need(a) ? 0 : 1)) - ((cs(b.tag).m ? 2 : 0) + (need(b) ? 0 : 1)));
 function pick(mode, arg){
   if (mode === "boss") return BOSS;
   if (mode === "health") return window.HEALTH_CHECK.map(id => BY_ID[id]).filter(Boolean);
@@ -199,11 +204,11 @@ function pick(mode, arg){
     for (const q of unmasteredFirst(rangeQs())) { if (!seen.has(q.tag)) { seen.add(q.tag); out.push(q); } if (out.length === 8) break; }
     return out;
   }
-  if (mode === "weak") { const t = new Set(todo()); return shuffle(BANK.filter(q => t.has(q.tag))).slice(0, 8); }
-  if (mode === "cat") { const qs = rangeQs().filter(q => q.cat === arg); return (COUNTS(arg) ? unmasteredFirst(qs) : shuffle(qs)).slice(0, arg === "拉分題" ? 6 : 8); }
+  if (mode === "weak") { const t = new Set(todo()); return unmasteredFirst(BANK.filter(q => t.has(q.tag))).slice(0, 8); }
+  if (mode === "cat") return unmasteredFirst(rangeQs().filter(q => q.cat === arg)).slice(0, arg === "拉分題" ? 6 : 8);
   if (mode === "catch") return shuffle(CATCH).sort((a, b) => ((P.x || {})[a.id] ? 1 : 0) - ((P.x || {})[b.id] ? 1 : 0)).slice(0, 5);   // 沒做過的優先
   if (mode === "hard") return shuffle(rangeQs().filter(q => q.level === "難")).slice(0, 6);
-  if (mode === "unit") return shuffle(rangeQs().filter(q => q.unit === arg)).slice(0, 8);
+  if (mode === "unit") return unmasteredFirst(rangeQs().filter(q => q.unit === arg)).slice(0, 8);
   if (mode === "supp") return shuffle(BANK.filter(q => q.supp));
   return [];
 }
@@ -252,7 +257,8 @@ function shuffledQ(q){
 }
 function persistSession(){
   try {
-    if (S.screen === "quiz") localStorage.setItem(SKEY, JSON.stringify({t: Date.now(), mode: S.mode, arg: S.arg, ids: S.list.map(q => q.id), perms: S.list.map(q => q.perm || null), i: S.i, sel: S.sel, typed: S.typed, done: S.done, why: S.why, log: S.log, newly: S.newly}));
+    if (S.screen === "exam" && S.ex) localStorage.setItem(SKEY, JSON.stringify({t: Date.now(), mode: "exam", ex: {...S.ex, ans: S.ex.ans.map((a, k) => k === S.i ? {sel: S.sel, typed: S.typed} : a)}, ids: S.list.map(q => q.id), perms: S.list.map(q => q.perm || null), i: S.i}));
+    else if (S.screen === "quiz") localStorage.setItem(SKEY, JSON.stringify({t: Date.now(), mode: S.mode, arg: S.arg, ids: S.list.map(q => q.id), perms: S.list.map(q => q.perm || null), i: S.i, sel: S.sel, typed: S.typed, done: S.done, why: S.why, log: S.log, newly: S.newly}));
     else localStorage.removeItem(SKEY);
   } catch (_) {}
 }
@@ -262,10 +268,16 @@ function restoreSession(){
     if (!v || Date.now() - v.t > 3 * 3600e3) return;
     const list = v.ids.map((id, k) => BY_ID[id] && withPerm(BY_ID[id], v.perms && v.perms[k])).filter(Boolean);
     if (!list.length || list.length !== v.ids.length) return;
+    if (v.mode === "exam" && v.ex) {   // 限時挑戰：時間照算，回來時如果已經超時就直接交卷
+      const a = v.ex.ans[v.i] || {sel: [], typed: ""};
+      Object.assign(S, {screen: "exam", mode: "exam", ex: v.ex, list, i: v.i, sel: a.sel, typed: a.typed, done: false});
+      setTimeout(tickExam, 0);
+      return;
+    }
     Object.assign(S, {screen: "quiz", mode: v.mode, arg: v.arg || null, list, i: v.i, sel: v.sel, typed: v.typed, done: v.done, why: v.why, log: v.log, newly: v.newly});
   } catch (_) {}
 }
-const set = p => { Object.assign(S, p); render(); persistSession(); if (p.screen && p.screen !== "quiz") pushCloud(); };
+const set = p => { Object.assign(S, p); render(); persistSession(); if (p.screen && p.screen !== "quiz" && p.screen !== "exam") pushCloud(); };
 const badge = () => IS_TEST ? `<span class="proto test">試用站　這裡的改動不會影響學生</span>` : "";
 const tagLabel = t => `${t}　${CONCEPTS[t] || ""}`;
 
@@ -300,6 +312,9 @@ function vWelcome(){
   ${S.err ? `<p class="note" role="alert">${S.err}</p>` : ""}
   <div class="grow"></div>
   <div class="stack">
+    ${STANDALONE && !IN_APP ? `<div class="card" style="gap:8px"><b>從主畫面圖示開啟可能無法登入</b>
+      <p class="small muted" style="margin:0">如果按了登入沒有反應或出現錯誤，請複製網址，改用 Safari 或 Chrome 開啟登入。</p>
+      <button class="btn ghost" data-a="copylink">複製網址</button></div>` : ""}
     ${IN_APP ? `<div class="card" style="gap:8px"><b>請改用 Safari 或 Chrome 開啟</b>
       <p class="small muted" style="margin:0">你現在是在 LINE、IG 等 App 裡面開啟網頁，Google 不允許在這裡登入。請點右上角「⋯」選「用瀏覽器開啟」，或複製網址貼到 Safari／Chrome。</p></div>
       <button class="btn" data-a="copylink">複製網址</button>` : `<button class="gbtn" data-a="login">${gIcon()}使用學校 Google 帳號登入</button>`}
@@ -318,9 +333,7 @@ function optHTML(q, k, txt){
   const mk = q.type === "tf" ? "" : `<span class="mk">${q.type === "multi" && S.sel.includes(k) && !S.done ? "✓" : "ABCDE"[k]}</span>`;
   return `<button class="${c}" data-a="pick" data-k="${k}" ${S.done ? "disabled" : ""}>${mk}<span>${txt}</span></button>`;
 }
-function vQuiz(){
-  const q = S.list[S.i], right = S.done && isRight(q), n = S.list.length;
-  if (q.kind === "catch") return vCatch(q, right, n);
+function answerBody(q, right){
   let body = "";
   if (q.type === "tf") body = `<div class="tfrow">${q.opts.map((t, k) => optHTML(q, k, t)).join("")}</div>`;
   else if (q.type === "num") {
@@ -335,6 +348,13 @@ function vQuiz(){
   }
   else body = `<div class="opts ${q.type === "multi" ? "multi" : ""}">${q.opts.map((t, k) => optHTML(q, k, t)).join("")}</div>`;
 
+  return body;
+}
+function vQuiz(){
+  const q = S.list[S.i], right = S.done && isRight(q), n = S.list.length;
+  if (q.kind === "catch") return vCatch(q, right, n);
+  const body = answerBody(q, right);
+
   const answered = q.type === "num" ? S.typed.length > 0 : S.sel.length > 0;
   let fb = "";
   if (S.done) {
@@ -348,7 +368,7 @@ function vQuiz(){
       : `<p class="small">${S.why === q.key ? "對，關鍵就在這裡。" : "最常見的卡點其實是：「" + q.reasons[q.key] + "」。"}</p>`;
     const c = cs(q.tag);
     const okMsg = q.boss ? "你擊敗了這一題魔王！" : S.newly.includes(q.tag) ? `攻克了「${CONCEPTS[q.tag]}」！` : c.m ? "這個觀念已經攻克，保持住！"
-      : rangeOf(q.tag) === "2" ? (COUNTS(q.cat) ? `再答對 ${3 - (c.s || 0)} 道不同的必考題或拉分題，就能攻克這個觀念。` : "基本分和陷阱題不計入攻克，但練熟它，段考就不會白白丟分。")
+      : rangeOf(q.tag) === "2" ? (okCount(q.tag) >= needCount(q.tag) ? `這個觀念已答對 ${okCount(q.tag)} / ${(TAG_QS[q.tag] || []).length} 題，可以去挑戰限時檢測了！` : `這個觀念已答對 ${okCount(q.tag)} / ${(TAG_QS[q.tag] || []).length} 題，答對 ${needCount(q.tag)} 題後建議去挑戰限時檢測。`)
       : "答對一次，這個觀念再答對一次就攻克。";
     fb = `<div class="fb ${right ? "ok" : "no"}">
       <h2>${right ? "答對了" : "這題你還沒掌握"}</h2>
@@ -362,7 +382,7 @@ function vQuiz(){
   <div class="top"><button aria-label="離開" data-a="home" style="font-size:22px;line-height:1">×</button>
     <div class="bar"><i style="width:${(S.i + (S.done ? 1 : 0)) / n * 100}%"></i></div>
     <span class="num small muted">${S.i + 1}/${n}</span></div>
-  <div class="stack" style="gap:8px"><div style="display:flex;gap:6px;flex-wrap:wrap">${q.boss ? '<span class="chip bosschip">魔王關</span>' : `${q.cat ? `<span class="chip cat c${CATS.indexOf(q.cat)}">${q.cat}</span>` : ""}<span class="chip">單元${q.unit}</span><span class="chip">${tagLabel(q.tag)}</span>`}${q.supp ? '<span class="chip supp">補充</span>' : ""}${q.type === "multi" && !/class="k"/.test(q.stem) ? '<span class="chip supp">多選</span>' : ""}</div>
+  <div class="stack" style="gap:8px"><div style="display:flex;gap:6px;flex-wrap:wrap">${q.boss ? '<span class="chip bosschip">魔王關</span>' : `${q.cat ? `<span class="chip cat c${CATS.indexOf(q.cat)}">${q.cat}</span>` : ""}<span class="chip">單元${q.unit}</span><span class="chip">${tagLabel(q.tag)}</span>`}${q.supp ? '<span class="chip supp">補充</span>' : ""}${q.type === "multi" && !/多選/.test(q.stem) ? '<span class="chip supp">多選</span>' : ""}</div>
   <div class="stem">${q.stem}</div>${q.fig && window.figSVG ? figSVG(q.fig) : ""}</div>
   ${body}
   ${fb}
@@ -401,6 +421,127 @@ function vCatch(q, right, n){
   <div class="dock">${S.done
     ? `<button class="btn" data-a="next">${S.i === n - 1 ? "看結果" : "下一題"}</button>`
     : `<button class="btn" data-a="submit" ${S.sel.length ? "" : "disabled"}>送出</button>`}</div>`;
+}
+
+/* ---------- 限時挑戰（觀念完成度檢測） ----------
+   每個觀念一回：最多 10 題，每題 1.5 分鐘（10 題 15 分鐘），錯題不超過 20% 就通過＝攻克這個觀念。
+   作答中不顯示對錯、可以跳題回頭改，按「交卷」或時間到才批改。 */
+const examPlan = tag => { const n = Math.min(10, (TAG_QS[tag] || []).length); return {n, sec: n * 90, wrong: Math.floor(n * 0.2)}; };
+const minTxt = s => { const m = s / 60; return Number.isInteger(m) ? `${m} 分鐘` : `${Math.floor(m)} 分半`; };
+const mmss = s => `${Math.floor(s / 60)}:${String(Math.max(0, Math.floor(s % 60))).padStart(2, "0")}`;
+let examTimer = null;
+function examLeft(){ return S.ex ? Math.ceil(S.ex.sec - (Date.now() - S.ex.t0) / 1000) : 0; }
+function tickExam(){
+  clearInterval(examTimer); examTimer = null;
+  if (S.screen !== "exam" || !S.ex) return;
+  examTimer = setInterval(() => {
+    if (S.screen !== "exam" || !S.ex) { clearInterval(examTimer); examTimer = null; return; }
+    const left = examLeft(), el = document.getElementById("clock");
+    if (el) { el.textContent = mmss(left); el.classList.toggle("low", left <= 60); }
+    if (left <= 0 && ME && !S.loading) { clearInterval(examTimer); examTimer = null; toast("時間到，自動交卷"); finishExam(); }
+  }, 500);
+}
+function startExam(tag){
+  if (!ME) { set({screen: "welcome"}); return; }
+  const plan = examPlan(tag);
+  const list = shuffle(BANK.filter(q => q.tag === tag && !q.supp)).slice(0, plan.n).map(shuffledQ);
+  if (!list.length) { toast("這個觀念還沒有題目"); return; }
+  scroller.scrollTo(0, 0);
+  S.ex = {tag, sec: plan.sec, allow: plan.wrong, t0: Date.now(), ans: list.map(() => ({sel: [], typed: ""}))};
+  set({screen: "exam", mode: "exam", list, i: 0, sel: [], typed: "", done: false, sheet: null});
+  tickExam();
+}
+function examGo(i){
+  S.ex.ans[S.i] = {sel: [...S.sel], typed: S.typed};
+  const a = S.ex.ans[i] || {sel: [], typed: ""};
+  scroller.scrollTo(0, 0);
+  set({i, sel: [...a.sel], typed: a.typed, sheet: null});
+}
+function finishExam(){
+  if (!S.ex) return;
+  S.ex.ans[S.i] = {sel: [...S.sel], typed: S.typed};
+  const used = Math.min(S.ex.sec, Math.round((Date.now() - S.ex.t0) / 1000));
+  const res = S.list.map((q, k) => {
+    const a = S.ex.ans[k]; const blank = q.type === "num" ? !a.typed : !a.sel.length;
+    S.sel = a.sel; S.typed = a.typed;
+    const right = !blank && isRight(q);
+    record(q, right);
+    return {right, blank, sel: a.sel, typed: a.typed};
+  });
+  const ok = res.filter(r => r.right).length, n = S.list.length, pass = n - ok <= S.ex.allow;
+  const tag = S.ex.tag, prev = (P.ch || {})[tag] || {};
+  const better = !prev.best || ok > prev.best.ok || (ok === prev.best.ok && used < prev.best.sec);
+  P.ch = {...(P.ch || {}), [tag]: {tries: (prev.tries || 0) + 1, pass: !!prev.pass || pass, best: better ? {ok, n, sec: used} : prev.best, last: Date.now()}};
+  const c = {...cs(tag)}, newly = pass && !c.m;
+  if (pass) { c.m = true; c.w = false; } else c.w = true;
+  P.c[tag] = c; save();
+  S.exres = {tag, res, ok, n, used, pass, newly, allow: S.ex.allow, sec: S.ex.sec, ids: S.list.map(q => q.id), perms: S.list.map(q => q.perm || null)};
+  S.ex = null; clearInterval(examTimer); examTimer = null;
+  scroller.scrollTo(0, 0);
+  set({screen: "examres", sheet: null, sel: [], typed: ""});
+}
+function vExam(){
+  const q = S.list[S.i], n = S.list.length, left = examLeft();
+  const done = k => { const a = k === S.i ? {sel: S.sel, typed: S.typed} : S.ex.ans[k]; return S.list[k].type === "num" ? !!a.typed : a.sel.length > 0; };
+  const dots = S.list.map((_, k) => `<button class="qdot${k === S.i ? " cur" : ""}${done(k) ? " ans" : ""}" data-a="exgo" data-k="${k}" aria-label="第 ${k + 1} 題">${k + 1}</button>`).join("");
+  return `
+  <div class="top"><span class="chip cat c1">限時挑戰</span><span class="grow small muted" style="min-width:0">${tagLabel(S.ex.tag)}</span>
+    <span class="clock num${left <= 60 ? " low" : ""}" id="clock">${mmss(left)}</span></div>
+  <div class="qdots">${dots}</div>
+  <div class="stack" style="gap:8px"><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="chip num">第 ${S.i + 1} / ${n} 題</span>${q.type === "multi" && !/多選/.test(q.stem) ? '<span class="chip supp">多選</span>' : ""}</div>
+    <div class="stem">${q.stem}</div>${q.fig && window.figSVG ? figSVG(q.fig) : ""}</div>
+  ${answerBody(q, false)}
+  <div class="grow"></div>
+  <div class="dock exdock">
+    <button class="btn ghost" data-a="exgo" data-k="${S.i - 1}" ${S.i === 0 ? "disabled" : ""}>上一題</button>
+    ${S.i < n - 1 ? `<button class="btn ghost" data-a="exgo" data-k="${S.i + 1}">下一題</button>` : ""}
+    <button class="btn" data-a="exsubmit">交卷</button></div>`;
+}
+function ansText(q, r){
+  if (q.type === "num") return r.typed ? fmtNum(r.typed) : "（沒作答）";
+  if (!r.sel.length) return "（沒作答）";
+  return r.sel.map(k => q.type === "tf" ? q.opts[k] : "ABCDE"[k]).join("、");
+}
+function vExamRes(){
+  const R = S.exres, list = R.ids.map((id, k) => withPerm(BY_ID[id], R.perms[k]));
+  const rows = list.map((q, k) => { const r = R.res[k];
+    const right = q.type === "num" ? fmtNum(q.ans) : q.ans.map(a => q.type === "tf" ? q.opts[a] : "ABCDE"[a]).join("、");
+    return `<details class="rv ${r.right ? "ok" : "no"}"><summary><span class="mk">${r.right ? "✓" : "✕"}</span><span class="grow">第 ${k + 1} 題${r.blank ? "（沒作答）" : ""}</span><span class="small muted">看解析</span></summary>
+      <div class="stem small-stem">${q.stem}</div>${q.fig && window.figSVG ? figSVG(q.fig) : ""}
+      ${q.opts && q.type !== "tf" ? `<ol class="ropts">${q.opts.map((o, i) => `<li class="${q.ans.includes(i) ? "ok" : r.sel.includes(i) ? "no" : ""}"><b>${"ABCDE"[i]}</b><span>${o}</span></li>`).join("")}</ol>` : ""}
+      <p class="small">你的答案：<b>${ansText(q, r)}</b>　正確答案：<b class="num">${right}</b></p>
+      <div class="exp"><b>解析</b><div>${q.exp}</div></div></details>`; }).join("");
+  return `${badge()}
+  <div class="card ${R.pass ? "win" : ""}" style="align-items:flex-start">
+    <span class="chip cat c1">限時挑戰｜${tagLabel(R.tag)}</span>
+    <h1>${R.pass ? (R.newly ? "通過！攻克這個觀念" : "通過！") : "這次沒通過"}</h1>
+    <p>答對 <b class="num">${R.ok} / ${R.n}</b>　用時 <b class="num">${mmss(R.used)}</b>（限時 ${mmss(R.sec)}）</p>
+    <p class="small muted">${R.pass ? "在時間內錯 " + R.allow + " 題以內，代表這個觀念你真的會了。" : `通過條件：${mmss(R.sec)} 內最多錯 ${R.allow} 題。看完下面的解析再挑戰一次。`}</p>
+  </div>
+  <div class="stack" style="gap:8px">${rows}</div>
+  <div class="grow"></div>
+  <div class="stack">
+    <button class="btn" data-a="exstart" data-k="${R.tag}">${R.pass ? "再挑戰一次（刷新最佳紀錄）" : "再挑戰一次"}</button>
+    <button class="btn ghost" data-a="chal">回到挑戰列表</button>
+  </div>`;
+}
+/* 挑戰列表：依單元列出每個觀念的練習進度與挑戰紀錄 */
+function vChal(){
+  const units = RANGES["2"].units.map(u => {
+    const rows = CORE2.filter(t => unitOf(t) === u.code).map(t => {
+      const ch = (P.ch || {})[t], plan = examPlan(t), pr = Math.round(practiceRatio(t) * 100), m = cs(t).m;
+      const stat = m ? `<span class="pass">✓ 已攻克</span>${ch && ch.best ? `<span class="small muted num">最佳 ${ch.best.ok}/${ch.best.n}・${mmss(ch.best.sec)}</span>` : ""}`
+        : ch && ch.best ? `<span class="small muted num">最佳 ${ch.best.ok}/${ch.best.n}・挑戰 ${ch.tries} 次</span>` : `<span class="small muted">練習進度 ${pr}%${pr >= 100 ? "，可以挑戰了" : ""}</span>`;
+      return `<button class="chrow${m ? " done" : ""}" data-a="exask" data-k="${t}"><span class="grow" style="min-width:0"><b>${tagLabel(t)}</b>${stat}<span class="bar"><i style="width:${m ? 100 : pr * 0.8}%"></i></span></span><span class="go num">${plan.n} 題<br>${minTxt(plan.sec)}</span></button>`;
+    }).join("");
+    return `<div class="card"><h2>${u.code} ${u.name}</h2><div class="stack" style="gap:8px">${rows}</div></div>`;
+  }).join("");
+  const n = CORE2.filter(t => cs(t).m).length;
+  return `${badge()}
+  <div class="top"><button aria-label="返回" data-a="home" style="font-size:22px;line-height:1">×</button><b class="grow">限時挑戰</b><span class="num small muted">已攻克 ${n} / ${CORE2.length}</span></div>
+  <div class="card"><p class="small" style="margin:0">每個觀念一回，最多 10 題、每題 1.5 分鐘（10 題共 15 分鐘），<b>錯題不超過 2 成</b>就通過，這個觀念才算攻克。作答中不會顯示對錯，可以跳題回頭改，時間到會自動交卷。</p>
+    <p class="small muted" style="margin:0">建議先把觀念練到「練習進度 100%」（答對 8 成題目）再來挑戰。</p></div>
+  ${units}`;
 }
 
 /* ---------- 結果 ---------- */
@@ -479,7 +620,7 @@ function vHome(){ return RG() === "1" ? vHome1() : vHome2(); }
 /* 第二次段考：依題型練習＋練習檢查錯誤 */
 function vHome2(){
   const qs = rangeQs(), xdone = CATCH.filter(x => (P.x || {})[x.id]).length;
-  const cats = CATS.map((c, i) => `<button class="catbtn c${i}" data-a="start" data-k="cat" data-u="${c}"><b>${c}</b><span>${CAT_INFO[c]}</span><span class="num cnt">${qs.filter(q => q.cat === c).length} 題${COUNTS(c) ? "・計入準備度" : ""}</span></button>`).join("");
+  const cats = CATS.map((c, i) => `<button class="catbtn c${i}" data-a="start" data-k="cat" data-u="${c}"><b>${c}</b><span>${CAT_INFO[c]}</span><span class="num cnt">已答對 ${qs.filter(q => q.cat === c && !need(q)).length} / ${qs.filter(q => q.cat === c).length} 題</span></button>`).join("");
   return `${badge()}
   ${hello()}
   ${rangeSwitch()}
@@ -489,6 +630,8 @@ function vHome2(){
     <button class="mode" data-a="start" data-k="weak"><span class="ic">!</span><b>攻弱點</b><span>只練待攻克</span></button>
   </div>
   <div class="card"><h2>依題型練習</h2><div class="cats">${cats}</div></div>
+  <button class="xbtn chalbtn" data-a="chal"><span class="bic">⏱</span><div class="grow" style="min-width:0"><b>限時挑戰</b>
+    <span class="small">每個觀念 10 題 15 分鐘，錯 2 題以內才算攻克。已攻克 <span class="num">${mastered().length} / ${CORE2.length}</span></span></div><span class="go">挑戰</span></button>
   <button class="xbtn" data-a="start" data-k="catch"><span class="bic">✓?</span><div class="grow" style="min-width:0"><b>練習檢查錯誤</b>
     <span class="small">找出同學的計算從哪一行開始錯，練習自己檢查。已練 <span class="num">${xdone} / ${CATCH.length}</span></span></div><span class="go">開始</span></button>
   <div class="card"><h2>依單元練習</h2><div class="stack" style="gap:8px">${unitRows("2")}</div></div>
@@ -526,6 +669,24 @@ function vSheet(){
       <p class="small muted" style="margin:0">你現在是在 LINE、IG 等 App 裡面開啟網頁，Google 不允許在這裡登入。請點右上角「⋯」或分享按鈕，選「用瀏覽器開啟」；或複製網址貼到 Safari / Chrome。</p></div>
     <button class="btn" data-a="copylink">複製網址</button>` : `<button class="gbtn" data-a="login">${gIcon()}使用 Google 帳號登入</button>`}
   </div></div>`;
+  if (S.sheet && S.sheet.startsWith("exask:")) { const tg = S.sheet.slice(6), pl = examPlan(tg), ch = (P.ch || {})[tg];
+    return `<div class="scrim" data-a="close"><div class="sheet" role="dialog" aria-label="開始限時挑戰">
+    <span class="grab"></span>
+    <b>限時挑戰｜${tagLabel(tg)}</b>
+    <div class="facts"><div class="fact"><b>${pl.n}</b><span>題</span></div><div class="fact"><b>${mmss(pl.sec)}</b><span>限時</span></div><div class="fact"><b>${pl.wrong}</b><span>最多可錯</span></div></div>
+    <p class="small muted">開始後計時不會暫停；作答中不顯示對錯，可以跳題回頭改。按「交卷」或時間到就批改。${ch && ch.best ? `<br>你的最佳紀錄：${ch.best.ok}/${ch.best.n}，${mmss(ch.best.sec)}` : ""}</p>
+    ${practiceRatio(tg) < 1 && !cs(tg).m ? `<p class="note">這個觀念的練習進度還沒到 100%，建議先多練幾題再挑戰。</p>` : ""}
+    <button class="btn" data-a="exstart" data-k="${tg}">開始計時</button>
+    <button class="btn ghost" data-a="close">先不要</button>
+  </div></div>`; }
+  if (S.sheet === "exsubmit") { const left = S.list.filter((q, k) => { const a = k === S.i ? {sel: S.sel, typed: S.typed} : S.ex.ans[k]; return q.type === "num" ? !a.typed : !a.sel.length; }).length;
+    return `<div class="scrim" data-a="close"><div class="sheet" role="dialog" aria-label="交卷">
+    <span class="grab"></span>
+    <b>確定要交卷嗎？</b>
+    <p class="small muted">${left ? `還有 <b class="num">${left}</b> 題沒作答，沒作答算錯。` : "全部都作答了。"}剩下時間 ${mmss(examLeft())}。</p>
+    <button class="btn" data-a="exfinish">交卷</button>
+    <button class="btn ghost" data-a="close">回去檢查</button>
+  </div></div>`; }
   return "";
 }
 
@@ -533,7 +694,7 @@ function vSheet(){
 function render(){
   if (!ME && !S.loading && S.screen !== "welcome") S.screen = "welcome";   // 只開放登入使用
   if (S.loading) { app.innerHTML = `<div class="grow" style="display:grid;place-items:center"><p class="muted">讀取你的進度中…</p></div>`; return; }
-  const v = {welcome: vWelcome, quiz: vQuiz, result: vResult, home: vHome}[S.screen]();
+  const v = {welcome: vWelcome, quiz: vQuiz, result: vResult, home: vHome, exam: vExam, examres: vExamRes, chal: vChal}[S.screen]();
   app.innerHTML = v + vSheet();
   if (window.MathJax && MathJax.typesetPromise) {
     try { MathJax.typesetClear && MathJax.typesetClear([app]); } catch (_) {}
@@ -566,7 +727,15 @@ app.addEventListener("click", e => {
     case "why": recordWhy(q, +k); set({why: +k}); break;
     case "next": scroller.scrollTo(0, 0);
       if (S.i === S.list.length - 1) set({screen: "result"}); else set({i: S.i + 1, sel: [], typed: "", done: false, why: null}); break;
-    case "home": set({screen: "home", sheet: null}); break;
+    case "home":
+      if (S.screen === "exam") { toast("限時挑戰進行中，要離開請先交卷"); break; }
+      set({screen: "home", sheet: null}); break;
+    case "chal": scroller.scrollTo(0, 0); set({screen: "chal", sheet: null}); break;
+    case "exask": set({sheet: "exask:" + k}); break;
+    case "exstart": startExam(k); break;
+    case "exgo": { const n = +k; if (n >= 0 && n < S.list.length) examGo(n); break; }
+    case "exsubmit": set({sheet: "exsubmit"}); break;
+    case "exfinish": finishExam(); break;
     case "loginsheet": set({sheet: "login"}); break;
     case "close": set({sheet: null}); break;
     case "login": login(); break;
