@@ -1,8 +1,17 @@
-/* 單元07 圓與直線的關係 題庫（93 題：易 22、中 56、難 15；cat 為四類題型）
-   數學式一律用 LaTeX，行內公式以 \( ... \) 包起來；小於、大於寫 \lt、\gt。
-   欄位：id、tag、level、type（tf / mc / multi / num）、stem、opts、ans、reasons、key、exp、fig（選填）。 */
-window.BANK_UNIT07 = [
-  // ===== T01 =====
+/* 單元07 圓與直線的關係 題庫（第二次段考；11-04 第四版：補題到每個觀念 15 題以上＋數字變形題）
+   數字變形題有 gen 函式（vary:true），需要先載入 vary.js；每次作答由 VARY.mk(seed) 產生不同數字。共 170 題（其中變形模板 20 題）。 */
+window.BANK_UNIT07 = (function () {
+  /* 模板共用的小工具（只做字串排版，不取亂數） */
+  const sh = (v, a) => (a === 0 ? v : `${v}${a < 0 ? "+" : "-"}${Math.abs(a)}`);           // x-3、x+2、x
+  const gcd = (a, b) => { a = Math.abs(a); b = Math.abs(b); while (b) [a, b] = [b, a % b]; return a; };
+  const genCircle = (V, q, h, k, r2) => {                                                   // qx^2+qy^2+Dx+Ey+F=0
+    const c = q === 1 ? "" : String(q);
+    return `${c}x^2+${c}y^2` + V.term(-2 * q * h, "x") + V.term(-2 * q * k, "y") + V.term(q * (h * h + k * k - r2), "") + "=0";
+  };
+  const stdCircle = (V, h, k, r2) => `${V.sq("x", h)}+${V.sq("y", k)}=${r2}`;
+
+  return [
+  // ===== T01 圓與直線：代數判定 =====
   {id:"T01-1",
    tag:"T01",
    level:"易",
@@ -100,7 +109,148 @@ window.BANK_UNIT07 = [
    reasons:[String.raw`以為一定要算出 \(k\) 才能判斷`, String.raw`判斷 \(-4ac\) 的正負時出錯`, String.raw`把判別式大於 \(0\) 和相切搞混`],
    key:0,
    exp:String.raw`判別式 \(D=(-5)^2-4\cdot3\cdot k=25-12k\)。<br>因為 \(k\lt 0\)，\(-12k\gt 0\)，所以 \(D\gt 25\gt 0\)，方程式一定有兩相異實根，直線與圓交於相異兩點。<br>小技巧：二次項係數與常數項異號時，\(b^2-4ac\) 一定大於 \(0\)。`},
-  // ===== T02 =====
+  {id:"T01-10",
+   tag:"T01",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`直線 \(y=x-1\) 與圓 \(x^2+y^2=13\) 交於兩點，其中一個交點在第一象限，求這個交點的 \(x\) 坐標。`,
+   ans:"3",
+   reasons:[String.raw`展開 \((x-1)^2\) 時漏了中間項 \(-2x\)`, "求出兩個 x 後沒有代回直線算 y，選錯了在第一象限的那個交點", String.raw`把交點的 \(y\) 坐標 \(2\) 當成答案`],
+   key:0,
+   exp:String.raw`把 \(y=x-1\) 代入圓：\(x^2+(x-1)^2=13\Rightarrow 2x^2-2x-12=0\Rightarrow x^2-x-6=0\)。<br>因式分解：\((x-3)(x+2)=0\)，得 \(x=3\) 或 \(x=-2\)。<br>代回直線：\(x=3\) 時 \(y=2\)，交點 \((3,2)\) 在第一象限；\(x=-2\) 時 \(y=-3\)，交點 \((-2,-3)\) 在第三象限。<br>所以所求為 \(3\)。`},
+  {id:"T01-11",
+   tag:"T01",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`若直線 \(y=2x+k\) 與圓 \(x^2+y^2=20\) 有交點，則整數 \(k\) 共有幾個？`,
+   ans:"21",
+   reasons:[String.raw`「有交點」包含相切，卻寫成 \(D\gt 0\)，少算了 \(k=\pm10\) 而答 \(19\)`, String.raw`判別式 \(b^2-4ac\) 計算時漏乘係數，算錯 \(k\) 的範圍`, String.raw`數整數個數時忘了算 \(k=0\)`],
+   key:0,
+   exp:String.raw`把 \(y=2x+k\) 代入圓：\(x^2+(2x+k)^2=20\Rightarrow 5x^2+4kx+k^2-20=0\)。<br>有交點（相切也算）\(\Rightarrow D=(4k)^2-4\cdot5\cdot(k^2-20)\ge 0\)。<br>\(16k^2-20k^2+400\ge 0\Rightarrow k^2\le 100\Rightarrow -10\le k\le 10\)。<br>整數 \(k\) 為 \(-10,-9,\dots,10\)，共 \(21\) 個。`},
+  {id:"T01-12",
+   tag:"T01",
+   level:"中",
+   cat:"陷阱題",
+   type:"mc",
+   stem:String.raw`直線 \(y=x-1\) 與圓 \(x^2+y^2=25\) 的交點為何？`,
+   opts:[String.raw`\((4,3)\)、\((4,-3)\)、\((-3,4)\)、\((-3,-4)\)`, String.raw`\((3,4)\)、\((-4,-3)\)`, String.raw`\((4,3)\)、\((-3,-4)\)`, String.raw`\((4,3)\)、\((-3,4)\)`],
+   ans:[2],
+   reasons:["求出 x 之後代回「圓」求 y，多出了不在直線上的點", "把解出來的 x 值當成 y 值（x、y 對調）", "代回直線求 y 時正負號算錯"],
+   key:0,
+   exp:String.raw`把 \(y=x-1\) 代入圓：\(x^2+(x-1)^2=25\Rightarrow 2x^2-2x-24=0\Rightarrow x^2-x-12=0\)。<br>\((x-4)(x+3)=0\)，得 \(x=4\) 或 \(x=-3\)。<br>要代回<b>直線</b> \(y=x-1\) 求 \(y\)：\(x=4\Rightarrow y=3\)；\(x=-3\Rightarrow y=-4\)。<br>交點為 \((4,3)\)、\((-3,-4)\)。<br>注意：若把 \(x=4\) 代入圓，會得到 \(y=\pm3\)，但 \((4,-3)\) 不在直線上，不是交點。`},
+  {id:"T01-13",
+   tag:"T01",
+   level:"中",
+   cat:"陷阱題",
+   type:"num",
+   stem:String.raw`若直線 \(x+y=k\) 與圓 \(x^2+y^2=8\) 有交點，求 \(k\) 的最大值。`,
+   ans:"4",
+   reasons:[String.raw`以為相切不算有交點，把條件寫成 \(D\gt 0\)，認為最大值不存在或答 \(3\)`, String.raw`判別式漏乘二次項係數 \(2\)，算錯範圍`, String.raw`解出 \(k^2\le 16\) 後把 \(16\) 當成答案`],
+   key:0,
+   exp:String.raw`由直線得 \(y=k-x\)，代入圓：\(x^2+(k-x)^2=8\Rightarrow 2x^2-2kx+k^2-8=0\)。<br>有交點（相切也算）\(\Rightarrow D=(-2k)^2-4\cdot2\cdot(k^2-8)\ge 0\Rightarrow 64-4k^2\ge 0\Rightarrow -4\le k\le 4\)。<br>所以 \(k\) 的最大值為 \(4\)（此時直線與圓相切於 \((2,2)\)，仍算有交點）。`},
+  {id:"T01-14",
+   tag:"T01",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`設實數 \(x\)、\(y\) 滿足 \(x^2+y^2-2x-4y=0\)。若 \(2x+y\) 的最大值為 \(M\)、最小值為 \(m\)，求 \(M-m\)。`,
+   ans:"10",
+   reasons:[String.raw`令 \(2x+y=k\) 代入後，一次項 \(x\) 的係數整理錯`, "解二次不等式時不等號方向弄反，或因式分解錯", String.raw`只求出 \(M\) 就作答，或算成 \(M+m\)`],
+   key:0,
+   exp:String.raw`令 \(2x+y=k\)，則 \(y=k-2x\)。「\((x,y)\) 在圓上」等於「直線 \(2x+y=k\) 與圓有交點」。<br>代入：\(x^2+(k-2x)^2-2x-4(k-2x)=0\Rightarrow 5x^2+(6-4k)x+k^2-4k=0\)。<br>有交點 \(\Rightarrow D=(6-4k)^2-20(k^2-4k)\ge 0\Rightarrow -4k^2+32k+36\ge 0\Rightarrow k^2-8k-9\le 0\)。<br>\((k-9)(k+1)\le 0\Rightarrow -1\le k\le 9\)，所以 \(M=9\)、\(m=-1\)，\(M-m=10\)。`},
+  {id:"T01-15",
+   tag:"T01",
+   level:"難",
+   cat:"拉分題",
+   type:"mc",
+   stem:String.raw`若直線 \(y=mx+2\) 與圓 \(x^2+y^2-6x+5=0\) 交於相異兩點，則實數 \(m\) 的範圍為何？`,
+   opts:[String.raw`\(m\lt -\dfrac{12}{5}\) 或 \(m\gt 0\)`, String.raw`\(-\dfrac{12}{5}\lt m\lt 0\)`, String.raw`\(0\lt m\lt \dfrac{12}{5}\)`, String.raw`\(-\dfrac{12}{5}\le m\le 0\)`],
+   ans:[1],
+   reasons:[String.raw`展開 \((mx+2)^2\) 時漏了中間項 \(4mx\)`, String.raw`解 \(m(5m+12)\lt 0\) 時取成「兩根之外」`, String.raw`相異兩點應是 \(D\gt 0\)，卻寫成 \(D\ge 0\) 而包含端點`],
+   key:0,
+   exp:String.raw`代入 \(y=mx+2\)：\(x^2+(mx+2)^2-6x+5=0\Rightarrow (1+m^2)x^2+(4m-6)x+9=0\)。<br>相異兩點 \(\Rightarrow D=(4m-6)^2-4\cdot9(1+m^2)\gt 0\)。<br>\(16m^2-48m+36-36-36m^2\gt 0\Rightarrow -20m^2-48m\gt 0\Rightarrow 4m(5m+12)\lt 0\)。<br>所以 \(-\dfrac{12}{5}\lt m\lt 0\)。`},
+  {id:"T01-V1",
+   tag:"T01",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   vary:true,
+   reasons:["代入後展開平方時漏了中間項或正負號錯", "因式分解（或解二次方程式）算錯根", "把題目要的「和」與「積」弄反"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const Ns = [5, 10, 13, 17, 25, 26, 29, 34, 37, 41, 50, 65];
+     let N = 25, P = [3, 4], Q = [-4, 3], ok = false;
+     for (let t = 0; t < 50 && !ok; t++) {
+       const n = R.pick(Ns), pts = [];
+       for (let x = -9; x <= 9; x++) for (let y = -9; y <= 9; y++) if (x * x + y * y === n) pts.push([x, y]);
+       const p = R.pick(pts), q = R.pick(pts);
+       if (p[0] !== q[0] && p[1] !== q[1]) { N = n; P = p; Q = q; ok = true; }
+     }
+     if (!ok) { N = 25; P = [3, 4]; Q = [-4, -3]; }
+     let a = Q[1] - P[1], b = P[0] - Q[0], c = -(a * P[0] + b * P[1]);
+     const g = V.gcd(V.gcd(a, b), c) || 1; a /= g; b /= g; c /= g;
+     if (a < 0) { a = -a; b = -b; c = -c; }
+     const kind = R.pick(["和", "積"]);
+     const x1 = P[0], x2 = Q[0], S = x1 + x2, Pr = x1 * x2;
+     const A = a * a + b * b, B = 2 * a * c, C = c * c - N * b * b, g2 = V.gcd(V.gcd(A, B), C) || 1;
+     const sb = b < 0 ? -1 : 1, bb = b * sb, rhs = V.expr([[-a * sb, "x"], [-c * sb, ""]]);
+     const fac = x0 => (x0 === 0 ? "x" : `(${V.expr([[1, "x"], [-x0, ""]])})`);
+     const wrap = e => (/^-?[a-z]$|^-?\d+$/.test(e) ? `(${e})` : String.raw`\left(${e}\right)`);
+     let sub;
+     if (bb === 1) { const ys = rhs; sub = String.raw`由 \(L\) 得 \(y=${ys}\)，代入圓：\(x^2+${/^[a-z]$/.test(ys) ? ys : wrap(ys)}^2=${N}\)。`; }
+     else sub = String.raw`由 \(L\) 得 \(${bb}y=${rhs}\)。把圓的方程式兩邊同乘 \(${b * b}\)：\(${b * b}x^2+(${bb}y)^2=${N * b * b}\)，代入得 \(${b * b}x^2+${/^[a-z]$/.test(rhs) ? rhs : wrap(rhs)}^2=${N * b * b}\)。`;
+     const quad = V.expr([[A / g2, "x^2"], [B / g2, "x"], [C / g2, ""]]);
+     const mono = V.expr([[1, "x^2"], [-S, "x"], [Pr, ""]]);
+     const step2 = A / g2 === 1 ? String.raw`整理得 \(${quad}=0\)。` : String.raw`整理得 \(${quad}=0\)，兩邊同除以 \(${A / g2}\)：\(${mono}=0\)。`;
+     const ansv = kind === "和" ? S : Pr;
+     return {
+       stem: String.raw`直線 \(L:${V.lin(a, b, c)}\) 與圓 \(x^2+y^2=${N}\) 交於 \(A\)、\(B\) 兩點，求 \(A\)、\(B\) 兩點的 \(x\) 坐標之${kind}。`,
+       ans: String(ansv),
+       exp: String.raw`${sub}<br>${step2}<br>因式分解：\(${fac(x1)}${fac(x2)}=0\)，得 \(x=${x1}\) 或 \(x=${x2}\)。<br>所以兩交點的 \(x\) 坐標之${kind}為 \(${kind === "和" ? String.raw`${x1}+${V.fPar(x2)}` : String.raw`${x1}\times ${V.fPar(x2)}`}=${ansv}\)。`
+     };
+   }},
+  {id:"T01-V2",
+   tag:"T01",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:[String.raw`「有交點」包含相切（\(D\ge 0\)），「相異兩點」不含相切（\(D\gt 0\)），兩者搞混而多算或少算端點`, "代入整理時漏乘係數，判別式算錯", String.raw`由 \(k^2\) 的範圍數整數時漏了負數或 \(0\)`],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let a = 1, b = 2, N = 5, M = 25;
+     for (let t = 0; t < 50; t++) {
+       const aa = R.int(1, 4), bb = R.nz(-4, 4), nn = R.pick([2, 3, 5, 6, 8, 10, 13, 18, 20]);
+       if (V.gcd(aa, bb) !== 1) continue;
+       const mm = nn * (aa * aa + bb * bb);
+       if (mm >= 8 && mm <= 150) { a = aa; b = bb; N = nn; M = mm; break; }
+     }
+     const strict = R.pick([true, false]);
+     let f = Math.floor(Math.sqrt(M)); while (f * f > M) f--; while ((f + 1) * (f + 1) <= M) f++;
+     const sq = f * f === M, kmax = strict && sq ? f - 1 : f, count = 2 * kmax + 1;
+     const A = a * a + b * b, Nb2 = N * b * b;
+     const by = V.term(b, "y", true);
+     const ax = V.term(-a, "x");
+     const sub = b * b === 1
+       ? String.raw`由直線得 \(${by}=k${ax}\)，代入圓：\(x^2+(k${ax})^2=${N}\)。`
+       : String.raw`由直線得 \(${by}=k${ax}\)。把圓的方程式兩邊同乘 \(${b * b}\)：\(${b * b}x^2+(${by})^2=${Nb2}\)，代入得 \(${b * b}x^2+(k${ax})^2=${Nb2}\)。`;
+     const cond = strict
+       ? String.raw`交於相異兩點 \(\Rightarrow D\gt 0\Rightarrow k^2\lt ${M}\)`
+       : String.raw`有交點（相切也算）\(\Rightarrow D\ge 0\Rightarrow k^2\le ${M}\)`;
+     let range;
+     if (sq) range = strict
+       ? String.raw`\(-${f}\lt k\lt ${f}\)，整數 \(k\) 為 \(-${kmax},\dots,${kmax}\)`
+       : String.raw`\(-${f}\le k\le ${f}\)，整數 \(k\) 為 \(-${kmax},\dots,${kmax}\)`;
+     else range = String.raw`因為 \(${f}^2=${f * f}\lt ${M}\lt ${(f + 1) * (f + 1)}=${f + 1}^2\)，整數 \(k\) 為 \(-${kmax},\dots,${kmax}\)`;
+     return {
+       stem: String.raw`若直線 \(${V.expr([[a, "x"], [b, "y"]])}=k\) 與圓 \(x^2+y^2=${N}\) ${strict ? "交於相異兩點" : "有交點"}，則整數 \(k\) 共有幾個？`,
+       ans: String(count),
+       exp: String.raw`${sub}<br>整理得 \(${V.term(A, "x^2", true)}-${2 * a}kx+(k^2-${Nb2})=0\)。<br>判別式 \(D=(${2 * a}k)^2-4\cdot ${A}\cdot(k^2-${Nb2})=${4 * b * b}(${M}-k^2)\)。<br>${cond}。<br>${range}，共 \(${count}\) 個。`
+     };
+   }},
+  // ===== T02 圓與直線：幾何判定 =====
   {id:"T02-1",
    tag:"T02",
    level:"易",
@@ -209,7 +359,109 @@ window.BANK_UNIT07 = [
    reasons:[String.raw`含參數的一般式不會配方，找不到圓心 \((k,2k)\)`, String.raw`解 \(|11k-6|\le 25\) 時算錯範圍`, "「有交點」忘了包含相切"],
    key:0,
    exp:String.raw`配方：\((x-k)^2+(y-2k)^2=k^2+4k^2-5k^2+25=25\)，圓心 \((k,2k)\)，\(r=5\)。<br>有交點 \(\Rightarrow\dfrac{|3k+8k-6|}{5}\le 5\Rightarrow |11k-6|\le 25\Rightarrow -19\le 11k\le 31\)。<br>\(\Rightarrow -\dfrac{19}{11}\le k\le\dfrac{31}{11}\)，整數 \(k=-1,0,1,2\)，共 \(4\) 個。`},
-  // ===== T03 =====
+  {id:"T02-11",
+   tag:"T02",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`以 \((-1,3)\) 為圓心的圓與直線 \(4x-3y+3=0\) 相切，求此圓的半徑。`,
+   ans:"2",
+   reasons:[String.raw`代入時 \(-3\cdot3\) 的正負號算錯`, "分子忘了取絕對值，得到負的距離", String.raw`分母 \(\sqrt{4^2+3^2}\) 算成 \(4+3\)`],
+   key:0,
+   exp:String.raw`相切時，半徑 \(=\) 圓心到直線的距離。<br>\(r=\dfrac{|4\cdot(-1)-3\cdot3+3|}{\sqrt{4^2+(-3)^2}}=\dfrac{|-4-9+3|}{5}=\dfrac{10}{5}=2\)。`},
+  {id:"T02-12",
+   tag:"T02",
+   level:"中",
+   cat:"必考題",
+   type:"mc",
+   stem:String.raw`圓 \(x^2+y^2+4x-6y+4=0\) 與下列哪一條直線相切？`,
+   opts:[String.raw`\(x+y=4\)`, String.raw`\(4x-3y=0\)`, String.raw`\(x=0\)`, String.raw`\(3x+4y+9=0\)`],
+   ans:[3],
+   reasons:[String.raw`配方後半徑算錯（\(r^2=4+9-4=9\)）`, String.raw`點到直線距離忘了除以 \(\sqrt{a^2+b^2}\)`, String.raw`拿距離 \(d\) 和 \(r^2\) 比較`],
+   key:0,
+   exp:String.raw`配方：\((x+2)^2+(y-3)^2=9\)，圓心 \((-2,3)\)，半徑 \(3\)。<br>(1) \(x+y-4=0\)：\(d=\dfrac{|-2+3-4|}{\sqrt{2}}=\dfrac{3}{\sqrt{2}}\lt 3\)，交於兩點。<br>(2) \(4x-3y=0\)：\(d=\dfrac{|-8-9|}{5}=\dfrac{17}{5}\gt 3\)，不相交。<br>(3) \(x=0\)：\(d=|-2|=2\lt 3\)，交於兩點。<br>(4) \(3x+4y+9=0\)：\(d=\dfrac{|-6+12+9|}{5}=3=r\)，相切。`},
+  {id:"T02-13",
+   tag:"T02",
+   level:"易",
+   cat:"陷阱題",
+   type:"tf",
+   stem:String.raw`圓 \((x-1)^2+(y+1)^2=8\) 與直線 \(x+y=4\) 交於相異兩點。`,
+   opts:["○ 正確", "✕ 錯誤"],
+   ans:[1],
+   reasons:[String.raw`把距離 \(d=2\sqrt{2}\) 拿去和 \(r^2=8\) 比較，誤判 \(d\lt r\)`, String.raw`\(\dfrac{4}{\sqrt{2}}\) 化簡錯誤`, "算出 d = r 卻把相切誤認為交於兩點"],
+   key:0,
+   exp:String.raw`圓心 \((1,-1)\)，半徑 \(r=\sqrt{8}=2\sqrt{2}\)。<br>直線 \(x+y-4=0\)：\(d=\dfrac{|1-1-4|}{\sqrt{1^2+1^2}}=\dfrac{4}{\sqrt{2}}=2\sqrt{2}\)。<br>\(d=r\)，直線與圓相切，只有一個交點，所以敘述錯誤。`},
+  {id:"T02-14",
+   tag:"T02",
+   level:"易",
+   cat:"陷阱題",
+   type:"mc",
+   stem:String.raw`圓 \((x-3)^2+(y+4)^2=16\) 與兩坐標軸的位置關係為何？`,
+   opts:[String.raw`與 \(x\) 軸相切，與 \(y\) 軸交於相異兩點`, String.raw`與 \(x\) 軸交於相異兩點，與 \(y\) 軸相切`, "與兩坐標軸都相切", String.raw`與 \(x\) 軸相切，與 \(y\) 軸不相交`],
+   ans:[0],
+   reasons:[String.raw`把圓心到 \(x\) 軸的距離當成 \(|x\) 坐標\(|\)（x、y 搞混）`, "圓心坐標 −4 取距離時忘了取絕對值", String.raw`把半徑當成 \(16\)`],
+   key:0,
+   exp:String.raw`圓心 \((3,-4)\)，半徑 \(4\)。<br>圓心到 \(x\) 軸的距離是 \(|y\) 坐標\(|=|-4|=4=r\)，所以與 \(x\) 軸相切。<br>圓心到 \(y\) 軸的距離是 \(|x\) 坐標\(|=3\lt 4\)，所以與 \(y\) 軸交於相異兩點。`},
+  {id:"T02-15",
+   tag:"T02",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`設 \(k\) 為整數。圓 \((x-k)^2+(y-1)^2=9\) 與直線 \(4x+3y-3=0\) 不相交，且與直線 \(3x-4y+4=0\) 有交點，則 \(k\) 共有幾個？`,
+   ans:"4",
+   reasons:[String.raw`「有交點」包含相切，漏了 \(|k|=5\) 的情形`, "兩個條件應該取交集，卻取了聯集", String.raw`解 \(|k|\gt \dfrac{15}{4}\) 時只取了正的一邊`],
+   key:0,
+   exp:String.raw`圓心 \((k,1)\)，半徑 \(3\)。<br>(i) 與 \(4x+3y-3=0\) 不相交：\(d_1=\dfrac{|4k+3-3|}{5}=\dfrac{4|k|}{5}\gt 3\Rightarrow |k|\gt \dfrac{15}{4}\)。<br>(ii) 與 \(3x-4y+4=0\) 有交點：\(d_2=\dfrac{|3k-4+4|}{5}=\dfrac{3|k|}{5}\le 3\Rightarrow |k|\le 5\)。<br>同時成立：\(\dfrac{15}{4}\lt |k|\le 5\)，整數 \(k=\pm4,\pm5\)，共 \(4\) 個。`},
+  {id:"T02-V1",
+   tag:"T02",
+   level:"易",
+   cat:"基本分",
+   type:"mc",
+   vary:true,
+   reasons:[String.raw`拿距離 \(d\) 直接和 \(r^2\) 比較，而不是和 \(r\) 比較`, "代入圓心時正負號算錯", String.raw`點到直線距離忘了除以 \(\sqrt{a^2+b^2}\)`],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const [a0, b0, L] = R.pick([[3, 4, 5], [4, 3, 5], [5, 12, 13], [12, 5, 13]]);
+     let a = a0 * R.sign(), b = b0 * R.sign();
+     const h = R.int(-5, 5), k = R.int(-5, 5), rel = R.int(0, 2);
+     const d = R.int(rel === 2 ? 2 : 1, 5);
+     let r2;
+     if (rel === 0) r2 = d * d + R.int(1, 4);
+     else if (rel === 1) r2 = d * d;
+     else r2 = d * d - R.int(1, Math.min(4, d * d - 1));
+     let c = R.sign() * d * L - a * h - b * k;
+     if (a < 0) { a = -a; b = -b; c = -c; }
+     const rTex = V.sTex(V.surd(1, r2));
+     const cmp = [String.raw`\(d^2=${d * d}\lt ${r2}=r^2\)，即 \(d\lt r\)，所以交於相異兩點`, String.raw`\(d^2=${d * d}=r^2\)，即 \(d=r\)，所以相切`, String.raw`\(d^2=${d * d}\gt ${r2}=r^2\)，即 \(d\gt r\)，所以不相交`][rel];
+     return {
+       stem: String.raw`圓 \(${V.sq("x", h)}+${V.sq("y", k)}=${r2}\) 與直線 \(${V.lin(a, b, c)}\) 的位置關係為何？`,
+       opts: ["交於相異兩點", "相切", "不相交", "直線通過圓心"],
+       ans: [rel],
+       exp: String.raw`圓心 \(${V.pt(h, k)}\)，半徑 \(r=${rTex}\)。<br>圓心到直線的距離 \(d=\dfrac{|${a}\cdot ${V.fPar(h)}${b < 0 ? "-" : "+"}${Math.abs(b)}\cdot ${V.fPar(k)}${V.term(c, "")}|}{\sqrt{${a * a}+${b * b}}}=\dfrac{${d * L}}{${L}}=${d}\)。<br>${cmp}。`
+     };
+   }},
+  {id:"T02-V2",
+   tag:"T02",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:["配方時把常數項移到右邊的正負號弄錯", "點到直線距離的分子正負號或絕對值處理錯", String.raw`相切條件寫成 \(r^2=d\) 或 \(r=d^2\)`],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const [a0, b0, L] = R.pick([[3, 4, 5], [4, 3, 5], [5, 12, 13], [12, 5, 13]]);
+     let a = a0 * R.sign(), b = b0 * R.sign();
+     const h = R.int(-5, 5), v = R.int(-5, 5), d = R.int(1, 6);
+     let c = R.sign() * d * L - a * h - b * v;
+     if (a < 0 || (a === 0 && b < 0)) { a = -a; b = -b; c = -c; }
+     const ansv = h * h + v * v - d * d;
+     return {
+       stem: String.raw`若圓 \(x^2+y^2${V.term(-2 * h, "x")}${V.term(-2 * v, "y")}+k=0\) 與直線 \(${V.lin(a, b, c)}\) 相切，求 \(k\) 的值。`,
+       ans: String(ansv),
+       exp: String.raw`配方：\(${V.sq("x", h)}+${V.sq("y", v)}=${h * h + v * v}-k\)，圓心 \(${V.pt(h, v)}\)，\(r^2=${h * h + v * v}-k\)。<br>圓心到直線的距離 \(d=\dfrac{|${a}\cdot ${V.fPar(h)}${b < 0 ? "-" : "+"}${Math.abs(b)}\cdot ${V.fPar(v)}${V.term(c, "")}|}{\sqrt{${a * a}+${b * b}}}=\dfrac{${d * L}}{${L}}=${d}\)。<br>相切 \(\Rightarrow r=d\Rightarrow ${h * h + v * v}-k=${d * d}\Rightarrow k=${ansv}\)。`
+     };
+   }},
+  // ===== T03 弦長與弦心距 =====
   {id:"T03-1",
    tag:"T03",
    level:"易",
@@ -306,7 +558,123 @@ window.BANK_UNIT07 = [
    reasons:[String.raw`沒想到把 \(L\) 整理成 \(m(2x+y-7)+(x+y-4)=0\) 找定點`, String.raw`把最短弦的斜率和 \(\overline{MP}\) 的斜率搞混`, String.raw`沒檢查 \(L\) 能不能通過圓心`],
    key:1,
    exp:String.raw`・定點：\(L:m(2x+y-7)+(x+y-4)=0\)，解 \(2x+y=7\)、\(x+y=4\) 得定點 \(P(3,1)\)，正確。<br>・恆交兩點：\(C:(x-1)^2+(y-2)^2=25\)，\(M(1,2)\)，\(r=5\)，\(\overline{MP}^2=4+1=5\lt 25\)，\(P\) 在圓內，所以恆交兩點，正確。<br>・最短弦：弦心距最大為 \(\overline{MP}=\sqrt{5}\)，最短弦長 \(2\sqrt{25-5}=4\sqrt{5}\)，正確。<br>・最短弦的斜率：此時 \(L\perp\overline{MP}\)，\(\overline{MP}\) 斜率 \(-\dfrac{1}{2}\)，所以 \(L\) 斜率為 \(2\)（\(m=-\dfrac{3}{4}\) 時可達到），不是 \(-\dfrac{1}{2}\)，錯誤。<br>・弦長 \(10\)：\(m=-\dfrac{1}{3}\) 時 \(L\) 過圓心 \((1,2)\)，弦長為直徑 \(10\)，所以「不可能等於 \(10\)」錯誤。`},
-  // ===== T04 =====
+  {id:"T03-10",
+   tag:"T03",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`圓 \((x-3)^2+(y+1)^2=25\) 被直線 \(12x+5y-5=0\) 所截出的弦長為何？`,
+   ans:"2√21",
+   reasons:[String.raw`弦長公式忘了乘 \(2\)，答 \(\sqrt{21}\)`, String.raw`把 \(r=25\) 代入計算，沒有開根號`, String.raw`代入圓心時把 \(y\) 坐標代成 \(+1\)`],
+   key:0,
+   exp:String.raw`圓心 \((3,-1)\)，\(r=5\)。<br>弦心距 \(d=\dfrac{|12\cdot3+5\cdot(-1)-5|}{\sqrt{12^2+5^2}}=\dfrac{26}{13}=2\)。<br>半弦長 \(=\sqrt{r^2-d^2}=\sqrt{25-4}=\sqrt{21}\)，弦長 \(=2\sqrt{21}\)。`},
+  {id:"T03-11",
+   tag:"T03",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`直線 \(x-y+1=0\) 與圓 \(x^2+y^2-4x-2y-4=0\) 交於 \(A\)、\(B\) 兩點。以 \(\overline{AB}\) 為直徑作一個圓，求這個圓的半徑平方。`,
+   ans:"7",
+   reasons:[String.raw`把弦長 \(\overline{AB}\) 當成新圓的半徑，答 \(28\)`, "配方時算錯原來圓的半徑", String.raw`弦心距的平方 \(\left(\dfrac{2}{\sqrt{2}}\right)^2\) 算錯`],
+   key:0,
+   exp:String.raw`配方：\((x-2)^2+(y-1)^2=9\)，圓心 \((2,1)\)，\(r^2=9\)。<br>弦心距 \(d=\dfrac{|2-1+1|}{\sqrt{2}}=\sqrt{2}\)，\(d^2=2\)。<br>半弦長的平方 \(=r^2-d^2=9-2=7\)。<br>以 \(\overline{AB}\) 為直徑的圓，半徑就是半弦長，所以半徑平方 \(=7\)。`},
+  {id:"T03-12",
+   tag:"T03",
+   level:"中",
+   cat:"陷阱題",
+   type:"tf",
+   stem:String.raw`圓 \(x^2+y^2=10\) 被直線 \(x+3y=5\) 截出的弦長為 \(\sqrt{30}\)。`,
+   opts:["○ 正確", "✕ 錯誤"],
+   ans:[0],
+   reasons:[String.raw`算到半弦長 \(\sqrt{\dfrac{15}{2}}\) 就停下，忘了弦長要乘 \(2\)`, String.raw`\(d^2=\dfrac{25}{10}\) 算錯`, String.raw`不知道 \(2\sqrt{\dfrac{15}{2}}\) 可以化成 \(\sqrt{30}\)，就判斷錯誤`],
+   key:0,
+   exp:String.raw`圓心 \((0,0)\)，\(r^2=10\)。<br>弦心距 \(d=\dfrac{|0+0-5|}{\sqrt{1+9}}=\dfrac{5}{\sqrt{10}}\)，\(d^2=\dfrac{25}{10}=\dfrac{5}{2}\)。<br>半弦長 \(=\sqrt{10-\dfrac{5}{2}}=\sqrt{\dfrac{15}{2}}\)，弦長 \(=2\sqrt{\dfrac{15}{2}}=\sqrt{4\cdot\dfrac{15}{2}}=\sqrt{30}\)。<br>所以敘述正確。`},
+  {id:"T03-13",
+   tag:"T03",
+   level:"中",
+   cat:"陷阱題",
+   type:"num",
+   stem:String.raw`圓 \((x-1)^2+(y+2)^2=25\) 被直線 \(x=k\) 截得的弦長為 \(8\)，求所有可能的 \(k\) 值之和。`,
+   ans:"2",
+   reasons:[String.raw`\(|k-1|=3\) 只取了 \(k-1=3\)，漏了另一解，答 \(4\)`, String.raw`把鉛直線 \(x=k\) 到圓心的距離寫成 \(|k+2|\)（用了圓心的 \(y\) 坐標）`, String.raw`把弦長 \(8\) 直接當成半弦長`],
+   key:0,
+   exp:String.raw`圓心 \((1,-2)\)，\(r=5\)，半弦長 \(=4\)。<br>弦心距 \(d=\sqrt{5^2-4^2}=3\)。<br>圓心到鉛直線 \(x=k\) 的距離為 \(|k-1|\)，所以 \(|k-1|=3\Rightarrow k=4\) 或 \(k=-2\)（圓心左右各一條）。<br>所有 \(k\) 值之和 \(=4+(-2)=2\)。`},
+  {id:"T03-14",
+   tag:"T03",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`過點 \(P(3,1)\) 的直線與圓 \(x^2+y^2=25\) 相交，所截得的弦長為整數的直線共有幾條？`,
+   ans:"5",
+   reasons:[String.raw`弦長 \(8\)、\(9\) 各有兩條（對稱於直線 \(OP\)）卻只算一條`, String.raw`最短弦長算錯（誤把 \(\overline{OP}\) 當成 \(\overline{OP}^2\)）`, String.raw`忘了直徑（弦長 \(10\)）也算`],
+   key:0,
+   exp:String.raw`\(3^2+1^2=10\lt 25\)，\(P\) 在圓內，所以過 \(P\) 的直線都與圓交於兩點。<br>最長的弦是過圓心的直徑，長 \(10\)。<br>最短的弦與 \(OP\) 垂直，此時弦心距 \(=\overline{OP}=\sqrt{10}\)，弦長 \(=2\sqrt{25-10}=2\sqrt{15}\approx 7.7\)。<br>弦長可取 \(2\sqrt{15}\) 到 \(10\) 之間的所有值，整數有 \(8\)、\(9\)、\(10\)。<br>弦長 \(8\)、\(9\) 時，直線各有兩條（對稱於 \(OP\)）；弦長 \(10\) 只有一條。共 \(2+2+1=5\) 條。`},
+  {id:"T03-15",
+   tag:"T03",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`圓 \(C:(x-1)^2+(y-2)^2=r^2\)（\(r\gt 0\)）與直線 \(3x+4y+4=0\) 交於 \(A\)、\(B\) 兩點。若圓心 \(C\) 與 \(A\)、\(B\) 構成正三角形，求 \(r\)。`,
+   ans:"2√3",
+   reasons:[String.raw`把弦心距 \(3\) 當成正三角形的邊長`, String.raw`正三角形的高與邊長關係記錯（高 \(=\dfrac{\sqrt{3}}{2}\times\) 邊長）`, String.raw`\(\dfrac{6}{\sqrt{3}}\) 有理化算錯`],
+   key:1,
+   exp:String.raw`圓心 \(C(1,2)\)，弦心距 \(d=\dfrac{|3+8+4|}{5}=3\)。<br>\(\overline{CA}=\overline{CB}=r\)，\(\triangle CAB\) 為正三角形，所以邊長 \(=r\)，而弦心距就是這個正三角形的高。<br>\(\dfrac{\sqrt{3}}{2}r=3\Rightarrow r=\dfrac{6}{\sqrt{3}}=2\sqrt{3}\)。`},
+  {id:"T03-V1",
+   tag:"T03",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   vary:true,
+   reasons:[String.raw`算出半弦長 \(\sqrt{r^2-d^2}\) 後忘了乘 \(2\)`, "弦心距（點到直線距離）代入時正負號算錯", String.raw`把 \(r^2\) 當成 \(r\) 代入公式`],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const [a0, b0, u, L2, jm] = R.pick([[3, 4, 5, 25, 3], [4, 3, 5, 25, 3], [5, 12, 13, 169, 3], [12, 5, 13, 169, 3], [1, 1, 2, 2, 2], [1, 2, 5, 5, 1], [2, 1, 5, 5, 1], [1, 0, 1, 1, 4], [0, 1, 1, 1, 4]]);
+     let a = a0 * R.sign(), b = b0 * R.sign();
+     const j = R.int(1, jm), m = u * j, d2 = m * m / L2;
+     const h = R.int(-5, 5), v = R.int(-5, 5), s = R.int(1, 20), r2 = d2 + s;
+     let c = R.sign() * m - a * h - b * v;
+     if (a < 0 || (a === 0 && b < 0)) { a = -a; b = -b; c = -c; }
+     const sqL = Math.round(Math.sqrt(L2));
+     let dline;
+     if (b === 0) dline = String.raw`圓心到鉛直線 \(x=${-c / a}\) 的距離 \(d=|${h}-${V.fPar(-c / a)}|=${m}\)，\(d^2=${d2}\)`;
+     else if (a === 0) dline = String.raw`圓心到水平線 \(y=${-c / b}\) 的距離 \(d=|${v}-${V.fPar(-c / b)}|=${m}\)，\(d^2=${d2}\)`;
+     else {
+       const tail = sqL * sqL === L2 ? String.raw`\dfrac{${m}}{${sqL}}=${m / sqL}` : String.raw`\dfrac{${m}}{\sqrt{${L2}}}`;
+       dline = String.raw`弦心距 \(d=\dfrac{|${a}\cdot ${V.fPar(h)}${b < 0 ? "-" : "+"}${Math.abs(b)}\cdot ${V.fPar(v)}${V.term(c, "")}|}{\sqrt{${a * a}+${b * b}}}=${tail}\)，\(d^2=${d2}\)`;
+     }
+     const half = V.sTex(V.surd(1, s)), full = V.surd(2, s);
+     return {
+       stem: String.raw`圓 \(${V.sq("x", h)}+${V.sq("y", v)}=${r2}\) 被直線 \(${V.lin(a, b, c)}\) 所截出的弦長為何？`,
+       ans: V.sAns(full),
+       exp: String.raw`圓心 \(${V.pt(h, v)}\)，\(r^2=${r2}\)。<br>${dline}。<br>半弦長 \(=\sqrt{r^2-d^2}=\sqrt{${r2}-${d2}}=${half}\)。<br>弦長 \(=2\times ${half}=${V.sTex(full)}\)。`
+     };
+   }},
+  {id:"T03-V2",
+   tag:"T03",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:["把弦長直接當成半弦長代入畢氏定理", "配方後 r² 與 k 的關係正負號弄錯", "弦心距計算時正負號或絕對值處理錯"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const [a0, b0, L] = R.pick([[3, 4, 5], [4, 3, 5], [5, 12, 13], [12, 5, 13], [1, 0, 1], [0, 1, 1]]);
+     let a = a0 * R.sign(), b = b0 * R.sign();
+     const h = R.int(-5, 5), v = R.int(-5, 5), d = R.int(1, 4), t = R.int(1, 6);
+     let c = R.sign() * d * L - a * h - b * v;
+     if (a < 0 || (a === 0 && b < 0)) { a = -a; b = -b; c = -c; }
+     const r2 = d * d + t * t, ansv = h * h + v * v - r2;
+     let dline;
+     if (b === 0) dline = String.raw`圓心到直線 \(x=${-c / a}\) 的距離 \(d=|${h}-${V.fPar(-c / a)}|=${d}\)`;
+     else if (a === 0) dline = String.raw`圓心到直線 \(y=${-c / b}\) 的距離 \(d=|${v}-${V.fPar(-c / b)}|=${d}\)`;
+     else dline = String.raw`弦心距 \(d=\dfrac{|${a}\cdot ${V.fPar(h)}${b < 0 ? "-" : "+"}${Math.abs(b)}\cdot ${V.fPar(v)}${V.term(c, "")}|}{\sqrt{${a * a}+${b * b}}}=\dfrac{${d * L}}{${L}}=${d}\)`;
+     return {
+       stem: String.raw`圓 \(x^2+y^2${V.term(-2 * h, "x")}${V.term(-2 * v, "y")}+k=0\) 被直線 \(${V.lin(a, b, c)}\) 截得的弦長為 \(${2 * t}\)，求 \(k\) 的值。`,
+       ans: String(ansv),
+       exp: String.raw`配方：\(${V.sq("x", h)}+${V.sq("y", v)}=${h * h + v * v}-k\)，圓心 \(${V.pt(h, v)}\)，\(r^2=${h * h + v * v}-k\)。<br>${dline}。<br>半弦長 \(=${t}\)，由畢氏定理 \(r^2=d^2+${t}^2=${d * d}+${t * t}=${r2}\)。<br>\(${h * h + v * v}-k=${r2}\Rightarrow k=${ansv}\)。`
+     };
+   }},
+  // ===== T04 圓上的點到直線的距離 =====
   {id:"T04-1",
    tag:"T04",
    level:"易",
@@ -404,7 +772,123 @@ window.BANK_UNIT07 = [
    reasons:[String.raw`把最短距離寫成 \(d+r\)`, "以為最短距離就是圓心到直線的距離", String.raw`代入圓心 \((-2,1)\) 時符號弄錯`],
    key:0,
    exp:String.raw`圓心 \((-2,1)\)，\(d=\dfrac{|-6-4-10|}{5}=4\)。<br>不相交時，最短距離 \(=d-r\)，所以 \(4-r=1\Rightarrow r=3\)（確實 \(r\lt d\)）。`},
-  // ===== T05 =====
+  {id:"T04-10",
+   tag:"T04",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`圓 \((x-2)^2+(y+3)^2=4\) 上的點到直線 \(5x+12y-13=0\) 的最大距離為何？`,
+   ans:"5",
+   reasons:[String.raw`把 \(r^2=4\) 當成半徑，答 \(7\)`, String.raw`最大距離算成 \(d-r\)`, String.raw`代入圓心 \(y=-3\) 時正負號錯`],
+   key:0,
+   exp:String.raw`圓心 \((2,-3)\)，半徑 \(2\)。<br>\(d=\dfrac{|5\cdot2+12\cdot(-3)-13|}{\sqrt{5^2+12^2}}=\dfrac{39}{13}=3\gt 2\)，直線與圓不相交。<br>最大距離 \(=d+r=3+2=5\)。`},
+  {id:"T04-11",
+   tag:"T04",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`圓 \(x^2+y^2-4x-2y-20=0\) 上的點到直線 \(3x+4y-20=0\) 的距離，最大值為 \(M\)、最小值為 \(m\)，求 \(M+m\)。`,
+   ans:"7",
+   reasons:[String.raw`沒注意到直線與圓相交，把最小值算成 \(r-d=3\)`, "配方時半徑算錯", "點到直線距離的分子算錯"],
+   key:0,
+   exp:String.raw`配方：\((x-2)^2+(y-1)^2=25\)，圓心 \((2,1)\)，\(r=5\)。<br>\(d=\dfrac{|6+4-20|}{5}=2\lt 5\)，直線與圓相交。<br>相交時圓上有點落在直線上，所以 \(m=0\)；\(M=d+r=7\)。<br>\(M+m=7\)。`},
+  {id:"T04-12",
+   tag:"T04",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`圓 \((x-1)^2+y^2=25\) 上恰有 \(3\) 個點到直線 \(4x+3y+16=0\) 的距離為 \(t\)（\(t\gt 0\)），求 \(t\)。`,
+   ans:"1",
+   reasons:[String.raw`以為 \(t=d+r=9\)，其實那時只有 \(1\) 個點`, String.raw`以為 \(t=d\)（平行線通過圓心），其實那時只有 \(2\) 個點`, "點到直線距離的常數項代錯"],
+   key:0,
+   exp:String.raw`圓心 \((1,0)\)，\(r=5\)，\(d=\dfrac{|4+0+16|}{5}=4\)。<br>到直線距離為 \(t\) 的點，落在兩條與直線平行、相距 \(t\) 的直線上，它們到圓心的距離分別是 \(4+t\) 與 \(|4-t|\)。<br>要恰有 \(3\) 個點，必須一條與圓相切（\(1\) 點）、另一條與圓交於兩點（\(2\) 點）。<br>\(4+t=5\Rightarrow t=1\)，此時另一條距離 \(|4-1|=3\lt 5\)，交兩點，合計 \(3\) 個 ✓。<br>若 \(|4-t|=5\Rightarrow t=9\)，另一條距離 \(13\gt 5\)，合計只有 \(1\) 個 ✗。所以 \(t=1\)。`},
+  {id:"T04-13",
+   tag:"T04",
+   level:"中",
+   cat:"必考題",
+   type:"mc",
+   stem:String.raw`點 \(P\) 在圓 \(x^2+y^2+2x-4y-4=0\) 上移動，設 \(P\) 到直線 \(3x-4y-19=0\) 的距離為 \(d\)，則 \(d\) 的範圍為何？`,
+   opts:[String.raw`\(0\le d\le 9\)`, String.raw`\(6\le d\le 9\)`, String.raw`\(3\le d\le 9\)`, String.raw`\(0\le d\le 15\)`],
+   ans:[2],
+   reasons:["沒先判斷直線與圓不相交，就以為最小距離是 0", String.raw`把 \(r^2=9\) 當成半徑`, String.raw`配方時 \(r^2\) 算成 \(1+4-4\)`],
+   key:0,
+   exp:String.raw`配方：\((x+1)^2+(y-2)^2=9\)，圓心 \((-1,2)\)，\(r=3\)。<br>圓心到直線距離 \(=\dfrac{|-3-8-19|}{5}=6\gt 3\)，直線與圓不相交。<br>最小距離 \(=6-3=3\)，最大距離 \(=6+3=9\)，所以 \(3\le d\le 9\)。`},
+  {id:"T04-14",
+   tag:"T04",
+   level:"中",
+   cat:"必考題",
+   type:"mc",
+   stem:String.raw`圓 \((x-1)^2+(y-2)^2=5\) 上，到直線 \(2x+y+6=0\) 距離最近的點的坐標為何？`,
+   opts:[String.raw`\((3,3)\)`, String.raw`\((-1,1)\)`, String.raw`\((0,0)\)`, String.raw`\((-1,3)\)`],
+   ans:[1],
+   reasons:["取到垂線與圓的另一個交點（那是最遠點）", String.raw`垂線方向用成直線本身的方向 \((1,-2)\)`, "圓心坐標的正負號弄錯"],
+   key:0,
+   exp:String.raw`圓心 \((1,2)\)，\(r=\sqrt{5}\)。<br>最近點在「過圓心且垂直於直線」的直線上。直線 \(2x+y+6=0\) 斜率 \(-2\)，垂線斜率 \(\dfrac{1}{2}\)：\(y-2=\dfrac{1}{2}(x-1)\)，即 \(x=2y-3\)。<br>代入圓：\((2y-4)^2+(y-2)^2=5\Rightarrow 5(y-2)^2=5\Rightarrow y=3\) 或 \(y=1\)，得 \((3,3)\)、\((-1,1)\)。<br>比較到直線的距離：\((3,3)\) 為 \(\dfrac{15}{\sqrt{5}}\)，\((-1,1)\) 為 \(\dfrac{5}{\sqrt{5}}\)，所以最近點是 \((-1,1)\)。`},
+  {id:"T04-15",
+   tag:"T04",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`直線 \(3x+4y=15\) 與圓 \(x^2+y^2=25\) 交於 \(A\)、\(B\) 兩點，\(P\) 為圓上的動點，求 \(\triangle PAB\) 面積的最大值。`,
+   ans:"32",
+   reasons:[String.raw`把最大的高當成 \(r\) 或 \(r-d\)，沒有用 \(r+d\)`, String.raw`弦長忘了乘 \(2\)，得 \(\overline{AB}=4\)`, String.raw`三角形面積忘了除以 \(2\)`],
+   key:0,
+   exp:String.raw`弦心距 \(d=\dfrac{|0+0-15|}{5}=3\)，半弦長 \(=\sqrt{25-9}=4\)，\(\overline{AB}=8\)。<br>\(\triangle PAB\) 的底固定為 \(\overline{AB}\)，高是 \(P\) 到直線的距離，最大為 \(r+d=5+3=8\)（\(P\) 在離直線最遠的那一側）。<br>面積最大值 \(=\dfrac{1}{2}\times8\times8=32\)。`},
+  {id:"T04-V1",
+   tag:"T04",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   vary:true,
+   reasons:["最大距離與最小距離的公式（d + r、d − r）弄反", String.raw`把 \(r^2\) 當成半徑`, "點到直線距離代入時正負號算錯"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const [a0, b0, L] = R.pick([[3, 4, 5], [4, 3, 5], [5, 12, 13], [12, 5, 13]]);
+     let a = a0 * R.sign(), b = b0 * R.sign();
+     const h = R.int(-5, 5), v = R.int(-5, 5), r = R.int(1, 5), d = r + R.int(1, 5);
+     let c = R.sign() * d * L - a * h - b * v;
+     if (a < 0 || (a === 0 && b < 0)) { a = -a; b = -b; c = -c; }
+     const isMax = R.pick([true, false]), gen = R.pick([true, false]);
+     const F = h * h + v * v - r * r;
+     const circ = gen ? String.raw`x^2+y^2${V.term(-2 * h, "x")}${V.term(-2 * v, "y")}${V.term(F, "")}=0` : String.raw`${V.sq("x", h)}+${V.sq("y", v)}=${r * r}`;
+     const first = gen ? String.raw`配方：\(${V.sq("x", h)}+${V.sq("y", v)}=${r * r}\)，圓心 \(${V.pt(h, v)}\)，半徑 \(${r}\)。` : String.raw`圓心 \(${V.pt(h, v)}\)，半徑 \(${r}\)。`;
+     const ansv = isMax ? d + r : d - r;
+     return {
+       stem: String.raw`圓 \(${circ}\) 上的點到直線 \(${V.lin(a, b, c)}\) 的${isMax ? "最大" : "最小"}距離為何？`,
+       ans: String(ansv),
+       exp: String.raw`${first}<br>圓心到直線的距離 \(d=\dfrac{|${a}\cdot ${V.fPar(h)}${b < 0 ? "-" : "+"}${Math.abs(b)}\cdot ${V.fPar(v)}${V.term(c, "")}|}{\sqrt{${a * a}+${b * b}}}=\dfrac{${d * L}}{${L}}=${d}\gt ${r}\)，直線與圓不相交。<br>${isMax ? "最大" : "最小"}距離 \(=d${isMax ? "+" : "-"}r=${d}${isMax ? "+" : "-"}${r}=${ansv}\)。`
+     };
+   }},
+  {id:"T04-V2",
+   tag:"T04",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:["只考慮了直線某一側的平行線，漏了另一側", "相切的情形只有 1 個點，卻算成 2 個或 0 個", "圓心到直線距離算錯"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const [a0, b0, L] = R.pick([[3, 4, 5], [4, 3, 5], [5, 12, 13], [12, 5, 13]]);
+     let a = a0 * R.sign(), b = b0 * R.sign();
+     const h = R.int(-4, 4), v = R.int(-4, 4), r = R.int(2, 6);
+     let d = R.int(0, r + 2), t;
+     const mode = R.int(0, 2);
+     if (mode === 1 && d < r) t = r - d;            // 一側相切
+     else if (mode === 2) t = d + r;                // 另一側相切（d ≥ 0）
+     else t = R.int(1, r + 3);
+     if (t <= 0) t = 1;
+     let c = R.sign() * d * L - a * h - b * v;
+     if (a < 0 || (a === 0 && b < 0)) { a = -a; b = -b; c = -c; }
+     const cnt = D => (D < r ? 2 : D === r ? 1 : 0);
+     const D1 = d + t, D2 = Math.abs(d - t), ansv = cnt(D1) + cnt(D2);
+     const say = D => (D < r ? String.raw`\(${D}\lt ${r}\)，與圓交於 \(2\) 點` : D === r ? String.raw`\(${D}=${r}\)，與圓相切，\(1\) 點` : String.raw`\(${D}\gt ${r}\)，與圓不相交，\(0\) 點`);
+     return {
+       stem: String.raw`圓 \(${V.sq("x", h)}+${V.sq("y", v)}=${r * r}\) 上，到直線 \(${V.lin(a, b, c)}\) 的距離為 \(${t}\) 的點共有幾個？`,
+       ans: String(ansv),
+       exp: String.raw`圓心 \(${V.pt(h, v)}\)，半徑 \(${r}\)。圓心到直線的距離 \(d=\dfrac{|${a}\cdot ${V.fPar(h)}${b < 0 ? "-" : "+"}${Math.abs(b)}\cdot ${V.fPar(v)}${V.term(c, "")}|}{\sqrt{${a * a}+${b * b}}}=${d}\)。<br>到直線距離為 \(${t}\) 的點，落在兩條與直線平行、相距 \(${t}\) 的直線上，它們到圓心的距離分別為 \(${d}+${t}=${D1}\) 與 \(|${d}-${t}|=${D2}\)。<br>距離 ${say(D1)}；距離 ${say(D2)}。<br>共 \(${ansv}\) 個點。`
+     };
+   }},
+  // ===== T05 過圓上一點的切線 =====
   {id:"T05-1",
    tag:"T05",
    level:"易",
@@ -502,7 +986,149 @@ window.BANK_UNIT07 = [
    reasons:["其中一條切線的斜率算錯", "解聯立方程式時計算錯誤", "把切線寫成過圓心的直線"],
    key:0,
    exp:String.raw`圓心 \(M(1,2)\)。\(\overrightarrow{MA}=(3,4)\)，切線 \(3(x-4)+4(y-6)=0\Rightarrow 3x+4y=36\)。<br>\(\overrightarrow{MB}=(-4,3)\)，切線 \(-4(x+3)+3(y-5)=0\Rightarrow -4x+3y=27\)。<br>聯立解得 \(x=0\)、\(y=9\)，\(Q(0,9)\)。<br>（因為 \(\overrightarrow{MA}\perp\overrightarrow{MB}\)，四邊形 \(MAQB\) 其實是邊長 \(5\) 的正方形。）`},
-  // ===== T06 =====
+  {id:"T05-10",
+   tag:"T05",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`圓 \(x^2+y^2=10\) 在點 \((1,-3)\) 的切線的 \(y\) 截距為何？`,
+   ans:"-10/3",
+   reasons:[String.raw`切線寫成 \(x+3y=10\)，代入 \(y_0=-3\) 時漏了負號`, String.raw`把 \(x\) 截距 \(10\) 當成 \(y\) 截距`, "令 x = 0 解 y 時正負號錯"],
+   key:0,
+   exp:String.raw`圓 \(x^2+y^2=r^2\) 在 \((x_0,y_0)\) 的切線為 \(x_0x+y_0y=r^2\)。<br>所以切線為 \(1\cdot x+(-3)\cdot y=10\)，即 \(x-3y=10\)。<br>令 \(x=0\)：\(-3y=10\Rightarrow y=-\dfrac{10}{3}\)。`},
+  {id:"T05-11",
+   tag:"T05",
+   level:"易",
+   cat:"基本分",
+   type:"mc",
+   stem:String.raw`圓 \((x+2)^2+(y-1)^2=13\) 上一點 \((1,3)\) 的切線方程式為何？`,
+   opts:[String.raw`\(2x-3y+7=0\)`, String.raw`\(x+3y=13\)`, String.raw`\(3x-2y+3=0\)`, String.raw`\(3x+2y-9=0\)`],
+   ans:[3],
+   reasons:[String.raw`直接套 \(x_0x+y_0y=r^2\)，忘了圓心不在原點`, "把通過圓心與切點的直線（半徑所在直線）當成切線", "切線斜率應取半徑斜率的負倒數，卻只取倒數"],
+   key:0,
+   exp:String.raw`圓心 \(C(-2,1)\)，切點 \(P(1,3)\)。<br>半徑 \(CP\) 的斜率 \(=\dfrac{3-1}{1+2}=\dfrac{2}{3}\)，切線與半徑垂直，斜率 \(=-\dfrac{3}{2}\)。<br>切線：\(y-3=-\dfrac{3}{2}(x-1)\Rightarrow 2y-6=-3x+3\Rightarrow 3x+2y-9=0\)。`},
+  {id:"T05-12",
+   tag:"T05",
+   level:"易",
+   cat:"陷阱題",
+   type:"tf",
+   stem:String.raw`圓 \(x^2+y^2-4x+2y-4=0\) 在點 \((5,-1)\) 的切線斜率為 \(0\)。`,
+   opts:["○ 正確", "✕ 錯誤"],
+   ans:[1],
+   reasons:["半徑是水平線（斜率 0），就誤以為切線斜率也是 0", "以為「斜率不存在」就等於斜率為 0", "配方算錯圓心，以為半徑是鉛直的"],
+   key:0,
+   exp:String.raw`配方：\((x-2)^2+(y+1)^2=9\)，圓心 \((2,-1)\)。點 \((5,-1)\) 代入：\(9+0=9\)，在圓上。<br>半徑由 \((2,-1)\) 到 \((5,-1)\) 是水平線段，切線與它垂直，是鉛直線 \(x=5\)。<br>鉛直線沒有斜率（斜率不存在），不是 \(0\)，所以敘述錯誤。`},
+  {id:"T05-13",
+   tag:"T05",
+   level:"中",
+   cat:"陷阱題",
+   type:"mc",
+   stem:String.raw`圓 \(x^2+y^2+4x-6y-12=0\) 上一點 \((1,7)\) 的切線方程式為何？`,
+   opts:[String.raw`\(3x+4y-31=0\)`, String.raw`\(5x+y-50=0\)`, String.raw`\(x+7y-25=0\)`, String.raw`\(4x-3y+17=0\)`],
+   ans:[0],
+   reasons:[String.raw`套用一般式的切線公式時，一次項 \(4x\)、\(-6y\) 忘了除以 \(2\)`, "把通過圓心與切點的直線當成切線", String.raw`直接套 \(x_0x+y_0y=r^2\)，忽略圓心不在原點`],
+   key:0,
+   exp:String.raw`配方：\((x+2)^2+(y-3)^2=25\)，圓心 \(C(-2,3)\)。<br>半徑 \(CP\) 斜率 \(=\dfrac{7-3}{1+2}=\dfrac{4}{3}\)，切線斜率 \(=-\dfrac{3}{4}\)。<br>切線：\(y-7=-\dfrac{3}{4}(x-1)\Rightarrow 4y-28=-3x+3\Rightarrow 3x+4y-31=0\)。<br>（若用公式 \(x_0x+y_0y+2(x+x_0)-3(y+y_0)-12=0\)，係數要用 \(\dfrac{4}{2}\)、\(\dfrac{-6}{2}\)；忘了除以 2 會得到 \(5x+y-50=0\)。）`},
+  {id:"T05-14",
+   tag:"T05",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`點 \(P(a,b)\) 在第一象限，且在圓 \(x^2+y^2=5\) 上。過 \(P\) 的切線與兩坐標軸所圍成的三角形面積為 \(\dfrac{25}{4}\)，求 \(a+b\)。`,
+   ans:"3",
+   reasons:[String.raw`把切線的兩個截距寫成 \(a\)、\(b\)，沒有用 \(\dfrac{5}{a}\)、\(\dfrac{5}{b}\)`, String.raw`三角形面積忘了除以 \(2\)，得 \(ab=4\)`, String.raw`求出 \((a+b)^2=9\) 後忘了開根號`],
+   key:0,
+   exp:String.raw`過 \(P(a,b)\) 的切線：\(ax+by=5\)。<br>\(x\) 截距 \(\dfrac{5}{a}\)，\(y\) 截距 \(\dfrac{5}{b}\)（\(a,b\gt 0\)），面積 \(=\dfrac{1}{2}\cdot\dfrac{5}{a}\cdot\dfrac{5}{b}=\dfrac{25}{2ab}=\dfrac{25}{4}\Rightarrow ab=2\)。<br>\((a+b)^2=a^2+b^2+2ab=5+4=9\)，又 \(a+b\gt 0\)，所以 \(a+b=3\)。<br>（\(P\) 為 \((1,2)\) 或 \((2,1)\)。）`},
+  {id:"T05-15",
+   tag:"T05",
+   level:"難",
+   cat:"拉分題",
+   type:"multi",
+   stem:String.raw`（多選）點 \(P\) 在圓 \(x^2+y^2=25\) 上，且圓在 \(P\) 點的切線通過點 \(Q(7,1)\)。下列哪些敘述正確？`,
+   opts:[String.raw`\(P\) 可能是 \((3,4)\)`, String.raw`\(P\) 可能是 \((4,3)\)`, String.raw`符合條件的 \(P\) 恰有兩個`, String.raw`所有符合條件的 \(P\) 都在直線 \(7x+y=25\) 上`, String.raw`兩個符合條件的 \(P\) 的連線通過 \(Q\)`],
+   ans:[0, 2, 3],
+   reasons:[String.raw`把切線公式中的 \((x_0,y_0)\) 與 \(Q\) 的坐標用反，沒有寫成 \(7a+b=25\)`, String.raw`聯立 \(7a+b=25\) 與 \(a^2+b^2=25\) 時解二次方程式算錯`, "以為切點連線也會通過 Q"],
+   key:0,
+   exp:String.raw`設 \(P(a,b)\)，則 \(a^2+b^2=25\)，切線為 \(ax+by=25\)。<br>切線過 \(Q(7,1)\)：\(7a+b=25\)，所以每個 \(P\) 都在直線 \(7x+y=25\) 上。<br>\(b=25-7a\) 代入：\(a^2+(25-7a)^2=25\Rightarrow 50a^2-350a+600=0\Rightarrow a^2-7a+12=0\)，\(a=3\) 或 \(4\)。<br>得 \(P=(3,4)\) 或 \((4,-3)\)，恰有兩個；\((4,3)\) 不符（\(7\cdot4+3=31\neq 25\)）。<br>兩個 \(P\) 的連線就是 \(7x+y=25\)，代入 \(Q\)：\(49+1=50\neq25\)，不通過 \(Q\)。<br>正確為 (A)(C)(D)。`},
+  {id:"T05-V1",
+   tag:"T05",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   vary:true,
+   reasons:["切線斜率應是半徑斜率的負倒數，卻只取倒數或只變號", "直接套用原點圓的公式，忘了圓心不在原點", "求截距時令錯變數（x 截距要令 y = 0）"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const r2s = [5, 10, 13, 17, 20, 25, 26, 29];
+     let h = 1, v = 2, p = 3, q = 4, r2 = 25, ask = "x 截距", K = 3 * 4 + 4 * 6, ok = false;
+     for (let t = 0; t < 50 && !ok; t++) {
+       const rr = R.pick(r2s), vs = [];
+       for (let x = -6; x <= 6; x++) for (let y = -6; y <= 6; y++) if (x * x + y * y === rr && x !== 0 && y !== 0) vs.push([x, y]);
+       const [pp, qq] = R.pick(vs), hh = R.int(-4, 4), vv = R.int(-4, 4), aa = R.pick(["斜率", "x 截距", "y 截距"]);
+       const KK = pp * (hh + pp) + qq * (vv + qq);
+       if (aa !== "斜率" && KK === 0) continue;
+       h = hh; v = vv; p = pp; q = qq; r2 = rr; ask = aa; K = KK; ok = true;
+     }
+     const xP = h + p, yP = v + q;
+     const m = V.F(-p, q), mr = V.F(q, p);
+     const co = x => (x.n === x.d ? "" : x.n === -x.d ? "-" : V.fTex(x));
+     let A = p, B = q, Cc = -K; const g = V.gcd(V.gcd(A, B), Cc) || 1; A /= g; B /= g; Cc /= g;
+     if (A < 0) { A = -A; B = -B; Cc = -Cc; }
+     let ansv, last;
+     if (ask === "斜率") { ansv = m; last = String.raw`所以切線斜率為 \(${V.fTex(m)}\)。`; }
+     else if (ask === "x 截距") { ansv = V.F(K, p); last = String.raw`令 \(y=0\)：\(${V.term(A, "x", true)}=${-Cc}\Rightarrow x=${V.fTex(ansv)}\)。`; }
+     else { ansv = V.F(K, q); last = String.raw`令 \(x=0\)：\(${V.term(B, "y", true)}=${-Cc}\Rightarrow y=${V.fTex(ansv)}\)。`; }
+     const askTex = ask === "斜率" ? "斜率" : ask === "x 截距" ? String.raw`\(x\) 截距` : String.raw`\(y\) 截距`;
+     return {
+       stem: String.raw`點 \(P${V.pt(xP, yP)}\) 在圓 \(${V.sq("x", h)}+${V.sq("y", v)}=${r2}\) 上，求此圓在 \(P\) 點的切線的${askTex}。`,
+       ans: V.fAns(ansv),
+       exp: String.raw`圓心 \(C${V.pt(h, v)}\)。半徑 \(CP\) 的斜率 \(=\dfrac{${yP}-${V.fPar(v)}}{${xP}-${V.fPar(h)}}=${V.fTex(mr)}\)。<br>切線與半徑垂直，切線斜率 \(=${V.fTex(m)}\)。<br>切線：\(y${V.term(-yP, "")}=${xP === 0 ? co(m) + "x" : co(m) + String.raw`\left(x${V.term(-xP, "")}\right)`}\)，整理得 \(${V.lin(A, B, Cc)}\)。<br>${last}`
+     };
+   }},
+  {id:"T05-V2",
+   tag:"T05",
+   level:"中",
+   cat:"必考題",
+   type:"mc",
+   vary:true,
+   reasons:["套用一般式切線公式時一次項係數忘了除以 2", "把通過圓心與切點的直線（法線）當成切線", "直接套用原點圓的公式 x₀x + y₀y = r²，忽略圓心不在原點"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const norm = (a, b, c) => { const g = V.gcd(V.gcd(a, b), c) || 1; a /= g; b /= g; c /= g; if (a < 0 || (a === 0 && b < 0)) { a = -a; b = -b; c = -c; } return [a, b, c]; };
+     const key = l => l.join(",");
+     const r2s = [5, 10, 13, 17, 25, 26, 29];
+     let res = null;
+     for (let t = 0; t < 50 && !res; t++) {
+       const r2 = R.pick(r2s), vs = [];
+       for (let x = -6; x <= 6; x++) for (let y = -6; y <= 6; y++) if (x * x + y * y === r2 && x !== 0 && y !== 0) vs.push([x, y]);
+       const [p, q] = R.pick(vs), h = R.int(-4, 4), v = R.int(-4, 4);
+       if (h === 0 || v === 0) continue;
+       const xP = h + p, yP = v + q, D = -2 * h, E = -2 * v, F = h * h + v * v - r2;
+       const right = norm(p, q, -(p * xP + q * yP));
+       const cands = [
+         norm(q, -p, -(q * xP - p * yP)),                       // 法線
+         norm(xP, yP, -r2),                                      // 套原點公式
+         norm(xP + D, yP + E, D * xP + E * yP + F),             // 一次項沒除以 2
+         norm(p, q, p * h + q * v - r2)                          // 圓心正負號錯
+       ].filter(l => !(l[0] === 0 && l[1] === 0));
+       const seen = new Set([key(right)]), wrong = [];
+       for (const l of R.shuffle(cands)) if (!seen.has(key(l)) && wrong.length < 3) { seen.add(key(l)); wrong.push(l); }
+       if (wrong.length < 3) continue;
+       res = {r2, p, q, h, v, xP, yP, D, E, F, right, wrong};
+     }
+     if (!res) res = {r2: 25, p: 3, q: 4, h: -2, v: 3, xP: 1, yP: 7, D: 4, E: -6, F: -12, right: [3, 4, -31], wrong: [[5, 1, -50], [1, 7, -25], [4, -3, 17]]};
+     const {r2, p, q, h, v, xP, yP, D, E, F, right, wrong} = res;
+     const L = l => String.raw`\(${V.lin(l[0], l[1], l[2])}\)`;
+     const m = V.F(-p, q), mr = V.F(q, p);
+     const co = x => (x.n === x.d ? "" : x.n === -x.d ? "-" : V.fTex(x));
+     return {
+       stem: String.raw`圓 \(x^2+y^2${V.term(D, "x")}${V.term(E, "y")}${V.term(F, "")}=0\) 上一點 \(P${V.pt(xP, yP)}\) 的切線方程式為何？`,
+       opts: [L(right), L(wrong[0]), L(wrong[1]), L(wrong[2])],
+       ans: [0],
+       exp: String.raw`配方：\(${V.sq("x", h)}+${V.sq("y", v)}=${r2}\)，圓心 \(C${V.pt(h, v)}\)。<br>半徑 \(CP\) 的斜率 \(=\dfrac{${yP}-${V.fPar(v)}}{${xP}-${V.fPar(h)}}=${V.fTex(mr)}\)，切線與半徑垂直，斜率 \(=${V.fTex(m)}\)。<br>切線：\(y${V.term(-yP, "")}=${xP === 0 ? co(m) + "x" : co(m) + String.raw`\left(x${V.term(-xP, "")}\right)`}\)，整理得 \(${V.lin(right[0], right[1], right[2])}\)。`
+     };
+   }},
+  // ===== T06 過圓外一點的切線 =====
   {id:"T06-1",
    tag:"T06",
    level:"易",
@@ -623,7 +1249,102 @@ window.BANK_UNIT07 = [
    reasons:[String.raw`不知道兩切線垂直時 \(\overline{MP}=\sqrt{2}\,r\)`, String.raw`解 \((a-1)^2=16\) 漏掉一解`, "圓心坐標算錯"],
    key:0,
    exp:String.raw`配方：\((x-1)^2+(y-2)^2=10\)，\(M(1,2)\)，\(r=\sqrt{10}\)。<br>兩切線垂直時，\(P\)、兩切點與 \(M\) 構成正方形，\(\overline{MP}=\sqrt{2}\,r=\sqrt{20}\)。<br>\((a-1)^2+4=20\Rightarrow (a-1)^2=16\Rightarrow a=5\) 或 \(a=-3\)。`},
-  // ===== T07 =====
+  {id:"T06-12",
+   tag:"T06",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`過點 \(P(3,1)\) 作圓 \(x^2+y^2=5\) 的兩條切線，求斜率為負的那一條切線的斜率。`,
+   ans:"-1/2",
+   reasons:[String.raw`列出 \(\dfrac{|1-3m|}{\sqrt{m^2+1}}=\sqrt{5}\) 後，平方時右邊忘了把 \(\sqrt5\) 也平方`, String.raw`以為切線和 \(\overline{OP}\) 垂直，直接取 \(\overline{OP}\) 斜率 \(\dfrac{1}{3}\) 的負倒數 \(-3\)`, String.raw`解 \(2m^2-3m-2=0\) 時因式分解的正負號弄反`],
+   key:0,
+   exp:String.raw`設切線為 \(y-1=m(x-3)\)，即 \(mx-y+(1-3m)=0\)。<br>圓心 \(O(0,0)\) 到切線的距離等於半徑 \(\sqrt5\)：\(\dfrac{|1-3m|}{\sqrt{m^2+1}}=\sqrt5\)。<br>兩邊平方：\(9m^2-6m+1=5m^2+5\Rightarrow 4m^2-6m-4=0\Rightarrow 2m^2-3m-2=0\)。<br>\((2m+1)(m-2)=0\)，得 \(m=2\) 或 \(m=-\dfrac{1}{2}\)。<br>（鉛直線 \(x=3\) 到圓心距離為 \(3\ne\sqrt5\)，不是切線。）<br>斜率為負的那一條，斜率為 \(-\dfrac{1}{2}\)。`},
+  {id:"T06-13",
+   tag:"T06",
+   level:"易",
+   cat:"基本分",
+   type:"mc",
+   stem:String.raw`下列哪一條直線通過點 \(P(4,-2)\)，而且與圓 \(x^2+y^2=4\) 相切？`,
+   opts:[String.raw`\(x=4\)`, String.raw`\(3x-4y-20=0\)`, String.raw`\(4x+3y-10=0\)`, String.raw`\(x+2y=0\)`],
+   ans:[2],
+   reasons:[String.raw`只檢查直線有沒有通過 \(P\)，沒有檢查圓心到直線的距離是否等於半徑`, "以為過圓外一點的鉛直線一定是切線", String.raw`距離公式忘了除以 \(\sqrt{a^2+b^2}\)`],
+   key:0,
+   exp:String.raw`四個選項都通過 \(P(4,-2)\)，所以要看圓心 \(O(0,0)\) 到直線的距離是否等於半徑 \(2\)。<br>\(x=4\)：距離 \(4\)，不相切。<br>\(3x-4y-20=0\)：距離 \(\dfrac{|-20|}{5}=4\)，不相切。<br>\(4x+3y-10=0\)：距離 \(\dfrac{|-10|}{5}=2\)，相切。<br>\(x+2y=0\)：通過圓心，距離 \(0\)，是割線。<br>（過 \(P\) 的另一條切線是 \(y=-2\)。）故選 \(4x+3y-10=0\)。`},
+  {id:"T06-14",
+   tag:"T06",
+   level:"中",
+   cat:"陷阱題",
+   type:"tf",
+   stem:String.raw`過點 \(P(-1,3)\) 作圓 \(x^2+y^2=1\) 的切線。小明設切線為 \(y-3=m(x+1)\)，代入距離公式後只解出一個斜率 \(m=-\dfrac{4}{3}\)，所以過 \(P\) 的切線只有一條。`,
+   opts:["○ 正確", "✕ 錯誤"],
+   ans:[1],
+   reasons:[String.raw`用點斜式設切線就預設了切線有斜率，漏掉鉛直線 \(x=-1\)`, String.raw`以為 \(m^2\) 項消掉、只剩一個解，就代表只有一條切線`, String.raw`沒先判斷 \(P\) 在圓外（圓外一點一定有兩條切線）`],
+   key:0,
+   exp:String.raw`\(P\) 代入：\((-1)^2+3^2=10\gt 1\)，\(P\) 在圓外，所以一定有兩條切線。<br>設 \(mx-y+(m+3)=0\)：\(\dfrac{|m+3|}{\sqrt{m^2+1}}=1\Rightarrow m^2+6m+9=m^2+1\Rightarrow m=-\dfrac{4}{3}\)，因為 \(m^2\) 項消掉，只得一個斜率。<br>少掉的那一條是沒有斜率的鉛直線 \(x=-1\)：圓心到它的距離為 \(1\)，等於半徑，也是切線。<br>所以切線有兩條：\(4x+3y-5=0\) 與 \(x=-1\)，敘述錯誤。`},
+  {id:"T06-15",
+   tag:"T06",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`過點 \(P(0,4)\) 作圓 \(x^2+y^2-2x-2y-3=0\) 的兩條切線，這兩條切線與 \(x\) 軸圍成一個三角形，求此三角形的面積。`,
+   ans:"20",
+   reasons:["距離公式平方後展開算錯，求錯切線斜率", String.raw`求切線的 \(x\) 截距時正負號算錯，底邊長算錯`, String.raw`把三角形的高誤用成半徑或 \(P\) 到圓心的距離，而不是 \(P\) 的 \(y\) 坐標`],
+   key:0,
+   exp:String.raw`配方：\((x-1)^2+(y-1)^2=5\)，圓心 \(M(1,1)\)、半徑 \(\sqrt5\)。<br>鉛直線 \(x=0\) 到圓心距離為 \(1\ne\sqrt5\)，不是切線，所以設切線 \(y=mx+4\)，即 \(mx-y+4=0\)。<br>\(\dfrac{|m-1+4|}{\sqrt{m^2+1}}=\sqrt5\Rightarrow (m+3)^2=5(m^2+1)\Rightarrow 4m^2-6m-4=0\Rightarrow (2m+1)(m-2)=0\)，得 \(m=2\) 或 \(m=-\dfrac{1}{2}\)。<br>切線 \(y=2x+4\) 的 \(x\) 截距為 \(-2\)；切線 \(y=-\dfrac{1}{2}x+4\) 的 \(x\) 截距為 \(8\)。<br>三角形頂點為 \((-2,0)\)、\((8,0)\)、\(P(0,4)\)，底 \(=10\)、高 \(=4\)，面積 \(=\dfrac{1}{2}\times 10\times 4=20\)。`},
+  {id:"T06-V1",
+   tag:"T06",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   vary:true,
+   reasons:["距離公式平方後展開或移項算錯，得到錯誤的二次方程式", "把切線當成與「圓心和 P 的連線」垂直，直接取連線斜率的負倒數", "兩個斜率都算對了，卻選成較小的那一個"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let x0 = 3, y0 = 1, r2 = 5, s = 5;
+     for (let i = 0; i < 50; i++) {
+       const a = R.nz(-7, 7), b = R.nz(-7, 7), c = R.int(1, 30), t2 = a * a + b * b - c;
+       if (t2 <= 0 || a * a === c) continue;
+       const D = c * t2, q = Math.round(Math.sqrt(D));
+       if (q * q !== D) continue;
+       const A = a * a - c, m1 = V.F(a * b + q, A), m2 = V.F(a * b - q, A);
+       if (m1.d > 12 || m2.d > 12 || Math.abs(m1.n) > 15 || Math.abs(m2.n) > 15) continue;
+       x0 = a; y0 = b; r2 = c; s = q; break;
+     }
+     const A = x0 * x0 - r2, B = -2 * x0 * y0, C = y0 * y0 - r2, g = gcd(gcd(A, B), C) * Math.sign(A);
+     const m1 = V.F(x0 * y0 + s, A), m2 = V.F(x0 * y0 - s, A);
+     const big = V.val(m1) > V.val(m2) ? m1 : m2, small = big === m1 ? m2 : m1;
+     const rt = V.sTex(V.surd(1, r2)), cst = V.expr([[y0, ""], [-x0, "m"]]);
+     return {
+       stem: String.raw`過點 \(P${V.pt(x0, y0)}\) 作圓 \(x^2+y^2=${r2}\) 的兩條切線，求這兩條切線中較大的斜率。`,
+       ans: V.fAns(big),
+       exp: String.raw`鉛直線 \(x=${x0}\) 到圓心 \(O(0,0)\) 的距離為 \(${Math.abs(x0)}\ne ${rt}\)，不是切線，所以兩條切線都有斜率。<br>設切線為 \(${sh("y", y0)}=m(${sh("x", x0)})\)，即 \(mx-y+(${cst})=0\)。<br>圓心到切線的距離等於半徑：\(\dfrac{|${cst}|}{\sqrt{m^2+1}}=${rt}\)。<br>兩邊平方：\((${cst})^2=${r2}(m^2+1)\)，整理得 \(${V.expr([[A / g, "m^2"], [B / g, "m"], [C / g, ""]])}=0\)。<br>解得 \(m=${V.fTex(big)}\) 或 \(m=${V.fTex(small)}\)，較大的斜率為 \(${V.fTex(big)}\)。`
+     };
+   }},
+  {id:"T06-V2",
+   tag:"T06",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:["用點斜式設切線後忘了鉛直線，以為解出的方程式應該有兩個斜率而算錯", "配方求圓心、半徑時正負號弄錯", "距離公式的分子代入圓心時漏項或正負號算錯"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let h = 1, k = 1, r = 2, d = 4, s = 1;
+     for (let i = 0; i < 50; i++) {
+       const hh = R.int(-5, 5), kk = R.int(-5, 5), rr = R.int(1, 5), dd = R.nz(-8, 8), ss = R.sign();
+       const m = V.F(ss * (dd * dd - rr * rr), 2 * rr * dd);
+       if (m.d > 12 || Math.abs(m.n) > 30) continue;
+       h = hh; k = kk; r = rr; d = dd; s = ss; break;
+     }
+     const Px = h + s * r, Py = k + d, m = V.F(s * (d * d - r * r), 2 * r * d);
+     const cst = V.expr([[Py, ""], [-Px, "m"]]);
+     return {
+       stem: String.raw`過點 \(P${V.pt(Px, Py)}\) 作圓 \(${genCircle(V, 1, h, k, r * r)}\) 的兩條切線，求其中斜率存在的那一條切線的斜率。`,
+       ans: V.fAns(m),
+       exp: String.raw`配方得 \(${stdCircle(V, h, k, r * r)}\)，圓心 \(M${V.pt(h, k)}\)、半徑 \(${r}\)。<br>鉛直線 \(x=${Px}\) 到圓心的距離為 \(|${Px}-${V.fPar(h)}|=${r}\)，等於半徑，所以 \(x=${Px}\) 是一條切線（沒有斜率）。<br>設另一條切線為 \(${sh("y", Py)}=m(${sh("x", Px)})\)，即 \(mx-y+(${cst})=0\)。<br>圓心到切線的距離：\(\dfrac{|${V.expr([[h, "m"], [-k, ""]])}+(${cst})|}{\sqrt{m^2+1}}=\dfrac{|${V.expr([[-s * r, "m"], [d, ""]])}|}{\sqrt{m^2+1}}=${r}\)。<br>平方：\(${V.expr([[r * r, "m^2"], [-2 * s * r * d, "m"], [d * d, ""]])}=${V.expr([[r * r, "m^2"], [r * r, ""]])}\)，\(m^2\) 項消去得 \(${V.expr([[-2 * s * r * d, "m"]])}=${r * r - d * d}\)。<br>所以 \(m=${V.fTex(m)}\)。`
+     };
+   }},
+  // ===== T07 已知斜率的切線 =====
   {id:"T07-1",
    tag:"T07",
    level:"易",
@@ -732,7 +1453,105 @@ window.BANK_UNIT07 = [
    reasons:["只考慮了其中一條切線", String.raw`距離公式忘了除以 \(\sqrt{2}\)`, "第一個圓的切線截距算錯"],
    key:0,
    exp:String.raw`設 \(L:x-y+k=0\)，與 \(x^2+y^2=2\) 相切：\(\dfrac{|k|}{\sqrt{2}}=\sqrt{2}\Rightarrow k=\pm2\)。<br>\(k=2\)：\((4,0)\) 到 \(x-y+2=0\) 的距離 \(=\dfrac{6}{\sqrt{2}}=3\sqrt{2}\)。<br>\(k=-2\)：\((4,0)\) 到 \(x-y-2=0\) 的距離 \(=\dfrac{2}{\sqrt{2}}=\sqrt{2}\)。<br>所以 \(r=\sqrt{2}\) 或 \(3\sqrt{2}\)。`},
-  // ===== T08 =====
+  {id:"T07-11",
+   tag:"T07",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`斜率為 \(-2\) 且與圓 \(x^2+y^2=20\) 相切的直線有兩條，求 \(y\) 截距為正的那一條切線的 \(y\) 截距。`,
+   ans:"10",
+   reasons:[String.raw`把半徑 \(\sqrt{20}\) 寫成 \(20\)（\(r\) 與 \(r^2\) 搞混）`, String.raw`距離公式的分母 \(\sqrt{(-2)^2+1^2}\) 算錯`, String.raw`直接用 \(y=mx\pm r\)，漏乘 \(\sqrt{1+m^2}\)，得到 \(2\sqrt5\)`],
+   key:2,
+   exp:String.raw`設切線為 \(y=-2x+k\)，即 \(2x+y-k=0\)。<br>圓心 \((0,0)\) 到切線的距離等於半徑 \(\sqrt{20}=2\sqrt5\)：\(\dfrac{|-k|}{\sqrt{5}}=2\sqrt5\)。<br>得 \(|k|=10\)，\(k=10\) 或 \(k=-10\)。<br>\(y\) 截距為正的切線是 \(y=-2x+10\)，\(y\) 截距為 \(10\)。`},
+  {id:"T07-12",
+   tag:"T07",
+   level:"易",
+   cat:"基本分",
+   type:"tf",
+   stem:String.raw`直線 \(y=x+k\) 與圓 \(x^2+y^2=8\) 相切，則 \(k=4\) 或 \(k=-4\)。`,
+   opts:["○ 正確", "✕ 錯誤"],
+   ans:[0],
+   reasons:[String.raw`把半徑當成 \(8\)，算出 \(k=\pm 8\sqrt{2}\)`, String.raw`以為 \(k\) 就等於半徑 \(2\sqrt2\)，忘了距離公式要除以 \(\sqrt{2}\)`, String.raw`只取 \(k=4\)，以為負的不合`],
+   key:1,
+   exp:String.raw`直線寫成 \(x-y+k=0\)。<br>圓心 \((0,0)\) 到直線的距離等於半徑 \(2\sqrt2\)：\(\dfrac{|k|}{\sqrt{2}}=2\sqrt2\Rightarrow |k|=4\)。<br>所以 \(k=4\) 或 \(k=-4\)，敘述正確。`},
+  {id:"T07-13",
+   tag:"T07",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`斜率為 \(\dfrac{1}{2}\) 的兩條直線都與圓 \(x^2+y^2-6x+2y+5=0\) 相切，其中一條通過原點，求另一條切線的 \(y\) 截距。`,
+   ans:"-5",
+   reasons:[String.raw`配方時常數項算錯，半徑平方不是 \(5\)`, String.raw`把直線寫成 \(x-2y+2b=0\) 後，誤把 \(2b\) 或 \(-2b\) 當成 \(y\) 截距`, "去絕對值時只取一種情形，只得到通過原點的那一條"],
+   key:1,
+   exp:String.raw`配方：\((x-3)^2+(y+1)^2=5\)，圓心 \((3,-1)\)、半徑 \(\sqrt5\)。<br>設切線 \(y=\dfrac{1}{2}x+b\)，即 \(x-2y+2b=0\)。<br>\(\dfrac{|3+2+2b|}{\sqrt{5}}=\sqrt5\Rightarrow |5+2b|=5\)。<br>\(5+2b=5\Rightarrow b=0\)（通過原點）；\(5+2b=-5\Rightarrow b=-5\)。<br>另一條切線 \(y=\dfrac{1}{2}x-5\) 的 \(y\) 截距為 \(-5\)。`},
+  {id:"T07-14",
+   tag:"T07",
+   level:"中",
+   cat:"陷阱題",
+   type:"mc",
+   stem:String.raw`與直線 \(x+3=0\) 平行，且與圓 \((x-2)^2+(y+3)^2=9\) 相切的直線為何？`,
+   opts:[String.raw`\(x=-1\) 或 \(x=5\)`, String.raw`\(y=0\) 或 \(y=-6\)`, String.raw`\(x=-5\) 或 \(x=1\)`, String.raw`\(x=-3\) 或 \(x=3\)`],
+   ans:[0],
+   reasons:[String.raw`\(x+3=0\) 是鉛直線（沒有斜率），卻把平行線寫成水平線 \(y=c\)`, String.raw`圓心看成 \((-2,3)\)，正負號弄反`, String.raw`忘了圓心不在原點，直接寫 \(x=\pm 3\)`],
+   key:0,
+   exp:String.raw`\(x+3=0\) 即 \(x=-3\)，是鉛直線，沒有斜率；與它平行的直線也是鉛直線，設為 \(x=c\)。<br>圓心 \((2,-3)\) 到 \(x=c\) 的距離為 \(|c-2|\)，等於半徑 \(3\)。<br>\(c-2=3\) 或 \(c-2=-3\)，得 \(c=5\) 或 \(c=-1\)。<br>所以切線為 \(x=-1\) 或 \(x=5\)。（\(y=0\)、\(y=-6\) 是水平的切線，與 \(x+3=0\) 垂直。）`},
+  {id:"T07-15",
+   tag:"T07",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`斜率為 \(-\dfrac{3}{4}\) 的兩條直線都與圓 \((x-1)^2+(y-1)^2=1\) 相切，這兩條切線與兩坐標軸圍成一個梯形，求此梯形的面積。`,
+   ans:"35/6",
+   reasons:[String.raw`只用了較大的那一條切線，直接把三角形面積 \(6\) 當答案`, String.raw`截距算錯，例如把 \(3x+4y=2\) 的 \(x\) 截距寫成 \(\dfrac{3}{2}\)`, String.raw`距離公式忘了除以 \(5\)，求錯切線`],
+   key:0,
+   exp:String.raw`設切線為 \(3x+4y+c=0\)（斜率 \(-\dfrac{3}{4}\)）。<br>圓心 \((1,1)\) 到切線距離為 \(1\)：\(\dfrac{|3+4+c|}{5}=1\Rightarrow |7+c|=5\)，得 \(c=-2\) 或 \(c=-12\)。<br>\(3x+4y=2\)：\(x\) 截距 \(\dfrac{2}{3}\)、\(y\) 截距 \(\dfrac{1}{2}\)，與兩軸圍成的三角形面積 \(=\dfrac{1}{2}\times\dfrac{2}{3}\times\dfrac{1}{2}=\dfrac{1}{6}\)。<br>\(3x+4y=12\)：\(x\) 截距 \(4\)、\(y\) 截距 \(3\)，三角形面積 \(=\dfrac{1}{2}\times4\times3=6\)。<br>梯形面積 \(=6-\dfrac{1}{6}=\dfrac{35}{6}\)。`},
+  {id:"T07-V1",
+   tag:"T07",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   vary:true,
+   reasons:["把 r² 當成 r，半徑沒有開根號", "直接寫 y = mx ± r，漏乘 √(1+m²)", "距離公式的分母算錯（例如寫成 √(1+m) 或 1+m²）"],
+   key:1,
+   gen:R => { const V = window.VARY;
+     const [n, d] = R.pick([[1, 1], [2, 1], [3, 1], [4, 1], [1, 2], [3, 2], [1, 3], [2, 3], [3, 4], [4, 3]]);
+     const m = V.F(R.sign() * n, d), r2 = R.int(1, 20);
+     const b = V.surd(1, r2 * (n * n + d * d), d), rt = V.sTex(V.surd(1, r2));
+     return {
+       stem: String.raw`斜率為 \(${V.fTex(m)}\) 且與圓 \(x^2+y^2=${r2}\) 相切的直線有兩條，求 \(y\) 截距為正的那一條切線的 \(y\) 截距。`,
+       ans: V.sAns(b),
+       exp: String.raw`設切線為 \(y=${V.term(m, "x", true)}+b\)。<br>圓心 \((0,0)\) 到切線的距離等於半徑 \(${rt}\)：\(\dfrac{|b|}{\sqrt{${d === 1 ? V.fPar(m) : String.raw`\left(${V.fTex(m)}\right)`}^2+1}}=${rt}\)。<br>\(|b|=${rt}\times\sqrt{${V.fTex(V.F(n * n + d * d, d * d))}}=${V.sTex(b)}\)。<br>\(y\) 截距為正的那一條，\(b=${V.sTex(b)}\)。`
+     };
+   }},
+  {id:"T07-V2",
+   tag:"T07",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:["配方求圓心時正負號弄反", "半徑用成 r²，或距離公式忘了除以 √(a²+b²)", "去絕對值時取錯較大的那個值（把 −r√(a²+b²) 的情形當成較大）"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let a = 1, b = 2;
+     for (let i = 0; i < 50; i++) { const aa = R.nz(-3, 3), bb = R.nz(-3, 3); if (gcd(aa, bb) === 1) { a = aa; b = bb; break; } }
+     if (a < 0) { a = -a; b = -b; }
+     const t = R.int(1, 2), h = R.int(-5, 5), k = R.int(-5, 5), S = a * a + b * b, r2 = t * t * S;
+     const p = a * h + b * k, c1 = -p + t * S, c2 = -p - t * S;
+     const par = R.int(0, 1) === 1;
+     let c0 = R.nz(-9, 9);
+     if (par && (c0 === c1 || c0 === c2)) c0 = c0 === 9 ? -9 : c0 + 1;
+     if (par && (c0 === c1 || c0 === c2)) c0 = 0;
+     const L0 = par ? V.lin(a, b, c0) : V.lin(Math.abs(b), -a * Math.sign(b), c0), ab = V.expr([[a, "x"], [b, "y"]]), rt = V.sTex(V.surd(1, r2));
+     const step1 = par
+       ? String.raw`與 \(${L0}\) 平行的直線，\(x\)、\(y\) 係數相同，可設為 \(${ab}+c=0\)。`
+       : String.raw`\(${L0}\) 的斜率為 \(${V.fTex(V.F(b, a))}\)，與它垂直的直線斜率為 \(${V.fTex(V.F(-a, b))}\)，可設為 \(${ab}+c=0\)。`;
+     return {
+       stem: String.raw`與直線 \(${L0}\) ${par ? "平行" : "垂直"}，且與圓 \(${genCircle(V, 1, h, k, r2)}\) 相切的直線有兩條，設為 \(${ab}+c_1=0\) 與 \(${ab}+c_2=0\)，且 \(c_1\gt c_2\)，求 \(c_1\)。`,
+       ans: String(c1),
+       exp: String.raw`配方得 \(${stdCircle(V, h, k, r2)}\)，圓心 \(${V.pt(h, k)}\)、半徑 \(${rt}\)。<br>${step1}<br>圓心到切線的距離等於半徑：\(\dfrac{|${V.expr([[p, ""], [1, "c"]])}|}{\sqrt{${S}}}=${rt}\Rightarrow |${V.expr([[p, ""], [1, "c"]])}|=${t * S}\)。<br>\(c=${c1}\) 或 \(c=${c2}\)，所以 \(c_1=${c1}\)。`
+     };
+   }},
+  // ===== T08 切線段長 =====
   {id:"T08-1",
    tag:"T08",
    level:"易",
@@ -816,7 +1635,125 @@ window.BANK_UNIT07 = [
    key:0,
    exp:String.raw`・\(\overline{MP}=\sqrt{9+16}=5\)，\(r=\sqrt{5}\)，\(\overline{PA}=\sqrt{25-5}=2\sqrt{5}\)，正確。<br>・設 \(\overline{AB}\) 交 \(\overline{MP}\) 於 \(H\)，在直角 \(\triangle MAP\) 中 \(\overline{MH}=\dfrac{r^2}{\overline{MP}}=1\)，不是 \(2\)，錯誤。<br>・\(\overline{AH}=\dfrac{\overline{PA}\times r}{\overline{MP}}=\dfrac{2\sqrt{5}\cdot\sqrt{5}}{5}=2\)，\(\overline{AB}=4\)，正確。<br>・四邊形 \(PAMB\) 面積 \(=2\times\dfrac{1}{2}\times\overline{PA}\times r=2\sqrt{5}\cdot\sqrt{5}=10\)，正確。<br>・\(\tan\angle APM=\dfrac{\sqrt{5}}{2\sqrt{5}}=\dfrac{1}{2}\neq\tan30^\circ\)，所以 \(\angle APB\neq60^\circ\)，錯誤。`,
    fig:{x:[-3, 6], y:[-3, 7], items:[{circle:[1, 1, 2.236], label:"C"}, {pt:[1, 1], label:"M"}, {pt:[4, 5], label:"P"}], nums:true}},
-  // ===== T09 =====
+  {id:"T08-9",
+   tag:"T08",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`由點 \(P(-2,3)\) 到圓 \((x-1)^2+(y+1)^2=9\) 的切線段長為何？`,
+   ans:"4",
+   reasons:[String.raw`把切線段長當成 \(P\) 到圓心的距離 \(5\)`, String.raw`用 \(\overline{PM}-r\) 計算，得到 \(2\)`, String.raw`圓心看成 \((-1,1)\)，正負號弄反`],
+   key:0,
+   exp:String.raw`圓心 \(M(1,-1)\)、半徑 \(3\)。<br>\(\overline{PM}^2=(-2-1)^2+(3+1)^2=9+16=25\)。<br>切線段與半徑垂直，由畢氏定理：切線段長 \(=\sqrt{\overline{PM}^2-r^2}=\sqrt{25-9}=4\)。`},
+  {id:"T08-10",
+   tag:"T08",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`由原點 \(O\) 到圓 \(x^2+y^2-6x+8y+k=0\) 的切線段長為 \(3\)，求 \(k\)。`,
+   ans:"9",
+   reasons:[String.raw`把切線段長 \(3\) 直接當成 \(k\)，忘了切線段長的平方才等於代入值`, String.raw`配方後把半徑平方寫成 \(25+k\)`, String.raw`誤用「原點在圓上」的條件，令代入值等於 \(0\)`],
+   key:0,
+   exp:String.raw`方法一：把 \(O(0,0)\) 代入左式得 \(k\)，切線段長的平方 \(=k\)，所以 \(k=3^2=9\)。<br>方法二：配方得 \((x-3)^2+(y+4)^2=25-k\)，圓心 \(M(3,-4)\)，\(\overline{OM}^2=25\)。<br>切線段長平方 \(=25-(25-k)=k=9\)。<br>檢查：\(25-9=16\gt 0\) 是圓，且 \(O\) 代入值 \(9\gt 0\) 在圓外，所以 \(k=9\)。`},
+  {id:"T08-11",
+   tag:"T08",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`\(x\) 軸上一點 \(P\) 到圓 \(C_1:x^2+y^2=1\) 的切線段長，等於 \(P\) 到圓 \(C_2:x^2+y^2-8x-4y+11=0\) 的切線段長，求 \(P\) 的 \(x\) 坐標。`,
+   ans:"3/2",
+   reasons:[String.raw`把「切線段長相等」當成「到兩圓心的距離相等」，得到 \(\dfrac{5}{2}\)`, String.raw`代入 \(C_2\) 時 \(-8x\) 的正負號弄錯`, "列式時多減或少減了半徑平方"],
+   key:0,
+   exp:String.raw`設 \(P(p,0)\)。<br>到 \(C_1\) 的切線段長平方：\(p^2-1\)；到 \(C_2\) 的切線段長平方：\(p^2-8p+11\)（把 \(P\) 代入圓的左式）。<br>令兩者相等：\(p^2-1=p^2-8p+11\Rightarrow 8p=12\Rightarrow p=\dfrac{3}{2}\)。<br>檢查：兩個代入值都是 \(\dfrac{5}{4}\gt 0\)，\(P\) 在兩圓外，切線存在。答案為 \(\dfrac{3}{2}\)。`},
+  {id:"T08-12",
+   tag:"T08",
+   level:"中",
+   cat:"陷阱題",
+   type:"tf",
+   stem:String.raw`由點 \(P(3,1)\) 到圓 \(2x^2+2y^2-4x-6=0\) 的切線段長為 \(\sqrt{2}\)。`,
+   opts:["○ 正確", "✕ 錯誤"],
+   ans:[1],
+   reasons:[String.raw`沒有先把 \(x^2\)、\(y^2\) 的係數化成 \(1\) 就直接代入`, "代入後忘了開根號", "配方時半徑平方算錯"],
+   key:0,
+   exp:String.raw`先兩邊同除以 \(2\)：\(x^2+y^2-2x-3=0\)。<br>代入 \(P(3,1)\)：\(9+1-6-3=1\)，切線段長 \(=\sqrt1=1\)。<br>（若沒除以 \(2\) 直接代入，會得到 \(2\)，誤算成 \(\sqrt2\)。）<br>檢查：圓心 \((1,0)\)、半徑 \(2\)，\(\overline{PM}^2=4+1=5\)，切線段長 \(=\sqrt{5-4}=1\)。敘述錯誤。`},
+  {id:"T08-13",
+   tag:"T08",
+   level:"中",
+   cat:"陷阱題",
+   type:"mc",
+   stem:String.raw`由點 \(P(7,4)\) 到圓 \(C:(x-1)^2+(y+4)^2=36\) 的切線段長為何？`,
+   opts:[String.raw`\(4\)`, String.raw`\(10\)`, String.raw`\(2\sqrt{34}\)`, String.raw`\(8\)`],
+   ans:[3],
+   reasons:[String.raw`把切線段長當成 \(P\) 到圓上最近點的距離 \(\overline{PM}-r\)`, String.raw`把切線段長當成 \(P\) 到圓心的距離 \(\overline{PM}\)`, String.raw`畢氏定理用反，算成 \(\sqrt{\overline{PM}^2+r^2}\)`],
+   key:0,
+   exp:String.raw`圓心 \(M(1,-4)\)、半徑 \(6\)。<br>\(\overline{PM}=\sqrt{6^2+8^2}=10\)。<br>切線段 \(\overline{PT}\) 與半徑 \(\overline{MT}\) 垂直，\(\overline{PM}\) 是斜邊：\(\overline{PT}=\sqrt{10^2-6^2}=8\)。<br>（\(10-6=4\) 是 \(P\) 到圓上最近點的距離，不是切線段長。）`},
+  {id:"T08-14",
+   tag:"T08",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`點 \(P\) 在直線 \(L:3x+4y+14=0\) 上移動，過 \(P\) 作圓 \(C:(x-1)^2+(y-2)^2=4\) 的兩條切線，切點為 \(A\)、\(B\)，圓心為 \(M\)。求四邊形 \(PAMB\) 面積的最小值。`,
+   ans:"2√21",
+   reasons:[String.raw`四邊形面積只算了一個 \(\triangle PAM\)，少乘 \(2\)`, String.raw`把 \(\overline{PM}\) 的最小值 \(5\) 直接當成切線段長的最小值`, String.raw`把四邊形面積算成 \(\overline{PA}\times\overline{PB}\)，底和高用錯`],
+   key:0,
+   exp:String.raw`\(\triangle PAM\) 與 \(\triangle PBM\) 全等，都是直角三角形（直角在切點）。<br>四邊形面積 \(=2\times\dfrac{1}{2}\times r\times\overline{PA}=2\,\overline{PA}\)，而 \(\overline{PA}=\sqrt{\overline{PM}^2-4}\)。<br>\(\overline{PM}\) 最小值是 \(M(1,2)\) 到 \(L\) 的距離：\(\dfrac{|3+8+14|}{5}=5\)（大於半徑，\(L\) 在圓外）。<br>\(\overline{PA}\) 的最小值 \(=\sqrt{25-4}=\sqrt{21}\)，面積最小值 \(=2\sqrt{21}\)。`},
+  {id:"T08-15",
+   tag:"T08",
+   level:"難",
+   cat:"拉分題",
+   type:"multi",
+   stem:String.raw`（多選）已知圓 \(C_1:x^2+y^2=4\) 與圓 \(C_2:x^2+y^2-8x-6y+21=0\)。下列哪些敘述正確？`,
+   opts:[String.raw`點 \(\left(2,\dfrac{3}{2}\right)\) 到 \(C_1\) 與到 \(C_2\) 的切線段長相等`, String.raw`點 \(\left(2,\dfrac{3}{2}\right)\) 到 \(C_1\) 的切線段長為 \(\dfrac{9}{4}\)`, String.raw`原點到 \(C_1\) 與到 \(C_2\) 的切線段長相等`, String.raw`凡是到 \(C_1\)、\(C_2\) 切線段長相等的點，都落在直線 \(8x+6y-25=0\) 上`, String.raw`點 \((5,0)\) 到 \(C_2\) 的切線段長比到 \(C_1\) 的切線段長短`],
+   ans:[0, 3, 4],
+   reasons:["算出代入值（切線段長的平方）後忘了開根號", String.raw`沒注意原點在 \(C_1\) 的內部，根本作不出切線`, String.raw`兩式相減時 \(x^2+y^2\) 消去後常數項或正負號算錯`],
+   key:0,
+   exp:String.raw`點 \(P(x,y)\) 到 \(C_1\) 的切線段長平方為 \(x^2+y^2-4\)，到 \(C_2\) 的為 \(x^2+y^2-8x-6y+21\)。<br>(1) \(\left(2,\dfrac{3}{2}\right)\)：\(4+\dfrac{9}{4}-4=\dfrac{9}{4}\)；\(4+\dfrac{9}{4}-16-9+21=\dfrac{9}{4}\)，相等，正確。<br>(2) 切線段長為 \(\sqrt{\dfrac{9}{4}}=\dfrac{3}{2}\)，不是 \(\dfrac{9}{4}\)，錯誤。<br>(3) 原點代入 \(C_1\) 得 \(-4\lt 0\)，原點在 \(C_1\) 內部，作不出切線，錯誤。<br>(4) 令兩式相等：\(-4=-8x-6y+21\Rightarrow 8x+6y-25=0\)，正確。<br>(5) \((5,0)\)：到 \(C_1\) 為 \(\sqrt{21}\)，到 \(C_2\) 為 \(\sqrt{25-40+21}=\sqrt6\)，\(\sqrt6\lt\sqrt{21}\)，正確。<br>故選 (1)(4)(5)。`},
+  {id:"T08-V1",
+   tag:"T08",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   vary:true,
+   reasons:["把切線段長當成 P 到圓心的距離", "畢氏定理用反，算成 √(PM² + r²)", "圓心坐標的正負號看反"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let h = 1, k = -1, r = 3, dx = -3, dy = 4;
+     for (let i = 0; i < 50; i++) {
+       const hh = R.int(-5, 5), kk = R.int(-5, 5), rr = R.int(1, 5), ddx = R.int(-6, 6), ddy = R.int(-6, 6);
+       if (ddx * ddx + ddy * ddy <= rr * rr) continue;
+       h = hh; k = kk; r = rr; dx = ddx; dy = ddy; break;
+     }
+     const Px = h + dx, Py = k + dy, PM2 = dx * dx + dy * dy, t = V.surd(1, PM2 - r * r);
+     return {
+       stem: String.raw`由點 \(P${V.pt(Px, Py)}\) 到圓 \(${stdCircle(V, h, k, r * r)}\) 的切線段長為何？`,
+       ans: V.sAns(t),
+       exp: String.raw`圓心 \(M${V.pt(h, k)}\)、半徑 \(${r}\)。<br>\(\overline{PM}^2=${V.fPar(dx)}^2+${V.fPar(dy)}^2=${PM2}\)。<br>切線段與半徑垂直，由畢氏定理：切線段長 \(=\sqrt{\overline{PM}^2-r^2}=\sqrt{${PM2}-${r * r}}=${V.sTex(t)}\)。`
+     };
+   }},
+  {id:"T08-V2",
+   tag:"T08",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:["沒有先把 x²、y² 的係數化成 1 就直接代入", "代入後忘了開根號", "代入時一次項的正負號算錯"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let q = 2, h = 1, k = 0, r2 = 4, dx = 2, dy = 1;
+     for (let i = 0; i < 50; i++) {
+       const qq = R.int(2, 4), hh = R.int(-4, 4), kk = R.int(-4, 4), rr2 = R.int(1, 20), ddx = R.int(-5, 5), ddy = R.int(-5, 5);
+       if (ddx * ddx + ddy * ddy <= rr2) continue;
+       q = qq; h = hh; k = kk; r2 = rr2; dx = ddx; dy = ddy; break;
+     }
+     const Px = h + dx, Py = k + dy, f = dx * dx + dy * dy - r2, t = V.surd(1, f), F0 = h * h + k * k - r2;
+     const plug = `${V.fPar(Px)}^2+${V.fPar(Py)}^2` + V.term(-2 * h * Px, "") + V.term(-2 * k * Py, "") + V.term(F0, "");
+     return {
+       stem: String.raw`由點 \(P${V.pt(Px, Py)}\) 到圓 \(${genCircle(V, q, h, k, r2)}\) 的切線段長為何？`,
+       ans: V.sAns(t),
+       exp: String.raw`先兩邊同除以 \(${q}\)：\(${genCircle(V, 1, h, k, r2)}\)。<br>把 \(P\) 代入左式：\(${plug}=${f}\)，這就是切線段長的平方。<br>切線段長 \(=${t.k === 1 && t.d === 1 && t.m === f ? V.sTex(t) : String.raw`\sqrt{${f}}=${V.sTex(t)}`}\)。<br>（若沒先除以 \(${q}\)，代入會得到 \(${q * f}\)，就算錯了。）`
+     };
+   }},
+  // ===== T09 與直線相切的圓 =====
   {id:"T09-1",
    tag:"T09",
    level:"易",
@@ -914,7 +1851,112 @@ window.BANK_UNIT07 = [
    key:0,
    exp:String.raw`圓心在第一象限且與兩軸相切 \(\Rightarrow\) 圓心 \((r,r)\)。<br>與 \(L\) 相切：\(\dfrac{|3r+4r-12|}{5}=r\Rightarrow |7r-12|=5r\)。<br>\(7r-12=5r\Rightarrow r=6\)；\(7r-12=-5r\Rightarrow r=1\)。<br>半徑和 \(=6+1=7\)（\(r=1\) 是內切圓，\(r=6\) 在直線 \(L\) 的另一側）。`,
    fig:{x:[-1, 13], y:[-1, 13], items:[{line:[3, 4, -12], label:"L"}], nums:true}},
-  // ===== T10 =====
+  {id:"T09-10",
+   tag:"T09",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`以 \((-1,2)\) 為圓心，且與直線 \(5x-12y+3=0\) 相切的圓，半徑為何？`,
+   ans:"2",
+   reasons:[String.raw`代入距離公式時 \(-12\times 2\) 的正負號算錯`, String.raw`分母用成 \(5+12\) 或 \(\sqrt{5+12}\)，忘了平方`, String.raw`算出半徑後又把它平方，寫成 \(r^2\)`],
+   key:0,
+   exp:String.raw`相切時，半徑 \(=\) 圓心到切線的距離。<br>\(r=\dfrac{|5\times(-1)-12\times2+3|}{\sqrt{5^2+12^2}}=\dfrac{|-26|}{13}=2\)。`},
+  {id:"T09-11",
+   tag:"T09",
+   level:"易",
+   cat:"基本分",
+   type:"mc",
+   stem:String.raw`以 \((3,-2)\) 為圓心，且與 \(y\) 軸相切的圓方程式為何？`,
+   opts:[String.raw`\((x-3)^2+(y+2)^2=4\)`, String.raw`\((x-3)^2+(y+2)^2=9\)`, String.raw`\((x-3)^2+(y+2)^2=3\)`, String.raw`\((x+3)^2+(y-2)^2=9\)`],
+   ans:[1],
+   reasons:[String.raw`與 \(y\) 軸相切卻用圓心的 \(y\) 坐標 \(|-2|=2\) 當半徑`, String.raw`半徑 \(3\) 直接寫在等號右邊，忘了平方`, "圓心代入標準式時正負號弄反"],
+   key:0,
+   exp:String.raw`圓與 \(y\) 軸（\(x=0\)）相切，半徑 \(=\) 圓心到 \(y\) 軸的距離 \(=|3|=3\)。<br>圓方程式：\((x-3)^2+(y+2)^2=9\)。<br>（半徑 \(2\) 是與 \(x\) 軸相切的情形。）`},
+  {id:"T09-12",
+   tag:"T09",
+   level:"中",
+   cat:"陷阱題",
+   type:"tf",
+   stem:String.raw`與兩坐標軸都相切，且通過點 \((2,1)\) 的圓只有一個。`,
+   opts:["○ 正確", "✕ 錯誤"],
+   ans:[1],
+   reasons:["解出二次方程式的兩個根後只取一個", "以為通過一個定點、又與兩軸相切的圓一定唯一，沒有列式", String.raw`把圓心設成 \((a,-a)\)，象限判斷錯誤`],
+   key:0,
+   exp:String.raw`\((2,1)\) 在第一象限，與兩軸都相切的圓也在第一象限，設圓心 \((a,a)\)、半徑 \(a\)（\(a\gt0\)）。<br>\((2-a)^2+(1-a)^2=a^2\Rightarrow a^2-6a+5=0\Rightarrow (a-1)(a-5)=0\)。<br>\(a=1\) 或 \(a=5\)，有兩個圓：\((x-1)^2+(y-1)^2=1\) 與 \((x-5)^2+(y-5)^2=25\)。<br>敘述錯誤。`},
+  {id:"T09-13",
+   tag:"T09",
+   level:"中",
+   cat:"陷阱題",
+   type:"num",
+   stem:String.raw`圓心為 \((2,k)\)、半徑為 \(2\) 的圓與直線 \(3x+4y-1=0\) 相切，求所有可能的 \(k\) 值之和。`,
+   ans:"-5/2",
+   reasons:["去絕對值時只取正的情形，漏掉另一個解", String.raw`代入距離公式時把 \(3\times2\) 等算錯`, String.raw`把半徑 \(2\) 當成 \(r^2\)，列成距離等於 \(\sqrt{2}\)`],
+   key:0,
+   exp:String.raw`圓心到直線的距離等於半徑：\(\dfrac{|6+4k-1|}{5}=2\Rightarrow |4k+5|=10\)。<br>\(4k+5=10\Rightarrow k=\dfrac{5}{4}\)；\(4k+5=-10\Rightarrow k=-\dfrac{15}{4}\)。<br>和 \(=\dfrac{5}{4}-\dfrac{15}{4}=-\dfrac{5}{2}\)。`},
+  {id:"T09-14",
+   tag:"T09",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`一圓與 \(x\) 軸相切，且通過 \((1,2)\) 與 \((3,4)\) 兩點。這樣的圓有兩個，求兩圓的半徑和。`,
+   ans:"12",
+   reasons:[String.raw`與 \(x\) 軸相切卻把半徑設成圓心的 \(x\) 坐標`, "兩式相減消去時正負號算錯", "只找到一個圓就停止，沒有解完二次方程式"],
+   key:0,
+   exp:String.raw`兩點都在 \(x\) 軸上方，設圓心 \((h,k)\)、\(k\gt0\)，與 \(x\) 軸相切所以半徑 \(=k\)。<br>過 \((1,2)\)：\((1-h)^2+(2-k)^2=k^2\Rightarrow h^2-2h+5=4k\)。<br>過 \((3,4)\)：\((3-h)^2+(4-k)^2=k^2\Rightarrow h^2-6h+25=8k\)。<br>第一式乘 \(2\) 減第二式：\(h^2+2h-15=0\Rightarrow (h+5)(h-3)=0\)。<br>\(h=3\) 時 \(k=\dfrac{9-6+5}{4}=2\)；\(h=-5\) 時 \(k=\dfrac{25+10+5}{4}=10\)。<br>半徑和 \(=2+10=12\)。`},
+  {id:"T09-15",
+   tag:"T09",
+   level:"難",
+   cat:"拉分題",
+   type:"mc",
+   stem:String.raw`一圓與 \(x\) 軸及直線 \(3x-4y=0\) 都相切，且圓心在直線 \(x=4\) 上，則此圓方程式為何？`,
+   opts:[String.raw`\((x-4)^2+\left(y-\dfrac{4}{3}\right)^2=\dfrac{16}{9}\)`, String.raw`\((x-4)^2+\left(y-\dfrac{4}{3}\right)^2=\dfrac{16}{9}\) 或 \((x-4)^2+(y-12)^2=144\)`, String.raw`\((x-4)^2+(y-3)^2=9\)`, String.raw`\((x-4)^2+\left(y-\dfrac{4}{3}\right)^2=\dfrac{16}{9}\) 或 \((x-4)^2+(y+12)^2=144\)`],
+   ans:[3],
+   reasons:[String.raw`去絕對值只考慮一種情形，漏掉圓心在 \(x\) 軸下方的圓`, String.raw`第二種情形 \(12-4k=-5k\) 解錯正負號，得到 \(k=12\)`, String.raw`把半徑寫成 \(k\) 而不是 \(|k|\)，以為 \(k\) 一定要正而捨去負的解`],
+   key:0,
+   exp:String.raw`設圓心 \((4,k)\)，與 \(x\) 軸相切，半徑 \(=|k|\)。<br>到 \(3x-4y=0\) 的距離也等於半徑：\(\dfrac{|12-4k|}{5}=|k|\Rightarrow |12-4k|=5|k|\)。<br>\(12-4k=5k\Rightarrow k=\dfrac{4}{3}\)；\(12-4k=-5k\Rightarrow k=-12\)。<br>兩個圓：\((x-4)^2+\left(y-\dfrac{4}{3}\right)^2=\dfrac{16}{9}\) 與 \((x-4)^2+(y+12)^2=144\)。<br>（驗算 \(k=-12\)：\(\dfrac{|12+48|}{5}=12=|k|\)。）`},
+  {id:"T09-V1",
+   tag:"T09",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   vary:true,
+   reasons:["代入距離公式時正負號算錯", "分母忘了開根號，或寫成 |a|+|b|", "算出距離後又平方，把 r² 當成半徑"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const [a0, b0] = R.pick([[3, 4], [4, 3], [5, 12], [12, 5], [3, 4], [4, 3], [1, 1], [1, 2], [2, 1], [1, 3], [3, 1]]);
+     const a = a0, b = R.sign() * b0, h = R.int(-6, 6), k = R.int(-6, 6);
+     let c = R.nz(-12, 12);
+     if (a * h + b * k + c === 0) c = c === 12 ? 11 : c + 1;
+     if (a * h + b * k + c === 0) c = c + 1;
+     const N = a * h + b * k + c, S = a * a + b * b, r = V.surd(Math.abs(N), S, S);
+     return {
+       stem: String.raw`以 \(${V.pt(h, k)}\) 為圓心，且與直線 \(${V.lin(a, b, c)}\) 相切的圓，半徑為何？`,
+       ans: V.sAns(r),
+       exp: String.raw`相切時，半徑 \(=\) 圓心到切線的距離。<br>\(r=\dfrac{|${a}\times${V.fPar(h)}${b < 0 ? "-" : "+"}${Math.abs(b)}\times${V.fPar(k)}${V.term(c, "")}|}{\sqrt{${V.fPar(a)}^2+${V.fPar(b)}^2}}=\dfrac{${Math.abs(N)}}{\sqrt{${S}}}=${V.sTex(r)}\)。`
+     };
+   }},
+  {id:"T09-V2",
+   tag:"T09",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:["去絕對值時只取一種情形，漏掉另一個圓心", "解一次方程式時移項正負號算錯", "圓心設錯（在 x 軸上應設 (t,0)，在 y 軸上應設 (0,t)）"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const [a0, b0, n] = R.pick([[3, 4, 5], [4, 3, 5], [5, 12, 13], [12, 5, 13], [6, 8, 10], [8, 6, 10]]);
+     const a = a0, b = R.sign() * b0, r = R.int(1, 4), c = R.nz(-9, 9), onX = R.int(0, 1) === 1;
+     const co = onX ? a : b;                         // 圓心 (t,0) 時用 a；(0,t) 時用 b
+     const t1 = V.F(r * n - c, co), t2 = V.F(-r * n - c, co);
+     const big = V.val(t1) > V.val(t2) ? t1 : t2, small = big === t1 ? t2 : t1;
+     const cen = onX ? "(t,0)" : "(0,t)", ax = onX ? "x" : "y";
+     return {
+       stem: String.raw`圓心在 \(${ax}\) 軸上、半徑為 \(${r}\) 的圓與直線 \(${V.lin(a, b, c)}\) 相切，這樣的圓有兩個。求兩個圓心中 \(${ax}\) 坐標較大者的 \(${ax}\) 坐標。`,
+       ans: V.fAns(big),
+       exp: String.raw`設圓心 \(${cen}\)，圓心到直線的距離等於半徑：\(\dfrac{|${V.expr([[co, "t"], [c, ""]])}|}{\sqrt{${V.fPar(a)}^2+${V.fPar(b)}^2}}=${r}\Rightarrow |${V.expr([[co, "t"], [c, ""]])}|=${r * n}\)。<br>\(${V.expr([[co, "t"], [c, ""]])}=${r * n}\Rightarrow t=${V.fTex(t1)}\)；\(${V.expr([[co, "t"], [c, ""]])}=${-r * n}\Rightarrow t=${V.fTex(t2)}\)。<br>較大的是 \(t=${V.fTex(big)}\)（另一個是 \(${V.fTex(small)}\)）。`
+     };
+   }},
+  // ===== T10 圓與直線的綜合應用 =====
   {id:"T10-1",
    tag:"T10",
    level:"易",
@@ -1013,4 +2055,114 @@ window.BANK_UNIT07 = [
    reasons:["以為通過圓上一點的直線一定會穿過圓", "忘了切線只碰到圓一個點", String.raw`沒先檢查 \((60,80)\) 是在圓上還是圓內`],
    key:0,
    exp:String.raw`\(60^2+80^2=10000=100^2\)，所以 \((60,80)\) 在暴風圈邊界上，不在內部。<br>若航線恰好是過此點的切線 \(3x+4y=500\)，它只碰到邊界一點，不會進入內部；其他方向才會穿過內部。<br>所以「一定會進入內部」錯誤。`},
+  {id:"T10-10",
+   tag:"T10",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`圓 \((x+1)^2+(y-2)^2=9\) 上的點到直線 \(12x-5y+48=0\) 的距離，最大值為何？`,
+   ans:"5",
+   reasons:[String.raw`只算了圓心到直線的距離 \(2\)，忘了加半徑`, String.raw`看到直線與圓相交，以為最大距離就是半徑 \(3\)`, String.raw`代入距離公式時 \(-5\times2\) 的正負號算錯`],
+   key:0,
+   exp:String.raw`圓心 \((-1,2)\)、半徑 \(3\)。<br>圓心到直線的距離 \(d=\dfrac{|12\times(-1)-5\times2+48|}{13}=\dfrac{26}{13}=2\)。<br>圓上距離直線最遠的點，在過圓心垂直於直線的那條直線上、離直線較遠的一側，最大距離 \(=d+r=2+3=5\)。`},
+  {id:"T10-11",
+   tag:"T10",
+   level:"中",
+   cat:"陷阱題",
+   type:"tf",
+   stem:String.raw`基地台位於點 \((1,-2)\)，訊號涵蓋範圍為 \((x-1)^2+(y+2)^2\le 25\)（單位：公里）。一條筆直公路為 \(4x-3y+15=0\)，則開車沿這條公路行駛時，完全收不到訊號。`,
+   opts:["○ 正確", "✕ 錯誤"],
+   ans:[1],
+   reasons:["算出距離等於半徑後，以為相切就是「沒有交點」", String.raw`代入距離公式時把 \(-3\times(-2)\) 算成 \(-6\)`, String.raw`忘了訊號範圍包含邊界（\(\le\)）`],
+   key:0,
+   exp:String.raw`圓心 \((1,-2)\) 到公路的距離：\(\dfrac{|4+6+15|}{5}=5\)，等於半徑 \(5\)。<br>公路與訊號範圍的邊界相切，恰有一個公共點；而涵蓋範圍包含邊界，所以在切點收得到訊號。<br>「完全收不到」是錯的，敘述錯誤。`},
+  {id:"T10-12",
+   tag:"T10",
+   level:"中",
+   cat:"陷阱題",
+   type:"mc",
+   stem:String.raw`圓 \(x^2+y^2=9\) 上，到直線 \(3x+4y-10=0\) 的距離為 \(1\) 的點共有幾個？`,
+   opts:[String.raw`\(1\) 個`, String.raw`\(2\) 個`, String.raw`\(3\) 個`, String.raw`\(4\) 個`],
+   ans:[2],
+   reasons:["只考慮直線其中一側的平行線，漏掉另一側", "以為兩條平行線都和圓交於兩點，得到 4 個", String.raw`距離公式忘了除以 \(5\)，圓心到直線的距離算錯`],
+   key:1,
+   exp:String.raw`到直線距離為 \(1\) 的點，落在兩條平行線 \(3x+4y-5=0\) 與 \(3x+4y-15=0\) 上。<br>圓心到 \(3x+4y-5=0\) 的距離 \(=1\lt 3\)，交於 \(2\) 點。<br>圓心到 \(3x+4y-15=0\) 的距離 \(=3=r\)，相切，只有 \(1\) 點。<br>共 \(3\) 個。`},
+  {id:"T10-13",
+   tag:"T10",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`設 \(P(a,b)\) 是圓 \(x^2+y^2-4x+6y+9=0\) 上到直線 \(L:3x-4y+12=0\) 距離最小的點，求 \(a+b\)。`,
+   ans:"-3/5",
+   reasons:[String.raw`選成距離最大的那一點 \(\left(\dfrac{16}{5},-\dfrac{23}{5}\right)\)`, "以為最近點是圓心到直線的垂足（垂足在直線上，不在圓上）", "配方時圓心或半徑算錯"],
+   key:0,
+   exp:String.raw`配方：\((x-2)^2+(y+3)^2=4\)，圓心 \(M(2,-3)\)、半徑 \(2\)。<br>\(M\) 到 \(L\) 的距離 \(\dfrac{|6+12+12|}{5}=6\gt 2\)，\(L\) 與圓不相交。<br>最近點在過 \(M\) 且垂直 \(L\) 的直線上，這條直線上的點可寫成 \((2+3s,\,-3-4s)\)，到 \(M\) 的距離為 \(5|s|\)。<br>在圓上：\(5|s|=2\Rightarrow s=\pm\dfrac{2}{5}\)，得 \(\left(\dfrac{16}{5},-\dfrac{23}{5}\right)\) 與 \(\left(\dfrac{4}{5},-\dfrac{7}{5}\right)\)。<br>代入 \(3x-4y+12\)：前者為 \(40\)（距離 \(8\)），後者為 \(20\)（距離 \(4\)），所以 \(P\left(\dfrac{4}{5},-\dfrac{7}{5}\right)\)。<br>\(a+b=\dfrac{4}{5}-\dfrac{7}{5}=-\dfrac{3}{5}\)。`},
+  {id:"T10-14",
+   tag:"T10",
+   level:"中",
+   cat:"必考題",
+   type:"mc",
+   stem:String.raw`直線 \(y=2x+k\) 與圓 \(x^2+y^2=5\) 至少有一個交點，則實數 \(k\) 的範圍為何？`,
+   opts:[String.raw`\(-5\lt k\lt 5\)`, String.raw`\(-5\le k\le 5\)`, String.raw`\(-\sqrt{5}\le k\le \sqrt{5}\)`, String.raw`\(k\le -5\) 或 \(k\ge 5\)`],
+   ans:[1],
+   reasons:["忘了相切也算有交點，把等號拿掉", String.raw`距離公式忘了除以 \(\sqrt5\)，直接寫 \(|k|\le\sqrt5\)`, "不等式方向寫反，求成「沒有交點」或「相切以外」的範圍"],
+   key:0,
+   exp:String.raw`直線寫成 \(2x-y+k=0\)。<br>有交點 \(\Leftrightarrow\) 圓心到直線的距離 \(\le\) 半徑：\(\dfrac{|k|}{\sqrt5}\le\sqrt5\Rightarrow |k|\le 5\)。<br>所以 \(-5\le k\le 5\)（\(k=\pm5\) 時相切，也有一個交點）。`},
+  {id:"T10-15",
+   tag:"T10",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`已知 \(A(3,0)\)、\(B(0,4)\)，點 \(P\) 在圓 \(x^2+y^2=4\) 上移動，求 \(\triangle PAB\) 面積的最大值。`,
+   ans:"11",
+   reasons:[String.raw`高只用了圓心到直線 \(AB\) 的距離 \(\dfrac{12}{5}\)，忘了加半徑`, String.raw`把半徑當成 \(4\)（\(r\) 與 \(r^2\) 搞混）`, String.raw`直線 \(AB\) 的方程式寫錯，例如寫成 \(3x+4y=12\)`],
+   key:0,
+   exp:String.raw`\(\overline{AB}=\sqrt{3^2+4^2}=5\)，直線 \(AB\)：\(\dfrac{x}{3}+\dfrac{y}{4}=1\)，即 \(4x+3y-12=0\)。<br>圓心 \(O\) 到 \(AB\) 的距離 \(=\dfrac{12}{5}\)，半徑 \(2\)。<br>\(P\) 到 \(AB\) 的最大距離 \(=\dfrac{12}{5}+2=\dfrac{22}{5}\)。<br>面積最大值 \(=\dfrac{1}{2}\times5\times\dfrac{22}{5}=11\)。`},
+  {id:"T10-V1",
+   tag:"T10",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   vary:true,
+   reasons:["只算了圓心到直線的距離，忘了加（或減）半徑", "最大值與最小值搞混，該加半徑時減了半徑", "距離公式代入時正負號算錯或忘了除以 √(a²+b²)"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const [a0, b0, n] = R.pick([[3, 4, 5], [4, 3, 5], [5, 12, 13], [12, 5, 13]]);
+     const a = a0, b = R.sign() * b0, r = R.int(1, 5), h = R.int(-5, 5), k = R.int(-5, 5), isMax = R.int(0, 1) === 1;
+     const d = isMax ? R.int(1, 8) : r + R.int(1, 6), sg = R.sign();
+     const c = sg * d * n - a * h - b * k, ans = isMax ? d + r : d - r;
+     const N = a * h + b * k + c;
+     const note = isMax
+       ? (d < r ? `（\\(d\\lt r\\)，直線與圓相交，但最遠點在過圓心的垂線上、離直線較遠的那一端）` : d === r ? `（\\(d=r\\)，直線與圓相切）` : `（\\(d\\gt r\\)，直線與圓不相交）`)
+       : `（\\(d\\gt r\\)，直線與圓不相交）`;
+     return {
+       stem: String.raw`圓 \(${stdCircle(V, h, k, r * r)}\) 上的點到直線 \(${V.lin(a, b, c)}\) 的距離，${isMax ? "最大值" : "最小值"}為何？`,
+       ans: String(ans),
+       exp: String.raw`圓心 \(${V.pt(h, k)}\)、半徑 \(${r}\)。<br>圓心到直線的距離 \(d=\dfrac{|${N}|}{\sqrt{${V.fPar(a)}^2+${V.fPar(b)}^2}}=\dfrac{${Math.abs(N)}}{${n}}=${d}\)${note}。<br>${isMax ? String.raw`最大距離 \(=d+r=${d}+${r}=${ans}\)。` : String.raw`最小距離 \(=d-r=${d}-${r}=${ans}\)。`}`
+     };
+   }},
+  {id:"T10-V2",
+   tag:"T10",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:["只算出半弦長，忘了乘 2", "把圓心到航線的距離當成航行路程，或畢氏定理用反", "距離公式代入圓心時正負號算錯"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const [Rr, d, half] = R.pick([[5, 3, 4], [5, 4, 3], [10, 6, 8], [10, 8, 6], [13, 5, 12], [13, 12, 5], [15, 9, 12], [15, 12, 9], [17, 8, 15], [17, 15, 8], [25, 7, 24], [25, 24, 7], [25, 15, 20], [25, 20, 15]]);
+     const [a0, b0, n] = R.pick([[3, 4, 5], [4, 3, 5], [5, 12, 13], [12, 5, 13], [1, 0, 1], [0, 1, 1]]);
+     let a = R.sign() * a0, b = R.sign() * b0;
+     const s = R.pick([1, 10]), h = s * R.int(-3, 3), k = s * R.int(-3, 3);
+     let C = a * h + b * k + R.sign() * d * s * n;
+     if (a < 0 || (a === 0 && b < 0)) { a = -a; b = -b; C = -C; }
+     const N = a * h + b * k - C;
+     const lineTex = `${V.expr([[a, "x"], [b, "y"]])}=${C}`;
+     return {
+       stem: String.raw`颱風中心位於 \(${V.pt(h, k)}\)，暴風圈是半徑 \(${Rr * s}\) 公里的圓形區域（坐標單位：公里）。一艘船沿直線 \(${lineTex}\) 航行，求這艘船在暴風圈內航行的路程（公里）。`,
+       ans: String(2 * half * s),
+       exp: String.raw`航線寫成 \(${V.lin(a, b, -C)}\)。<br>颱風中心到航線的距離 \(d=\dfrac{|${N}|}{\sqrt{${V.fPar(a)}^2+${V.fPar(b)}^2}}=${d * s}\lt ${Rr * s}\)，船會進入暴風圈。<br>半弦長 \(=\sqrt{${Rr * s}^2-${d * s}^2}=${half * s}\)。<br>在暴風圈內的路程（弦長）\(=2\times${half * s}=${2 * half * s}\) 公里。`
+     };
+   }},
 ];
+})();

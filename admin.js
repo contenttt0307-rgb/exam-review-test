@@ -166,7 +166,7 @@ function vClass(){
     </div>
     <div class="card"><h2>最常答錯的題目</h2><p class="small muted" style="margin:0">至少 3 人次作答，依答錯率排序；並列出學生最常選的錯因。</p>
       ${hardQs.length ? hardQs.map(h => { const q = BY_ID[h.id], top = h.r.indexOf(Math.max(...h.r));
-        return `<div class="qrow"><div class="meta"><b>${h.id}</b><span class="rate">答錯率 ${h.rate}%</span><span>${h.a} 人次</span></div><div>${q.stem}</div>${Math.max(...h.r) > 0 ? `<div class="small muted">最常選的錯因：${top === 3 ? "不知道錯在哪" : q.reasons[top]}</div>` : ""}</div>`; }).join("") : `<p class="muted">還沒有足夠的作答資料。</p>`}
+        return `<div class="qrow"><div class="meta"><b>${h.id}</b><span class="rate">答錯率 ${h.rate}%</span><span>${h.a} 人次</span></div><div>${q.gen && window.VARY ? q.gen(VARY.mk(1)).stem + '<span class="small muted">（數字變形題，數字每次不同，這是其中一例）</span>' : q.stem}</div>${Math.max(...h.r) > 0 ? `<div class="small muted">最常選的錯因：${top === 3 ? "不知道錯在哪" : q.reasons[top]}</div>` : ""}</div>`; }).join("") : `<p class="muted">還沒有足夠的作答資料。</p>`}
     </div>
   </div>`;
 }

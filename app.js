@@ -49,10 +49,10 @@ const isSchoolEmail = e => (e || "").toLowerCase().endsWith("@" + DOMAIN);
 const KEY = IS_TEST ? "exam-review-test-guest" : "exam-review-guest";   // 未登入時的暫存
 const OLD_KEY = IS_TEST ? "exam-review-test-v1" : "exam-review-v1";   // 舊版（免登入版）存在手機的進度，登入時一併帶進帳號
 let P = loadGuest();
-function emptyP(){ return {c: {}, answered: 0, qs: {}, boss: {}, x: {}, ch: {}, range: "2"}; }
+function emptyP(){ return {c: {}, answered: 0, qs: {}, boss: {}, x: {}, ch: {}, wb: {}, range: "2"}; }
 function loadGuest(){
   for (const k of [KEY, OLD_KEY]) {
-    try { const v = JSON.parse(localStorage.getItem(k)); if (v && v.c) return {...emptyP(), c: v.c, answered: v.answered || 0, qs: v.qs || {}, boss: v.boss || {}, x: v.x || {}, ch: v.ch || {}, range: v.range || "2"}; } catch (_) {}
+    try { const v = JSON.parse(localStorage.getItem(k)); if (v && v.c) return {...emptyP(), c: v.c, answered: v.answered || 0, qs: v.qs || {}, boss: v.boss || {}, x: v.x || {}, ch: v.ch || {}, wb: v.wb || {}, range: v.range || "2"}; } catch (_) {}
   }
   return emptyP();
 }
@@ -70,7 +70,7 @@ function pushCloud(force){
   dirty = false;
   return db.doc(`envs/${ENV}/students/${ME.uid}`).set({
     uid: ME.uid, email: ME.email, sid: ME.sid, name: ME.name, cls: ME.cls, seat: ME.seat,
-    c: P.c, qs: P.qs, answered: P.answered, boss: P.boss || {}, x: P.x || {}, ch: P.ch || {}, range: RG(),
+    c: P.c, qs: P.qs, answered: P.answered, boss: P.boss || {}, x: P.x || {}, ch: P.ch || {}, wb: P.wb || {}, range: RG(),
     readiness: readiness("1"), mastered: mastered("1").length, todo: todo("1"),
     readiness2: readiness("2"), mastered2: mastered("2").length, todo2: todo("2"),
     lastActive: firebase.firestore.FieldValue.serverTimestamp()
@@ -78,7 +78,20 @@ function pushCloud(force){
 }
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") pushCloud(); });
 const cs = tag => P.c[tag] || {s: 0, m: false, w: false};       // s 連續答對次數、m 已攻克、w 待攻克
+/* 錯題本：答錯的題目自動收進來；之後在不同回合連續答對 2 次才移出（同一回合答對只算一次） */
+const SESS = Math.random().toString(36).slice(2, 8);   // 這一回合的代號
+function wbMark(q, right){
+  const wb = {...(P.wb || {})}, e = wb[q.id];
+  if (!right) wb[q.id] = {t: Date.now(), n: ((e && e.n) || 0) + 1, ok: 0, s: q.seed || null, sess: ""};
+  else if (e) {
+    const sess = (S.sid || SESS);
+    if (e.sess !== sess) { const ok = (e.ok || 0) + 1; if (ok >= 2) delete wb[q.id]; else wb[q.id] = {...e, ok, sess}; }
+  }
+  P.wb = wb;
+}
+const wbIds = (r = RG()) => Object.keys(P.wb || {}).filter(id => BY_ID[id] && rangeOf(BY_ID[id].tag) === r && !BY_ID[id].supp);
 function record(q, right){
+  if (!q.boss && q.kind !== "catch") wbMark(q, right);
   if (q.boss) {   // 魔王題只記錄有沒有擊敗，不影響觀念攻克
     P.answered += 1;
     const st = P.qs[q.id] || {a: 0, w: 0, r: [0, 0, 0, 0]};
@@ -177,7 +190,7 @@ if (auth) auth.onAuthStateChanged(async u => {
     const guest = P;
     P = cloud
       ? {c: {...guest.c, ...(cloud.c || {})}, answered: cloud.answered || 0, qs: {...guest.qs, ...(cloud.qs || {})}, boss: {...(guest.boss || {}), ...(cloud.boss || {})},
-         x: {...(guest.x || {}), ...(cloud.x || {})}, ch: {...(guest.ch || {}), ...(cloud.ch || {})}, range: cloud.range || guest.range || "2"}
+         x: {...(guest.x || {}), ...(cloud.x || {})}, ch: {...(guest.ch || {}), ...(cloud.ch || {})}, wb: {...(guest.wb || {}), ...(cloud.wb || {})}, range: cloud.range || guest.range || "2"}
       : {...guest};
     clearGuest();
     await pushCloud(true);
@@ -241,6 +254,7 @@ function pick(mode, arg){
     return shuffle(CEEC).sort((a, b) => rank(a) - rank(b)).slice(0, 5); }
   if (mode === "catch") return shuffle(CATCH).sort((a, b) => ((P.x || {})[a.id] ? 1 : 0) - ((P.x || {})[b.id] ? 1 : 0)).slice(0, 5);   // 沒做過的優先
   if (mode === "hard") return shuffle(rangeQs().filter(q => q.level === "難")).slice(0, 6);
+  if (mode === "wb") { const ids = wbIds().filter(id => !arg || BY_ID[id].tag === arg); return ids.sort((a, b) => P.wb[a].t - P.wb[b].t).slice(0, 10).map(id => BY_ID[id]); }
   if (mode === "tag") return unmasteredFirst(BANK.filter(q => q.tag === arg && !q.supp)).slice(0, 8);
   if (mode === "unit") return unmasteredFirst(rangeQs().filter(q => q.unit === arg)).slice(0, 8);
   if (mode === "supp") return shuffle(BANK.filter(q => q.supp));
@@ -283,7 +297,17 @@ function withPerm(q, perm){
   if (!perm || (q.type !== "mc" && q.type !== "multi")) return q;
   return {...q, perm, opts: perm.map(i => q.opts[i]), ans: q.ans.map(a => perm.indexOf(a))};
 }
+/* 數字變形題：用 seed 產生這一次的數字（同一個 seed 一定得到同一題，重新整理也不會變） */
+function instQ(q, seed){
+  if (!q || typeof q.gen !== "function" || !window.VARY) return q;
+  if (!seed) seed = 1 + Math.floor(Math.random() * 2e9);
+  try { return {...q, ...q.gen(VARY.mk(seed)), seed}; } catch (e) { console.error(q.id, e); return null; }
+}
+/* 依題號、seed、選項順序還原一題（作答中重新整理、看結果時用） */
+const rebuild = (id, seed, perm) => { const q = instQ(BY_ID[id], seed); return q && withPerm(q, perm); };
 function shuffledQ(q){
+  q = instQ(q, q && q.seed);
+  if (!q) return q;
   if (q.type !== "mc" && q.type !== "multi") return q;
   const perm = q.opts.map((_, i) => i);
   for (let i = perm.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [perm[i], perm[j]] = [perm[j], perm[i]]; }
@@ -291,8 +315,8 @@ function shuffledQ(q){
 }
 function persistSession(){
   try {
-    if (S.screen === "exam" && S.ex) localStorage.setItem(SKEY, JSON.stringify({t: Date.now(), mode: "exam", ex: {...S.ex, ans: S.ex.ans.map((a, k) => k === S.i ? {sel: S.sel, typed: S.typed} : a)}, ids: S.list.map(q => q.id), perms: S.list.map(q => q.perm || null), i: S.i}));
-    else if (S.screen === "quiz") localStorage.setItem(SKEY, JSON.stringify({t: Date.now(), mode: S.mode, arg: S.arg, ids: S.list.map(q => q.id), perms: S.list.map(q => q.perm || null), i: S.i, sel: S.sel, typed: S.typed, done: S.done, why: S.why, log: S.log, newly: S.newly}));
+    if (S.screen === "exam" && S.ex) localStorage.setItem(SKEY, JSON.stringify({t: Date.now(), mode: "exam", ex: {...S.ex, ans: S.ex.ans.map((a, k) => k === S.i ? {sel: S.sel, typed: S.typed} : a)}, ids: S.list.map(q => q.id), perms: S.list.map(q => q.perm || null), seeds: S.list.map(q => q.seed || null), i: S.i}));
+    else if (S.screen === "quiz") localStorage.setItem(SKEY, JSON.stringify({t: Date.now(), mode: S.mode, arg: S.arg, ids: S.list.map(q => q.id), perms: S.list.map(q => q.perm || null), seeds: S.list.map(q => q.seed || null), i: S.i, sel: S.sel, typed: S.typed, done: S.done, why: S.why, log: S.log, newly: S.newly}));
     else localStorage.removeItem(SKEY);
   } catch (_) {}
 }
@@ -300,7 +324,7 @@ function restoreSession(){
   try {
     const v = JSON.parse(localStorage.getItem(SKEY));
     if (!v || Date.now() - v.t > 3 * 3600e3) return;
-    const list = v.ids.map((id, k) => BY_ID[id] && withPerm(BY_ID[id], v.perms && v.perms[k])).filter(Boolean);
+    const list = v.ids.map((id, k) => BY_ID[id] && rebuild(id, v.seeds && v.seeds[k], v.perms && v.perms[k])).filter(Boolean);
     if (!list.length || list.length !== v.ids.length) return;
     if (v.mode === "exam" && v.ex) {   // 限時挑戰：時間照算，回來時如果已經超時就直接交卷
       const a = v.ex.ans[v.i] || {sel: [], typed: ""};
@@ -316,9 +340,10 @@ const badge = () => IS_TEST ? `<span class="proto test">試用站　這裡的改
 const tagLabel = t => `${t}　${CONCEPTS[t] || ""}`;
 
 function startSession(mode, arg){
+  S.sid = Math.random().toString(36).slice(2, 8);
   if (!ME) { set({screen: "welcome"}); return; }   // 只開放登入使用
   if (mode === "boss" && readiness("1") < BOSS_UNLOCK) { toast(`準備度達到 ${BOSS_UNLOCK}% 才能挑戰魔王關`); return; }
-  const list = pick(mode, arg).map(shuffledQ);
+  const list = pick(mode, arg).map(shuffledQ).filter(Boolean);
   if (!list.length) { toast(mode === "weak" ? "目前沒有待攻克的觀念，先去快刷吧" : "這裡還沒有題目"); return; }
   scroller.scrollTo(0, 0);
   set({screen: "quiz", mode, arg: arg || null, list, i: 0, sel: [], typed: "", done: false, why: null, log: [], newly: [], sheet: null});
@@ -396,7 +421,7 @@ function vQuiz(){
     const why = right ? "" : `<div class="why"><span class="small">你覺得錯在哪？</span>
       ${[...q.reasons, "我不知道錯在哪"].map((r, k) => { let c = k === 3 ? "idk" : ""; if (S.why !== null) { if (k === q.key) c += " key"; else if (k === S.why) c += " pick"; } return `<button class="${c}" data-a="why" data-k="${k}" ${S.why !== null ? "disabled" : ""}>${r}</button>`; }).join("")}</div>`;
     const showExp = right || S.why !== null;
-    const card = window.CARDS && CARDS[q.tag];
+    const card = (window.CARDS || {})[q.tag] || (window.CARDS2 || {})[q.tag];
     const whyMsg = (right || S.why === null) ? "" : S.why === 3
       ? `<p class="small">沒關係，先想想這題最常卡在：「${q.reasons[q.key]}」。</p>${card ? `<div class="cardx"><b>觀念小卡｜${CONCEPTS[q.tag]}</b><p>${card.pt}</p><p class="cex"><b>例</b>${card.ex}</p></div>` : ""}`
       : `<p class="small">${S.why === q.key ? "對，關鍵就在這裡。" : "最常見的卡點其實是：「" + q.reasons[q.key] + "」。"}</p>`;
@@ -478,7 +503,7 @@ function tickExam(){
 function startExam(tag){
   if (!ME) { set({screen: "welcome"}); return; }
   const plan = examPlan(tag);
-  const list = shuffle(BANK.filter(q => q.tag === tag && !q.supp)).slice(0, plan.n).map(shuffledQ);
+  const list = shuffle(BANK.filter(q => q.tag === tag && !q.supp)).slice(0, plan.n).map(shuffledQ).filter(Boolean);
   if (!list.length) { toast("這個觀念還沒有題目"); return; }
   scroller.scrollTo(0, 0);
   S.ex = {tag, sec: plan.sec, allow: plan.wrong, t0: Date.now(), ans: list.map(() => ({sel: [], typed: ""}))};
@@ -512,7 +537,7 @@ function finishExam(){
   const c = {...cs(tag)}, newly = pass && !c.m;
   if (pass) { c.m = true; c.w = false; } else c.w = true;
   P.c[tag] = c; save();
-  S.exres = {tag, res, ok, n, used, pass, newly, nowStable: stable && !prev.stable, allow: S.ex.allow, sec: S.ex.sec, ids: S.list.map(q => q.id), perms: S.list.map(q => q.perm || null)};
+  S.exres = {tag, res, ok, n, used, pass, newly, nowStable: stable && !prev.stable, allow: S.ex.allow, sec: S.ex.sec, ids: S.list.map(q => q.id), perms: S.list.map(q => q.perm || null), seeds: S.list.map(q => q.seed || null)};
   S.ex = null; clearInterval(examTimer); examTimer = null;
   scroller.scrollTo(0, 0);
   set({screen: "examres", sheet: null, sel: [], typed: ""});
@@ -540,7 +565,7 @@ function ansText(q, r){
   return r.sel.map(k => q.type === "tf" ? q.opts[k] : "ABCDE"[k]).join("、");
 }
 function vExamRes(){
-  const R = S.exres, list = R.ids.map((id, k) => withPerm(BY_ID[id], R.perms[k]));
+  const R = S.exres, list = R.ids.map((id, k) => rebuild(id, R.seeds && R.seeds[k], R.perms[k]));
   const rows = list.map((q, k) => { const r = R.res[k];
     const right = q.type === "num" ? fmtNum(q.ans) : q.ans.map(a => q.type === "tf" ? q.opts[a] : "ABCDE"[a]).join("、");
     return `<details class="rv ${r.right ? "ok" : "no"}"><summary><span class="mk">${r.right ? "✓" : "✕"}</span><span class="grow">第 ${k + 1} 題${r.blank ? "（沒作答）" : ""}</span><span class="small muted">看解析</span></summary>
@@ -623,6 +648,7 @@ function vResult(){
   }
   return `${badge()}
   <h1>這回答對 <span class="num">${right}</span> / <span class="num">${n}</span></h1>
+  ${n - right > 0 && S.mode !== "boss" ? `<p class="small muted" style="margin:0">答錯的 ${n - right} 題已收進<button class="link" data-a="wrong" style="padding:0 2px">錯題本</button>。</p>` : ""}
   ${S.mode === "ceec" ? `<div class="card"><h2>大考題</h2><p class="small" style="margin:0">累計答對 <b class="num">${CEEC.filter(q => P.qs[q.id] && P.qs[q.id].l === 1).length} / ${CEEC.length}</b> 題（看最近一次作答）。大考題不計入觀念攻克，答錯的題目下一回會優先再出。</p></div>` : ""}
   ${S.mode === "boss" ? `<div class="card"><h2>魔王關</h2><p class="small" style="margin:0">累計擊敗 <b class="num">${BOSS.filter(q => P.boss && P.boss[q.id]).length} / ${BOSS.length}</b> 題。答錯的題目可以再來一回，直到全部擊敗。</p></div>` : ""}
   ${S.newly.length ? `<div class="card win"><h2>這回攻克了</h2><ul class="todo done">${S.newly.map(t => `<li>${tagLabel(t)}</li>`).join("")}</ul></div>` : ""}
@@ -696,11 +722,33 @@ function vHome2(){
     <span class="small">${canChal ? `「會做」的觀念有 <span class="num">${canChal}</span> 個可以挑戰` : "每個觀念 10 題 15 分鐘，錯 2 題以內升到「熟練」"}</span></div><span class="go">挑戰</span></button>
   ${CEEC.length ? `<button class="xbtn ceecbtn" data-a="start" data-k="ceec"><span class="bic">學測</span><div class="grow" style="min-width:0"><b>大考題</b>
     <span class="small">改編自歷屆學測，一回 5 題。已答對 <span class="num">${CEEC.filter(q => P.qs[q.id] && P.qs[q.id].l === 1).length} / ${CEEC.length}</span></span></div><span class="go">開始</span></button>` : ""}
+${`<button class="xbtn wbbtn" data-a="wrong"><span class="bic">錯</span><div class="grow" style="min-width:0"><b>錯題本</b>
+    <span class="small">${wbIds().length ? `有 <span class="num">${wbIds().length}</span> 題還沒弄懂，重做答對 2 次就移出` : "目前沒有錯題，答錯的題目會自動收進來"}</span></div><span class="go">打開</span></button>`}
   <button class="xbtn" data-a="start" data-k="catch"><span class="bic">✓?</span><div class="grow" style="min-width:0"><b>練習檢查錯誤</b>
     <span class="small">找出同學的計算從哪一行開始錯。已練 <span class="num">${xdone} / ${CATCH.length}</span></span></div><span class="go">開始</span></button>
   <div class="card"><h2>依單元練習</h2><div class="stack" style="gap:8px">${units}</div>
     <p class="small muted" style="margin:0">右邊數字＝熟練以上的觀念數。點單元可以看每個觀念的等級。</p></div>
   ${ME ? `<button class="link" data-a="logout">${ME.guest ? "結束試用" : "登出"}</button>` : ""}`;
+}
+/* 錯題本：依單元、觀念列出答錯還沒「答對 2 次」的題目 */
+function vWrong(){
+  const r = RG(), ids = wbIds(r), units = RANGES[r].units;
+  const reasonTop = id => { const q = BY_ID[id], st = P.qs[id]; if (!st || !st.r || !q.reasons) return ""; const m = Math.max(...st.r); if (!m) return ""; const k = st.r.indexOf(m); return k === 3 ? "不知道錯在哪" : q.reasons[k]; };
+  const item = id => { const e = P.wb[id], q0 = BY_ID[id], q = instQ(q0, e.s) || q0, why = reasonTop(id);
+    return `<details class="wbitem"><summary><span class="grow" style="min-width:0"><b class="small">${id}</b>${q0.kind === "ceec" ? '<span class="chip cat c3">大考題</span>' : q0.cat ? `<span class="chip cat c${CATS.indexOf(q0.cat)}">${q0.cat}</span>` : ""}${q0.gen ? '<span class="chip">數字變形</span>' : ""}</span><span class="small muted num">錯 ${e.n} 次${e.ok ? "・已答對 1 次" : ""}</span></summary>
+      <div class="stem small-stem">${q.stem}</div>${q.fig && window.figSVG ? figSVG(q.fig) : ""}
+      ${why ? `<p class="small" style="margin:0">你上次覺得錯在：<b>${why}</b></p>` : ""}
+      <p class="small" style="margin:0">正確答案：<b class="num">${q.type === "num" ? fmtNum(q.ans) : q.ans.map(a => q.opts[a]).join("、")}</b>${q0.gen ? '<span class="muted">（這是你答錯時的那組數字，重做時會換新數字）</span>' : ""}</p>
+      <div class="exp"><b>解析</b><div>${q.exp}</div></div></details>`; };
+  const groups = [...units.map(u => ({name: `${u.code} ${u.name}`, ids: ids.filter(id => unitOf(BY_ID[id].tag) === u.code && BY_ID[id].kind !== "ceec")})),
+    {name: "大考題", ids: ids.filter(id => BY_ID[id].kind === "ceec")}].filter(g => g.ids.length);
+  const body = groups.map(g => { const tags = [...new Set(g.ids.map(id => BY_ID[id].tag))];
+    return `<div class="card"><h2 class="hrow">${g.name}<span class="small muted num">${g.ids.length} 題</span></h2>
+      ${tags.map(t => { const its = g.ids.filter(id => BY_ID[id].tag === t); return `<div class="wbtag"><div class="hrow"><b class="small">${tagLabel(t)}</b><button class="mini" data-a="start" data-k="wb" data-u="${t}">重做這 ${its.length} 題</button></div>${its.map(item).join("")}</div>`; }).join("")}</div>`; }).join("");
+  return `${badge()}
+  <div class="top"><button aria-label="返回" data-a="home" style="font-size:22px;line-height:1">×</button><b class="grow">錯題本｜${RANGES[r].name}</b><span class="num small muted">${ids.length} 題</span></div>
+  <p class="small muted" style="margin:0">答錯的題目會自動收進來。之後在<b>不同回合</b>再答對 2 次，就會從錯題本移出。數字變形題重做時會換一組新數字。</p>
+  ${ids.length ? `<button class="btn" data-a="start" data-k="wb">重做錯題（最早錯的 ${Math.min(10, ids.length)} 題）</button>${body}` : `<div class="card"><h2>目前沒有錯題</h2><p class="small muted" style="margin:0">去練習吧！答錯的題目會自動出現在這裡。</p></div>`}`;
 }
 /* 單元裡的觀念清單：等級、四類題各答對幾題、下一步 */
 function vUnitLv(){
@@ -735,6 +783,8 @@ function vHome1(){
     <button class="mode" data-a="start" data-k="hard"><span class="ic">↑</span><b>挑戰難題</b><span>段考壓軸等級</span></button>
   </div>
   ${bossCard()}
+  <button class="xbtn wbbtn" data-a="wrong"><span class="bic">錯</span><div class="grow" style="min-width:0"><b>錯題本</b>
+    <span class="small">${wbIds().length ? `有 <span class="num">${wbIds().length}</span> 題還沒弄懂，重做答對 2 次就移出` : "目前沒有錯題，答錯的題目會自動收進來"}</span></div><span class="go">打開</span></button>
   <div class="card"><h2>依單元練習</h2><div class="stack" style="gap:8px">${unitRows("1")}</div>
     <button class="unitrow supp" data-a="start" data-k="supp"><span class="un">+</span><span class="grow" style="min-width:0"><b>補充：對數律</b><span class="small muted">課綱外，不計入準備度</span></span></button></div>
   ${todoCard()}
@@ -776,7 +826,7 @@ function vSheet(){
 function render(){
   if (!ME && !S.loading && S.screen !== "welcome") S.screen = "welcome";   // 只開放登入使用
   if (S.loading) { app.innerHTML = `<div class="grow" style="display:grid;place-items:center"><p class="muted">讀取你的進度中…</p></div>`; return; }
-  const v = {welcome: vWelcome, quiz: vQuiz, result: vResult, home: vHome, exam: vExam, examres: vExamRes, chal: vChal, unitlv: vUnitLv}[S.screen]();
+  const v = {welcome: vWelcome, quiz: vQuiz, result: vResult, home: vHome, exam: vExam, examres: vExamRes, chal: vChal, unitlv: vUnitLv, wrong: vWrong}[S.screen]();
   app.innerHTML = v + vSheet();
   if (window.MathJax && MathJax.typesetPromise) {
     try { MathJax.typesetClear && MathJax.typesetClear([app]); } catch (_) {}
@@ -813,6 +863,7 @@ app.addEventListener("click", e => {
       if (S.screen === "exam") { toast("限時挑戰進行中，要離開請先交卷"); break; }
       set({screen: "home", sheet: null}); break;
     case "chal": scroller.scrollTo(0, 0); set({screen: "chal", sheet: null}); break;
+    case "wrong": scroller.scrollTo(0, 0); set({screen: "wrong", sheet: null}); break;
     case "unitlv": scroller.scrollTo(0, 0); set({screen: "unitlv", arg: k, sheet: null}); break;
     case "exask": set({sheet: "exask:" + k}); break;
     case "exstart": startExam(k); break;

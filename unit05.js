@@ -1,6 +1,7 @@
-/* 單元05 直線方程式 題庫（S01–S19；第三版：四類題型 cat、數字填充擴充鍵盤） */
+/* 單元05 直線方程式 題庫（第二次段考；11-04 第四版：補題到每個觀念 15 題以上＋數字變形題）
+   數字變形題有 gen 函式（vary:true），需要先載入 vary.js；每次作答由 VARY.mk(seed) 產生不同數字。共 324 題（其中變形模板 38 題）。 */
 window.BANK_UNIT05 = [
-  // ===== S01 =====
+  // ===== S01 斜率的定義 =====
   {id:"S01-1",
    tag:"S01",
    level:"易",
@@ -64,7 +65,152 @@ window.BANK_UNIT05 = [
    reasons:[String.raw`沒先把斜率化簡成 \(\dfrac{3-a}{2-a}\)，代值時計算出錯`, String.raw`解 \(\dfrac{3-a}{2-a}=1\) 時沒發現方程式無解，誤以為一定有解`, String.raw`忽略分母 \(2-a\ne0\) 的限制`],
    key:0,
    exp:String.raw`當 \(a\ne2\) 時，\(m_{AB}=\dfrac{(a+3)-2a}{2-a}=\dfrac{3-a}{2-a}\)。<br>(1) \(a=2\)：兩點 \(x\) 坐標都是 2，為鉛直線，沒有斜率，正確。<br>(2) \(a=0\)：\(A(0,0)\)、\(B(2,3)\)，斜率 \(\dfrac{3}{2}\)，錯誤。<br>(3) \(\dfrac{3-a}{2-a}=1\Rightarrow 3-a=2-a\Rightarrow 3=2\) 矛盾，無解，正確。<br>(4) \(3-a=0\Rightarrow a=3\)，不是 \(-3\)，錯誤。<br>(5) \(3-a=2(2-a)\Rightarrow a=1\)，此時 \(A(1,2)\)、\(B(2,4)\) 斜率為 2，正確。`},
-  // ===== S02 =====
+  {id:"S01-7",
+   tag:"S01",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`坐標平面上兩點 \(P(-4,-3)\)、\(Q(2,1)\)，則直線 \(PQ\) 的斜率為＿＿＿＿。`,
+   ans:"2/3",
+   reasons:[String.raw`減負數時沒有變號，例如把 \(1-(-3)\) 算成 \(-2\)`, String.raw`把公式記反成 \(\dfrac{x_2-x_1}{y_2-y_1}\)，算成倒數 \(\dfrac{3}{2}\)`, "分數沒有約分"],
+   key:0,
+   exp:String.raw`\(m_{PQ}=\dfrac{1-(-3)}{2-(-4)}=\dfrac{4}{6}=\dfrac{2}{3}\)。<br>減去負數要變成加，分子、分母用同一個順序相減。`},
+  {id:"S01-8",
+   tag:"S01",
+   level:"易",
+   cat:"基本分",
+   type:"mc",
+   stem:String.raw`下列哪一組兩點的連線，斜率為 \(-2\)？`,
+   opts:[String.raw`\((1,1)\)、\((3,5)\)`, String.raw`\((-1,2)\)、\((1,3)\)`, String.raw`\((0,3)\)、\((2,-1)\)`, String.raw`\((2,0)\)、\((0,-4)\)`],
+   ans:[2],
+   reasons:[String.raw`分子、分母相減順序不一致，把 \((2,0)\)、\((0,-4)\) 的斜率 \(2\) 算成 \(-2\)`, "把斜率公式上下顛倒，算成倒數", "只看 y 坐標的變化，沒有除以 x 坐標的變化"],
+   key:0,
+   exp:String.raw`(1) \(\dfrac{5-1}{3-1}=2\)<br>(2) \(\dfrac{3-2}{1-(-1)}=\dfrac{1}{2}\)<br>(3) \(\dfrac{-1-3}{2-0}=\dfrac{-4}{2}=-2\) ✔<br>(4) \(\dfrac{-4-0}{0-2}=\dfrac{-4}{-2}=2\)<br>故選 (3)。`},
+  {id:"S01-9",
+   tag:"S01",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`已知點 \(A(3,-2)\)，點 \(B\) 在 \(x\) 軸上，且直線 \(AB\) 的斜率為 \(\dfrac{2}{5}\)，則 \(B\) 點的 \(x\) 坐標為＿＿＿＿。`,
+   ans:"8",
+   reasons:[String.raw`以為 \(x\) 軸上的點 \(y\) 坐標不是 0，或把 \(B\) 設成 \((0,b)\)`, String.raw`列式 \(\dfrac{0-(-2)}{b-3}\) 時分子算成 \(-2\)，得到 \(b=-2\)`, "交叉相乘時把分子分母對錯位置"],
+   key:0,
+   exp:String.raw`\(B\) 在 \(x\) 軸上，設 \(B(b,0)\)。<br>\(m_{AB}=\dfrac{0-(-2)}{b-3}=\dfrac{2}{b-3}=\dfrac{2}{5}\)<br>\(\Rightarrow b-3=5\Rightarrow b=8\)。`},
+  {id:"S01-10",
+   tag:"S01",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`\(\triangle ABC\) 中，\(A(-2,1)\)、\(B(4,3)\)、\(C(2,-3)\)。若 \(M\) 為 \(\overline{AB}\) 的中點，則直線 \(CM\) 的斜率為＿＿＿＿。`,
+   ans:"-5",
+   reasons:["中點坐標算錯（例如兩坐標相加後忘了除以 2）", String.raw`算成直線 \(AB\) 的斜率 \(\dfrac{1}{3}\)，沒有找中點`, "分子分母相減順序不一致，正負號錯"],
+   key:0,
+   exp:String.raw`\(M=\left(\dfrac{-2+4}{2},\dfrac{1+3}{2}\right)=(1,2)\)。<br>\(m_{CM}=\dfrac{2-(-3)}{1-2}=\dfrac{5}{-1}=-5\)。`},
+  {id:"S01-11",
+   tag:"S01",
+   level:"中",
+   cat:"必考題",
+   type:"mc",
+   stem:String.raw`一個水箱以固定速率排水，水量 \(y\)（公升）與排水時間 \(x\)（分鐘）的圖形是一條直線。已知排水 \(2\) 分鐘時水量為 \(84\) 公升、排水 \(7\) 分鐘時水量為 \(59\) 公升。下列關於這條直線斜率的敘述，何者正確？`,
+   opts:[String.raw`斜率為 \(5\)，表示每分鐘水量增加 \(5\) 公升`, String.raw`斜率為 \(-5\)，表示每分鐘水量減少 \(5\) 公升`, String.raw`斜率為 \(-25\)，表示每分鐘水量減少 \(25\) 公升`, String.raw`斜率為 \(-\dfrac{1}{5}\)，表示每分鐘水量減少 \(\dfrac{1}{5}\) 公升`],
+   ans:[1],
+   reasons:["只算了水量的變化 −25，忘了除以經過的時間 5 分鐘", "把斜率公式上下顛倒，用時間變化除以水量變化", "水量變少卻寫成正的斜率，忽略了正負號的意義"],
+   key:0,
+   exp:String.raw`兩點 \((2,84)\)、\((7,59)\)，斜率 \(=\dfrac{59-84}{7-2}=\dfrac{-25}{5}=-5\)。<br>斜率是「\(x\) 增加 1 時 \(y\) 的變化量」，\(-5\) 表示每過 1 分鐘水量減少 5 公升。`},
+  {id:"S01-12",
+   tag:"S01",
+   level:"中",
+   cat:"陷阱題",
+   type:"num",
+   stem:String.raw`已知 \(A(k+1,k)\)、\(B(2k-3,5)\) 為相異兩點。若直線 \(AB\) <b>沒有斜率</b>，則 \(k=\)＿＿＿＿。`,
+   ans:"4",
+   reasons:[String.raw`把「沒有斜率」當成「斜率為 0」，令 \(y\) 坐標相等得到 \(k=5\)`, String.raw`令 \(x\) 坐標相等時移項算錯`, "以為所有直線都有斜率，認為無解"],
+   key:0,
+   exp:String.raw`直線沒有斜率 \(\Leftrightarrow\) 鉛直線 \(\Leftrightarrow\) 兩點 \(x\) 坐標相同（分母為 0）。<br>\(k+1=2k-3\Rightarrow k=4\)。<br>此時 \(A(5,4)\)、\(B(5,5)\) 相異，直線為 \(x=5\)。<br>（若令 \(y\) 坐標相等得 \(k=5\)，那是斜率為 \(0\) 的水平線。）`},
+  {id:"S01-13",
+   tag:"S01",
+   level:"易",
+   cat:"陷阱題",
+   type:"tf",
+   stem:String.raw`小明計算 \(A(1,5)\)、\(B(4,-1)\) 連線的斜率，寫成 \(m_{AB}=\dfrac{-1-5}{1-4}=\dfrac{-6}{-3}=2\)。小明的計算正確。`,
+   opts:["○ 正確", "✕ 錯誤"],
+   ans:[1],
+   reasons:["沒注意到分子用 B 減 A、分母卻用 A 減 B，順序不一致", "只檢查算術有沒有算錯，沒檢查公式", "以為斜率和相減順序無關，怎麼減都可以"],
+   key:0,
+   exp:String.raw`分子是 \(y_B-y_A\)，分母卻是 \(x_A-x_B\)，順序不一致，正負號會相反。<br>正確：\(m_{AB}=\dfrac{-1-5}{4-1}=\dfrac{-6}{3}=-2\)。<br>故錯誤。`},
+  {id:"S01-14",
+   tag:"S01",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`已知 \(A(1,1)\)、\(B(5,3)\)，點 \(P\) 在 \(y\) 軸上，且直線 \(PA\) 與直線 \(PB\) 的斜率互為相反數，則 \(P\) 點的 \(y\) 坐標為＿＿＿＿。`,
+   ans:"4/3",
+   reasons:["把「互為相反數」當成「互為倒數」或「相等」來列式", String.raw`把 \(y\) 軸上的點設成 \((p,0)\)`, "通分、移項時漏乘分母"],
+   key:0,
+   exp:String.raw`設 \(P(0,p)\)。<br>\(m_{PA}=\dfrac{1-p}{1-0}=1-p\)，\(m_{PB}=\dfrac{3-p}{5-0}=\dfrac{3-p}{5}\)。<br>互為相反數：\(1-p+\dfrac{3-p}{5}=0\)<br>\(\Rightarrow 5-5p+3-p=0\Rightarrow 6p=8\Rightarrow p=\dfrac{4}{3}\)。`},
+  {id:"S01-15",
+   tag:"S01",
+   level:"難",
+   cat:"拉分題",
+   type:"multi",
+   stem:String.raw`設實數 \(t\neq1\)，點 \(P(t,t^2)\) 與點 \(A(1,1)\)。下列哪些敘述正確？`,
+   opts:[String.raw`\(m_{PA}=t+1\)`, String.raw`當 \(t=0\) 時，\(m_{PA}=0\)`, String.raw`存在 \(t\) 使直線 \(PA\) 沒有斜率`, String.raw`若 \(m_{PA}=3\)，則 \(P\) 點坐標為 \((2,4)\)`, String.raw`若 \(m_{PA}\lt0\)，則 \(-1\lt t\lt1\)`],
+   ans:[0, 3],
+   reasons:[String.raw`沒有用 \(t^2-1=(t+1)(t-1)\) 化簡，無法看出斜率就是 \(t+1\)`, String.raw`解 \(t+1\lt0\) 時誤以為是 \(-1\lt t\lt1\)`, String.raw`忘了題目已排除 \(t=1\)，以為分母可以為 0`],
+   key:0,
+   exp:String.raw`(1) \(m_{PA}=\dfrac{t^2-1}{t-1}=\dfrac{(t+1)(t-1)}{t-1}=t+1\)（\(t\neq1\)）。正確。<br>(2) \(t=0\) 時 \(m_{PA}=1\)，不是 0。錯誤。<br>(3) 沒有斜率要 \(t-1=0\)，但 \(t\neq1\)，所以不存在。錯誤。<br>(4) \(t+1=3\Rightarrow t=2\)，\(P(2,4)\)。正確。<br>(5) \(t+1\lt0\Rightarrow t\lt-1\)，不是 \(-1\lt t\lt1\)。錯誤。<br>故選 (1)(4)。`},
+  {id:"S01-V1",
+   tag:"S01",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   vary:true,
+   reasons:["分子、分母相減的順序不一致，造成正負號錯誤", "把斜率公式上下顛倒，算成倒數", "減負數時沒有變號"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let x1 = 0, y1 = 0, x2 = 0, y2 = 0, ok = false;
+     for (let i = 0; i < 50 && !ok; i++) {
+       x1 = R.int(-6, 6); y1 = R.int(-6, 6); x2 = R.int(-6, 6); y2 = R.int(-6, 6);
+       ok = x1 !== x2 && y1 !== y2 && Math.abs(x2 - x1) !== Math.abs(y2 - y1) && (x1 < 0 || y1 < 0 || x2 < 0 || y2 < 0);
+     }
+     if (!ok) { x1 = -1; y1 = 4; x2 = 3; y2 = -2; }
+     const m = V.F(y2 - y1, x2 - x1);
+     const L = R.pick(["A", "P"]), M = L === "A" ? "B" : "Q";
+     return {
+       stem: String.raw`坐標平面上兩點 \(${L}${V.pt(x1, y1)}\)、\(${M}${V.pt(x2, y2)}\)，則直線 \(${L}${M}\) 的斜率為＿＿＿＿。`,
+       ans: V.fAns(m),
+       exp: String.raw`\(m_{${L}${M}}=\dfrac{${y2}-${V.fPar(y1)}}{${x2}-${V.fPar(x1)}}=\dfrac{${y2 - y1}}{${x2 - x1}}=${V.fTex(m)}\)。<br>分子、分母要用同一個順序相減。`
+     };
+   }},
+  {id:"S01-V2",
+   tag:"S01",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:["列式後交叉相乘或移項時正負號出錯", "分子、分母相減的順序不一致", "把斜率公式上下顛倒，列成 x 的變化除以 y 的變化"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const ms = [[1,1],[-1,1],[2,1],[-2,1],[3,1],[-3,1],[1,2],[-1,2],[3,2],[-3,2],[2,3],[-2,3]];
+     let x1 = 0, x2 = 0, y2 = 0, p = 1, q = 1, k = 0, ok = false;
+     for (let i = 0; i < 50 && !ok; i++) {
+       [p, q] = R.pick(ms);
+       x1 = R.int(-5, 5);
+       const t = R.nz(-3, 3);
+       x2 = x1 + q * t;
+       y2 = R.int(-6, 6);
+       k = y2 - p * t;
+       ok = Math.abs(x2) <= 8 && Math.abs(k) <= 9 && k !== y2;
+     }
+     if (!ok) { p = -3; q = 1; x1 = 1; x2 = 4; y2 = 2; k = 11; }
+     const m = V.F(p, q), dx = x2 - x1, dy = V.mul(m, dx);
+     return {
+       stem: String.raw`已知 \(A(${x1},k)\)、\(B(${x2},${y2})\)，且直線 \(AB\) 的斜率為 \(${V.fTex(m)}\)，則 \(k=\)＿＿＿＿。`,
+       ans: String(k),
+       exp: String.raw`\(m_{AB}=\dfrac{${y2}-k}{${x2}-${V.fPar(x1)}}=\dfrac{${y2}-k}{${dx}}=${V.fTex(m)}\)<br>\(\Rightarrow ${y2}-k=${V.fPar(m)}\times${V.fPar(dx)}=${V.fTex(dy)}\)<br>\(\Rightarrow k=${y2}-${V.fPar(dy)}=${k}\)。`
+     };
+   }},
+  // ===== S02 斜率與傾斜程度 =====
   {id:"S02-1",
    tag:"S02",
    level:"易",
@@ -146,7 +292,147 @@ window.BANK_UNIT05 = [
    reasons:[String.raw`分不清斜截式中哪個是斜率、哪個是 \(y\) 截距`, String.raw`不知道 \(x\) 截距為 \(-\dfrac{d}{c}\)，無法判斷 \(\dfrac{d}{c}\) 的正負`, "斜率比較時只看陡峭程度，沒先看正負"],
    key:0,
    exp:String.raw`斜率：\(L_1\) 上升且較陡，\(a\gt0\)；\(L_3\) 上升但平緩，\(0\lt e\lt a\)；\(L_2\) 下降，\(c\lt0\)。故 \(a\gt e\gt c\)，(1) 正確，且 \(ac\lt0\)，(3) 錯誤。<br>\(y\) 截距：\(L_1\) 交 \(y\) 軸於負半軸，\(b\lt0\)；\(L_3\)、\(L_2\) 交於正半軸且 \(L_3\) 較低，\(0\lt f\lt d\)。(2) 正確，\(bd\lt0\)，(4) 正確。<br>(5) \(L_2\) 的 \(x\) 截距 \(-\dfrac{d}{c}\) 在正半軸，所以 \(-\dfrac{d}{c}\gt0\Rightarrow\dfrac{d}{c}\lt0\)，錯誤。`},
-  // ===== S03 =====
+  {id:"S02-8",
+   tag:"S02",
+   level:"易",
+   cat:"基本分",
+   type:"mc",
+   stem:"通過下列各組兩點的直線中，哪一條由左往右看是<b>下降</b>的？",
+   opts:[String.raw`\((1,2)\)、\((3,5)\)`, String.raw`\((0,-3)\)、\((4,-1)\)`, String.raw`\((2,1)\)、\((5,1)\)`, String.raw`\((-2,4)\)、\((1,-2)\)`],
+   ans:[3],
+   reasons:["以為坐標裡有負數，直線就一定下降", "分子分母相減順序不一致，正負號判斷錯", "把斜率為 0 的水平線也當成下降"],
+   key:0,
+   exp:String.raw`由左往右下降 \(\Leftrightarrow\) 斜率為負。<br>(1) \(\dfrac{5-2}{3-1}=\dfrac{3}{2}\)（上升）<br>(2) \(\dfrac{-1-(-3)}{4-0}=\dfrac{1}{2}\)（上升）<br>(3) \(\dfrac{1-1}{5-2}=0\)（水平）<br>(4) \(\dfrac{-2-4}{1-(-2)}=-2\)（下降）<br>故選 (4)。`},
+  {id:"S02-9",
+   tag:"S02",
+   level:"易",
+   cat:"基本分",
+   type:"tf",
+   stem:String.raw`直線 \(L\) 上，\(x\) 坐標每增加 \(2\)，\(y\) 坐標就減少 \(6\)，則 \(L\) 的斜率為 \(-3\)。`,
+   opts:["○ 正確", "✕ 錯誤"],
+   ans:[0],
+   reasons:["忽略「減少」代表 y 的變化是負的", String.raw`把斜率算成 \(\dfrac{\Delta x}{\Delta y}\)`, "以為斜率就是 y 減少的量 6"],
+   key:0,
+   exp:String.raw`斜率 \(=\dfrac{y\text{ 的變化量}}{x\text{ 的變化量}}=\dfrac{-6}{2}=-3\)。<br>故正確。`},
+  {id:"S02-10",
+   tag:"S02",
+   level:"中",
+   cat:"必考題",
+   type:"mc",
+   stem:String.raw`四條直線：\(L_1\) 通過 \((0,0)\)、\((1,2)\)；\(L_2\) 通過 \((0,3)\)、\((4,2)\)；\(L_3\) 通過 \((1,4)\)、\((3,-2)\)；\(L_4\) 通過 \((-1,0)\)、\((1,5)\)。哪一條直線<b>最陡</b>？`,
+   opts:[String.raw`\(L_1\)`, String.raw`\(L_2\)`, String.raw`\(L_3\)`, String.raw`\(L_4\)`],
+   ans:[2],
+   reasons:["以為斜率最大的就最陡，忽略負斜率要看絕對值", "斜率計算時分子分母相減順序不一致", "只看兩點 y 坐標差最大的，沒有除以 x 坐標差"],
+   key:0,
+   exp:String.raw`\(m_1=\dfrac{2-0}{1-0}=2\)，\(m_2=\dfrac{2-3}{4-0}=-\dfrac{1}{4}\)，\(m_3=\dfrac{-2-4}{3-1}=-3\)，\(m_4=\dfrac{5-0}{1-(-1)}=\dfrac{5}{2}\)。<br>陡峭程度看斜率的<b>絕對值</b>：\(|m_3|=3\) 最大。<br>故 \(L_3\) 最陡，選 (3)。`},
+  {id:"S02-11",
+   tag:"S02",
+   level:"中",
+   cat:"必考題",
+   type:"mc",
+   stem:String.raw`四條直線都通過原點，\(L_1\)、\(L_2\)、\(L_3\)、\(L_4\) 又分別通過 \((2,3)\)、\((-1,2)\)、\((3,1)\)、\((2,-5)\)，斜率依序為 \(m_1\)、\(m_2\)、\(m_3\)、\(m_4\)。下列大小關係何者正確？`,
+   opts:[String.raw`\(m_1\gt m_2\gt m_3\gt m_4\)`, String.raw`\(m_3\gt m_1\gt m_2\gt m_4\)`, String.raw`\(m_1\gt m_3\gt m_4\gt m_2\)`, String.raw`\(m_1\gt m_3\gt m_2\gt m_4\)`],
+   ans:[3],
+   reasons:["比較負數大小時用絕對值比，把 −5/2 當成比 −2 大", String.raw`\((-1,2)\) 的斜率算成 \(2\)，漏了負號`, "把斜率算成 x/y 的倒數"],
+   key:0,
+   exp:String.raw`過原點與 \((a,b)\) 的直線斜率為 \(\dfrac{b}{a}\)。<br>\(m_1=\dfrac{3}{2}\)，\(m_2=\dfrac{2}{-1}=-2\)，\(m_3=\dfrac{1}{3}\)，\(m_4=-\dfrac{5}{2}\)。<br>\(\dfrac{3}{2}\gt\dfrac{1}{3}\gt-2\gt-\dfrac{5}{2}\)，即 \(m_1\gt m_3\gt m_2\gt m_4\)，選 (4)。`},
+  {id:"S02-12",
+   tag:"S02",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`直線 \(L\) 通過點 \((2,-1)\)，由左往右上升，且與 \(x\) 軸正向的夾角為 \(45^\circ\)。若 \(L\) 與 \(y\) 軸交於 \((0,b)\)，則 \(b=\)＿＿＿＿。`,
+   ans:"-3",
+   reasons:[String.raw`以為 \(45^\circ\) 對應的斜率是 \(-1\) 或 \(\dfrac{1}{2}\)`, "從 (2,−1) 往左走 2 時，y 的變化方向弄反", String.raw`把 \(y\) 截距和 \(x\) 截距搞混`],
+   key:0,
+   exp:String.raw`與 \(x\) 軸正向夾 \(45^\circ\) 且上升：直線、水平線、鉛直線圍成等腰直角三角形，\(x\) 增加 1 時 \(y\) 也增加 1，斜率為 \(1\)。<br>由 \((2,-1)\) 到 \((0,b)\)：\(\dfrac{b-(-1)}{0-2}=1\Rightarrow b+1=-2\Rightarrow b=-3\)。`},
+  {id:"S02-13",
+   tag:"S02",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`某無障礙坡道規定：坡道的斜率不可超過 \(\dfrac{1}{12}\)。若要讓坡道從地面上升到 \(0.75\) 公尺高的平台，則坡道的水平長度<b>至少</b>為＿＿＿＿公尺。`,
+   ans:"9",
+   reasons:["用高度乘以斜率，算成 0.0625 公尺", "以為水平長度越短越符合規定，答成最多 9 公尺的意思", "把 1/12 當成水平比垂直，弄反比例"],
+   key:0,
+   exp:String.raw`設水平長度為 \(d\) 公尺，斜率 \(=\dfrac{0.75}{d}\le\dfrac{1}{12}\)。<br>\(\Rightarrow d\ge0.75\times12=9\)。<br>水平長度越長坡越緩，所以至少 9 公尺。`},
+  {id:"S02-14",
+   tag:"S02",
+   level:"難",
+   cat:"拉分題",
+   type:"multi",
+   stem:String.raw`已知 \(0\lt a\lt1\)。四條直線都通過原點：\(L_1\) 通過 \((1,a)\)、\(L_2\) 通過 \((1,a^2)\)、\(L_3\) 通過 \((1,\sqrt{a})\)、\(L_4\) 通過 \(\left(1,-\dfrac{1}{a}\right)\)。下列哪些敘述正確？`,
+   opts:[String.raw`四條直線中，斜率最小的是 \(L_2\)`, String.raw`\(L_1\)、\(L_2\)、\(L_3\) 中，\(L_3\) 最陡`, String.raw`\(L_4\) 比 \(L_1\) 陡`, String.raw`\(L_2\) 比 \(L_1\) 陡`, String.raw`四條直線中，由左往右下降的只有 \(L_4\)`],
+   ans:[1, 2, 4],
+   reasons:[String.raw`以為平方一定變大，沒注意 \(0\lt a\lt1\) 時 \(a^2\lt a\lt\sqrt{a}\)`, "比較陡峭程度時沒有取絕對值", String.raw`忘了 \(-\dfrac{1}{a}\) 是負數，斜率最小`],
+   key:0,
+   exp:String.raw`四條直線的斜率依序為 \(a\)、\(a^2\)、\(\sqrt{a}\)、\(-\dfrac{1}{a}\)。<br>當 \(0\lt a\lt1\)：\(a^2\lt a\lt\sqrt{a}\lt1\)（例如 \(a=\dfrac{1}{4}\)：\(\dfrac{1}{16}\lt\dfrac{1}{4}\lt\dfrac{1}{2}\)），而 \(\dfrac{1}{a}\gt1\)。<br>(1) 斜率最小的是負的 \(-\dfrac{1}{a}\)，即 \(L_4\)。錯誤。<br>(2) 三者斜率皆正，\(\sqrt{a}\) 最大，\(L_3\) 最陡。正確。<br>(3) \(\left|-\dfrac{1}{a}\right|=\dfrac{1}{a}\gt1\gt a\)，\(L_4\) 比 \(L_1\) 陡。正確。<br>(4) \(a^2\lt a\)，\(L_2\) 比 \(L_1\) 平緩。錯誤。<br>(5) 只有 \(L_4\) 斜率為負。正確。<br>故選 (2)(3)(5)。`},
+  {id:"S02-15",
+   tag:"S02",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`過原點的兩直線 \(L_1\)、\(L_2\) 由左往右都上升，且與 \(x\) 軸正向的夾角分別為 \(60^\circ\)、\(30^\circ\)。若直線 \(x=3\) 與 \(L_1\)、\(L_2\) 分別交於 \(P\)、\(Q\)，則 \(\overline{PQ}=\)＿＿＿＿。`,
+   ans:"2√3",
+   reasons:[String.raw`把 \(30^\circ\)、\(60^\circ\) 直角三角形的邊長比對錯，誤以為 \(60^\circ\) 的斜率是 \(\dfrac{\sqrt{3}}{3}\)`, String.raw`\(\dfrac{1}{\sqrt{3}}\) 沒有正確有理化`, "求出 P、Q 的 y 坐標後相加而不是相減"],
+   key:0,
+   exp:String.raw`利用 \(30^\circ\)-\(60^\circ\)-\(90^\circ\) 直角三角形三邊比 \(1:\sqrt{3}:2\)：<br>與 \(x\) 軸夾 \(60^\circ\)：水平走 1、上升 \(\sqrt{3}\)，斜率 \(\sqrt{3}\)，\(L_1:y=\sqrt{3}x\)。<br>與 \(x\) 軸夾 \(30^\circ\)：水平走 \(\sqrt{3}\)、上升 1，斜率 \(\dfrac{1}{\sqrt{3}}=\dfrac{\sqrt{3}}{3}\)，\(L_2:y=\dfrac{\sqrt{3}}{3}x\)。<br>\(x=3\) 代入：\(P(3,3\sqrt{3})\)、\(Q(3,\sqrt{3})\)。<br>\(\overline{PQ}=3\sqrt{3}-\sqrt{3}=2\sqrt{3}\)。`},
+  {id:"S02-V1",
+   tag:"S02",
+   level:"易",
+   cat:"基本分",
+   type:"mc",
+   vary:true,
+   reasons:["以為斜率最大的就最陡，忽略負斜率要看絕對值", "把斜率公式上下顛倒，算成倒數", "坐標相減的順序不一致，算錯斜率"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const abs = [[1,3],[1,2],[2,3],[1,1],[3,2],[2,1],[5,2],[3,1],[4,1]];
+     let picks = [];
+     for (let i = 0; i < 50 && picks.length < 4; i++) {
+       const c = R.pick(abs);
+       if (!picks.some(p => p[0] === c[0] && p[1] === c[1])) picks.push(c);
+     }
+     if (picks.length < 4) picks = [[1,2],[2,1],[3,1],[1,1]];
+     const val = c => c[0] / c[1];
+     picks.sort((u, v) => val(v) - val(u));      // picks[0] 絕對值最大
+     const order = R.shuffle([0, 1, 2, 3]);       // order[k]：第 k+1 條直線用 picks 的哪一個
+     const lines = order.map(j => {
+       const c = picks[j], s = R.sign();
+       const x1 = R.int(-4, 4), y1 = R.int(-4, 4), t = R.pick([1, 1, 2]);
+       const x2 = x1 + c[1] * t, y2 = y1 + s * c[0] * t;
+       return {x1, y1, x2, y2, m: V.F(s * c[0], c[1])};
+     });
+     const ansIdx = order.indexOf(0);
+     const names = ["L_1", "L_2", "L_3", "L_4"];
+     const desc = lines.map((l, i) => String.raw`\(${names[i]}\) 通過 \(${V.pt(l.x1, l.y1)}\)、\(${V.pt(l.x2, l.y2)}\)`).join("；");
+     const expLines = lines.map((l, i) => String.raw`\(m_${i + 1}=\dfrac{${l.y2}-${V.fPar(l.y1)}}{${l.x2}-${V.fPar(l.x1)}}=${V.fTex(l.m)}\)`);
+     return {
+       stem: String.raw`四條直線：${desc}。哪一條直線<b>最陡</b>？`,
+       opts: names.map(n => String.raw`\(${n}\)`),
+       ans: [ansIdx],
+       exp: expLines.join("<br>") + String.raw`<br>陡峭程度看斜率的<b>絕對值</b>，絕對值最大的是 \(m_${ansIdx + 1}=${V.fTex(lines[ansIdx].m)}\)，所以 \(${names[ansIdx]}\) 最陡。`
+     };
+   }},
+  {id:"S02-V2",
+   tag:"S02",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:["用高度乘以斜率，而不是除以斜率", "把「至少」與「至多」弄反", "把斜率當成「水平：垂直」，比例弄反"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const slopes = [[1,8],[1,10],[1,12],[1,15],[1,16],[1,20],[2,25],[3,40],[1,6],[3,50]];
+     const [p, q] = R.pick(slopes);
+     const h = p * R.int(2, 9) * 5;            // 上升高度（公分），是 p 的倍數
+     const d = h * q / p;
+     return {
+       stem: String.raw`某坡道規定斜率不可超過 \(\dfrac{${p}}{${q}}\)。若坡道要上升 \(${h}\) 公分，則坡道的水平長度<b>至少</b>為＿＿＿＿公分。`,
+       ans: String(d),
+       exp: String.raw`設水平長度為 \(d\) 公分，斜率 \(=\dfrac{${h}}{d}\le\dfrac{${p}}{${q}}\)。<br>\(\Rightarrow d\ge${h}\times${p === 1 ? q : String.raw`\dfrac{${q}}{${p}}`}=${d}\)。<br>水平越長坡越緩，所以至少 \(${d}\) 公分。`
+     };
+   }},
+  // ===== S03 三點共線 =====
   {id:"S03-1",
    tag:"S03",
    level:"易",
@@ -221,7 +507,145 @@ window.BANK_UNIT05 = [
    reasons:["忘了「斜率相等」只能說明兩直線平行（或重合），還需要有共同點才共線", String.raw`把三點共線的判斷（\(m_{AB}=m_{BC}\)，有共同點 \(B\)）誤用到四個點`, "沒有想反例"],
    key:0,
    exp:String.raw`斜率相等只代表兩直線平行或重合。<br>反例：\(A(0,0)\)、\(B(1,1)\)、\(C(0,1)\)、\(D(1,2)\)，\(m_{AB}=m_{CD}=1\)，但 \(C\) 不在直線 \(AB\)（\(y=x\)）上。<br>判斷共線時，兩個斜率要<b>共用一個點</b>，例如 \(m_{AB}=m_{AC}\)。`},
-  // ===== S04 =====
+  {id:"S03-8",
+   tag:"S03",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`若 \(A(-2,7)\)、\(B(1,1)\)、\(C(4,k)\) 三點共線，則 \(k=\)＿＿＿＿。`,
+   ans:"-5",
+   reasons:["分子分母相減順序不一致，斜率正負號錯", String.raw`列出 \(m_{BC}\) 時把 \(k-1\) 寫成 \(1-k\) 卻沒調整分母`, String.raw`誤用 \(m_{AB}\cdot m_{BC}=-1\) 之類的條件`],
+   key:0,
+   exp:String.raw`三點共線 \(\Leftrightarrow m_{AB}=m_{BC}\)。<br>\(m_{AB}=\dfrac{1-7}{1-(-2)}=-2\)，\(m_{BC}=\dfrac{k-1}{4-1}=\dfrac{k-1}{3}\)。<br>\(\dfrac{k-1}{3}=-2\Rightarrow k=-5\)。`},
+  {id:"S03-9",
+   tag:"S03",
+   level:"易",
+   cat:"基本分",
+   type:"mc",
+   stem:"下列哪一組三點共線？",
+   opts:[String.raw`\((-1,-1)\)、\((1,3)\)、\((2,5)\)`, String.raw`\((0,1)\)、\((2,4)\)、\((4,8)\)`, String.raw`\((1,2)\)、\((2,4)\)、\((3,5)\)`, String.raw`\((0,0)\)、\((1,3)\)、\((3,6)\)`],
+   ans:[0],
+   reasons:["只檢查其中兩點，沒有檢查第三點", "看到坐標有倍數關係就以為共線", "斜率計算時相減順序不一致"],
+   key:0,
+   exp:String.raw`檢查前兩點與後兩點的斜率是否相等：<br>(1) \(\dfrac{3-(-1)}{1-(-1)}=2\)、\(\dfrac{5-3}{2-1}=2\)，相等，共線 ✔<br>(2) \(\dfrac{3}{2}\)、\(\dfrac{4}{2}=2\)，不相等<br>(3) \(2\)、\(1\)，不相等<br>(4) \(3\)、\(\dfrac{3}{2}\)，不相等<br>故選 (1)。`},
+  {id:"S03-10",
+   tag:"S03",
+   level:"中",
+   cat:"必考題",
+   type:"mc",
+   stem:String.raw`若 \(A(0,k)\)、\(B(1,4)\)、\(C(k,6)\) 三點共線，則 \(k\) 的值為何？`,
+   opts:[String.raw`只有 \(k=2\)`, String.raw`\(k=-2\) 或 \(k=-3\)`, String.raw`\(k=2\) 或 \(k=3\)`, String.raw`\(k=1\) 或 \(k=6\)`],
+   ans:[2],
+   reasons:["解出一元二次方程式後只寫一個解，漏解", "因式分解時正負號弄錯", String.raw`交叉相乘時把 \((4-k)(k-1)\) 展開錯誤`],
+   key:0,
+   exp:String.raw`\(m_{AB}=\dfrac{4-k}{1-0}=4-k\)，\(m_{BC}=\dfrac{6-4}{k-1}=\dfrac{2}{k-1}\)（\(k\neq1\)）。<br>\((4-k)(k-1)=2\Rightarrow -k^2+5k-4=2\Rightarrow k^2-5k+6=0\)<br>\(\Rightarrow(k-2)(k-3)=0\Rightarrow k=2\) 或 \(3\)。<br>檢查：\(k=2\)：\((0,2)\)、\((1,4)\)、\((2,6)\)；\(k=3\)：\((0,3)\)、\((1,4)\)、\((3,6)\)，都共線。`},
+  {id:"S03-11",
+   tag:"S03",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`已知 \(A(-3,-1)\)、\(B(3,3)\)，若點 \(P(t,0)\) 與 \(A\)、\(B\) 三點共線，則 \(t=\)＿＿＿＿。`,
+   ans:"-3/2",
+   reasons:[String.raw`\(\dfrac{0-(-1)}{t-(-3)}\) 的分子算成 \(-1\)`, "交叉相乘後移項算錯", String.raw`把 \(P\) 當成在 \(y\) 軸上`],
+   key:0,
+   exp:String.raw`\(m_{AB}=\dfrac{3-(-1)}{3-(-3)}=\dfrac{4}{6}=\dfrac{2}{3}\)。<br>\(m_{AP}=\dfrac{0-(-1)}{t-(-3)}=\dfrac{1}{t+3}=\dfrac{2}{3}\)<br>\(\Rightarrow t+3=\dfrac{3}{2}\Rightarrow t=-\dfrac{3}{2}\)。`},
+  {id:"S03-12",
+   tag:"S03",
+   level:"易",
+   cat:"陷阱題",
+   type:"tf",
+   stem:String.raw`若 \(A\)、\(B\)、\(C\) 為相異三點，且直線 \(AB\) 與直線 \(BC\) 的斜率都存在而且相等（\(m_{AB}=m_{BC}\)），則 \(A\)、\(B\)、\(C\) 三點共線。`,
+   opts:["○ 正確", "✕ 錯誤"],
+   ans:[0],
+   reasons:[String.raw`和「\(m_{AB}=m_{CD}\) 不一定四點共線」混淆，沒注意這裡兩條直線有共同點 \(B\)`, "以為斜率相等只能推出平行，不能推出重合", "以為一定要三個斜率都相等才行"],
+   key:0,
+   exp:String.raw`直線 \(AB\) 與直線 \(BC\) 斜率相同，又都通過共同點 \(B\)。<br>過一點且斜率相同的直線只有一條，所以兩直線重合，\(A\)、\(B\)、\(C\) 共線。<br>（四點時 \(m_{AB}=m_{CD}\) 不一定共線，是因為兩直線可能沒有共同點而平行。）`},
+  {id:"S03-13",
+   tag:"S03",
+   level:"中",
+   cat:"陷阱題",
+   type:"num",
+   stem:String.raw`若 \(A(3,1)\)、\(B(3,-4)\)、\(C(2k-1,6)\) 三點共線，則 \(k=\)＿＿＿＿。`,
+   ans:"2",
+   reasons:[String.raw`硬套斜率公式，遇到分母 \(3-3=0\) 就以為無解`, String.raw`把三點共線想成 \(y\) 坐標要相同`, String.raw`解 \(2k-1=3\) 時移項錯誤`],
+   key:0,
+   exp:String.raw`\(A\)、\(B\) 的 \(x\) 坐標都是 3，直線 \(AB\) 是鉛直線 \(x=3\)（沒有斜率，不能用斜率相等來列式）。<br>\(C\) 要在直線 \(x=3\) 上：\(2k-1=3\Rightarrow k=2\)。`},
+  {id:"S03-14",
+   tag:"S03",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`已知 \(A(0,-6)\)、\(B(1,-1)\)，點 \(P(t,t^2)\)。若 \(A\)、\(B\)、\(P\) 三點共線，則滿足條件的點 \(P\) 有兩個，這兩點之間的距離為＿＿＿＿。`,
+   ans:"√26",
+   reasons:["只求出一個 t 值就停下來", String.raw`把兩個 \(t\) 值的差 \(1\) 當成兩點距離，忘了 \(y\) 坐標也不同`, "因式分解或解方程式時算錯"],
+   key:0,
+   exp:String.raw`\(m_{AB}=\dfrac{-1-(-6)}{1-0}=5\)。<br>\(m_{AP}=\dfrac{t^2-(-6)}{t-0}=\dfrac{t^2+6}{t}=5\)（\(t\neq0\)）<br>\(\Rightarrow t^2-5t+6=0\Rightarrow t=2\) 或 \(3\)，得 \(P(2,4)\) 或 \(P(3,9)\)。<br>距離 \(=\sqrt{(3-2)^2+(9-4)^2}=\sqrt{26}\)。`},
+  {id:"S03-15",
+   tag:"S03",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`已知 \(A(-2,-1)\)、\(B(4,3)\)。若點 \(P\) 在直線 \(AB\) 上，且 \(\overline{PA}=2\overline{PB}\)，則所有可能的 \(P\) 點，其 \(x\) 坐標的總和為＿＿＿＿。`,
+   ans:"12",
+   reasons:[String.raw`只考慮 \(P\) 在線段 \(\overline{AB}\) 之間，漏掉 \(P\) 在 \(B\) 外側的情形`, String.raw`把 \(\overline{PA}=2\overline{PB}\) 的比例對調，找成靠近 \(A\) 的點`, "分點坐標計算錯誤"],
+   key:0,
+   exp:String.raw`\(\overline{AB}\) 上 \(x\) 坐標從 \(-2\) 到 \(4\) 增加 6，\(y\) 坐標增加 4。<br>情形一：\(P\) 在 \(A\)、\(B\) 之間，\(\overline{AP}:\overline{PB}=2:1\)，\(P\) 從 \(A\) 走 \(\dfrac{2}{3}\)：\(x=-2+6\times\dfrac{2}{3}=2\)，\(P\left(2,\dfrac{5}{3}\right)\)。<br>情形二：\(P\) 在 \(B\) 的外側，\(\overline{AP}=2\overline{PB}\) 表示 \(B\) 是 \(\overline{AP}\) 的中點：\(P=(2\times4-(-2),2\times3-(-1))=(10,7)\)。<br>（\(P\) 在 \(A\) 外側時 \(\overline{PA}\lt\overline{PB}\)，不可能。）<br>總和 \(=2+10=12\)。`},
+  {id:"S03-V1",
+   tag:"S03",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   vary:true,
+   reasons:["分子分母相減順序不一致，斜率正負號錯", "列出比例式後交叉相乘或移項算錯", "只用兩點的坐標，沒有把第三點代入檢查"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const ms = [[1,1],[-1,1],[2,1],[-2,1],[3,1],[-3,1],[1,2],[-1,2],[3,2],[-3,2],[2,3],[-2,3]];
+     let x1 = 0, y1 = 0, x2 = 0, y2 = 0, x3 = 0, k = 0, p = 1, q = 1, ok = false;
+     for (let i = 0; i < 50 && !ok; i++) {
+       [p, q] = R.pick(ms);
+       x1 = R.int(-5, 4); y1 = R.int(-5, 5);
+       const t1 = R.pick([1, 2]), t3 = R.pick([-2, -1, 2, 3]);
+       if (t3 === t1) continue;
+       x2 = x1 + q * t1; y2 = y1 + p * t1; x3 = x1 + q * t3; k = y1 + p * t3;
+       ok = [x2, y2, x3, k].every(v => Math.abs(v) <= 10);
+     }
+     if (!ok) { x1 = -2; y1 = 7; x2 = 1; y2 = 1; x3 = 4; k = -5; p = -2; q = 1; }
+     const m = V.F(y2 - y1, x2 - x1);
+     return {
+       stem: String.raw`若 \(A${V.pt(x1, y1)}\)、\(B${V.pt(x2, y2)}\)、\(C(${x3},k)\) 三點共線，則 \(k=\)＿＿＿＿。`,
+       ans: String(k),
+       exp: String.raw`三點共線 \(\Leftrightarrow m_{AB}=m_{AC}\)。<br>\(m_{AB}=\dfrac{${y2}-${V.fPar(y1)}}{${x2}-${V.fPar(x1)}}=${V.fTex(m)}\)，\(m_{AC}=\dfrac{k-${V.fPar(y1)}}{${x3}-${V.fPar(x1)}}=\dfrac{k-${V.fPar(y1)}}{${x3 - x1}}\)。<br>\(k-${V.fPar(y1)}=${V.fPar(m)}\times${V.fPar(x3 - x1)}=${k - y1}\Rightarrow k=${k}\)。`
+     };
+   }},
+  {id:"S03-V2",
+   tag:"S03",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:["列式後移項時正負號出錯", "分子分母相減順序不一致", "代入 C 的 y 坐標時漏掉常數項"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let x1 = 0, y1 = 0, x2 = 0, y2 = 0, m = 1, c = 1, d = 0, t = 0, ok = false;
+     for (let i = 0; i < 50 && !ok; i++) {
+       m = R.nz(-3, 3);
+       x1 = R.int(-4, 3); y1 = R.int(-5, 5);
+       const s = R.pick([1, 2, 3]);
+       x2 = x1 + s; y2 = y1 + m * s;
+       t = R.int(-5, 5);
+       c = R.nz(-4, 4);
+       d = m * (t - x1) + y1 - c * t;
+       ok = c !== m && t !== x1 && t !== x2 && d !== 0 && Math.abs(d) <= 15 && Math.abs(y2) <= 10;
+     }
+     if (!ok) { m = 2; x1 = -1; y1 = -3; x2 = 2; y2 = 3; c = 3; t = -5; d = 4; }
+     const yAt = (a) => m * (a - x1) + y1;
+     return {
+       stem: String.raw`若 \(A${V.pt(x1, y1)}\)、\(B${V.pt(x2, y2)}\)、\(C(a,${V.expr([[c, "a"], [d, ""]])})\) 三點共線，則 \(a=\)＿＿＿＿。`,
+       ans: String(t),
+       exp: String.raw`\(m_{AB}=\dfrac{${y2}-${V.fPar(y1)}}{${x2}-${V.fPar(x1)}}=${m}\)。<br>\(m_{AC}=\dfrac{(${V.expr([[c, "a"], [d, ""]])})-${V.fPar(y1)}}{a-${V.fPar(x1)}}=${m}\)<br>\(\Rightarrow ${V.expr([[c, "a"], [d - y1, ""]])}=${V.expr([[m, "a"], [-m * x1, ""]])}\)<br>\(\Rightarrow ${V.expr([[c - m, "a"]])}=${-m * x1 - d + y1}\Rightarrow a=${t}\)。<br>檢查：\(C(${t},${c * t + d})\)，\(m_{AC}=\dfrac{${c * t + d - y1}}{${t - x1}}=${m}\)。`
+     };
+   }},
+  // ===== S04 點斜式 =====
   {id:"S04-1",
    tag:"S04",
    level:"易",
@@ -329,7 +753,122 @@ window.BANK_UNIT05 = [
    reasons:["以為平分面積的直線一定通過對邊中點（那只適用於過頂點的直線）", String.raw`沒判斷 \(L\) 會與哪一邊相交（\(P\) 靠近 \(B\)，所以 \(L\) 交 \(\overline{AC}\)）`, String.raw`以為過頂點 \(C\) 就能平分`],
    key:0,
    exp:String.raw`\(\triangle ABC\) 面積 \(=\dfrac{1}{2}\times8\times6=24\)，每部分 12。<br>\(\triangle PBC\) 面積 \(=\dfrac{1}{2}\times2\times6=6\lt12\)，所以 \(L\) 必與 \(\overline{AC}\) 相交於 \(Q\)，且 \(\triangle APQ\) 面積為 12。<br>設 \(Q=(2t,6t)\)（\(0\le t\le1\)），\(\triangle APQ=\dfrac{1}{2}\times6\times6t=18t=12\Rightarrow t=\dfrac{2}{3}\)，\(Q\left(\dfrac{4}{3},4\right)\)。<br>斜率 \(=\dfrac{4-0}{\frac{4}{3}-6}=\dfrac{4}{-\frac{14}{3}}=-\dfrac{6}{7}\)。`},
-  // ===== S05 =====
+  {id:"S04-11",
+   tag:"S04",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`過點 \((-1,-4)\) 且斜率為 \(3\) 的直線通過點 \((2,k)\)，則 \(k=\)＿＿＿＿。`,
+   ans:"5",
+   reasons:[String.raw`點斜式寫成 \(y-4=3(x-1)\)，代錯點的正負號`, String.raw`把 \(x\) 的變化量 \(2-(-1)\) 算成 \(1\)`, String.raw`代入時把 \(k\) 放到 \(x\) 的位置`],
+   key:0,
+   exp:String.raw`點斜式：\(y-(-4)=3(x-(-1))\)，即 \(y+4=3(x+1)\)。<br>代入 \(x=2\)：\(k+4=3\times3=9\Rightarrow k=5\)。`},
+  {id:"S04-12",
+   tag:"S04",
+   level:"中",
+   cat:"陷阱題",
+   type:"mc",
+   stem:String.raw`通過點 \((3,-2)\) 且斜率為 \(4\) 的直線，用點斜式表示，下列何者正確？`,
+   opts:[String.raw`\(y-2=4(x-3)\)`, String.raw`\(y+2=4(x+3)\)`, String.raw`\(y-3=4(x+2)\)`, String.raw`\(y+2=4(x-3)\)`],
+   ans:[3],
+   reasons:[String.raw`點斜式 \(y-y_0=m(x-x_0)\) 代入負的 \(y_0\) 時沒有變號`, String.raw`以為 \(x\)、\(y\) 兩邊的正負號要一樣`, String.raw`把 \(x_0\)、\(y_0\) 放錯位置`],
+   key:0,
+   exp:String.raw`點斜式 \(y-y_0=m(x-x_0)\)，代入 \((x_0,y_0)=(3,-2)\)、\(m=4\)：<br>\(y-(-2)=4(x-3)\)，即 \(y+2=4(x-3)\)。<br>檢查：\(x=3\) 時 \(y=-2\) ✔。故選 (4)。`},
+  {id:"S04-13",
+   tag:"S04",
+   level:"中",
+   cat:"陷阱題",
+   type:"tf",
+   stem:String.raw`直線 \(2y-6=5(x-1)\) 是通過點 \((1,3)\) 且斜率為 \(5\) 的直線。`,
+   opts:["○ 正確", "✕ 錯誤"],
+   ans:[1],
+   reasons:[String.raw`沒注意 \(y\) 前面有係數 \(2\)，直接把括號外的 \(5\) 當成斜率`, "以為只要能看出通過的點就正確", String.raw`把 \(2y-6\) 看成 \(y-6\)`],
+   key:0,
+   exp:String.raw`\(2y-6=5(x-1)\Rightarrow 2(y-3)=5(x-1)\Rightarrow y-3=\dfrac{5}{2}(x-1)\)。<br>通過 \((1,3)\) 沒錯，但斜率是 \(\dfrac{5}{2}\)，不是 \(5\)。<br>點斜式要先把 \(y\) 的係數化成 1 才能讀出斜率。故錯誤。`},
+  {id:"S04-14",
+   tag:"S04",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`直線 \(L\) 通過點 \(P(4,1)\) 且斜率為 \(m\)（\(m\lt0\)），\(L\) 與 \(x\) 軸、\(y\) 軸的正向分別交於 \(A\)、\(B\)，\(O\) 為原點。當 \(\overline{OA}+\overline{OB}\) 最小時，\(m=\)＿＿＿＿。`,
+   ans:"-1/2",
+   reasons:[String.raw`截距寫錯，例如 \(x\) 截距算成 \(4+\dfrac{1}{m}\)`, String.raw`使用算幾不等式時沒有先把負的 \(m\) 換成正數`, String.raw`求出取等號時的 \(-m\) 後忘了加負號，答成 \(\dfrac{1}{2}\)`],
+   key:0,
+   exp:String.raw`\(L:y-1=m(x-4)\)。<br>令 \(y=0\)：\(x=4-\dfrac{1}{m}\)；令 \(x=0\)：\(y=1-4m\)。<br>設 \(k=-m\gt0\)，\(\overline{OA}+\overline{OB}=\left(4+\dfrac{1}{k}\right)+(1+4k)=5+4k+\dfrac{1}{k}\)。<br>算幾不等式：\(4k+\dfrac{1}{k}\ge2\sqrt{4k\cdot\dfrac{1}{k}}=4\)，等號成立於 \(4k=\dfrac{1}{k}\Rightarrow k=\dfrac{1}{2}\)。<br>最小值為 9，此時 \(m=-\dfrac{1}{2}\)。`},
+  {id:"S04-15",
+   tag:"S04",
+   level:"難",
+   cat:"拉分題",
+   type:"mc",
+   stem:String.raw`設 \(m\) 為實數，直線 \(L:y-1=m(x-2)\)。若 \(L\) <b>不通過</b>第二象限，則 \(m\) 的範圍為何？`,
+   opts:[String.raw`\(m\ge\dfrac{1}{2}\)`, String.raw`\(m\le\dfrac{1}{2}\)`, String.raw`\(0\le m\le\dfrac{1}{2}\)`, String.raw`\(m\ge2\)`],
+   ans:[0],
+   reasons:[String.raw`\(y\) 截距 \(1-2m\le0\) 解不等式時方向弄錯`, "只考慮斜率要為正，沒有檢查 y 截距", "沒有先看出 L 恆過定點 (2,1)"],
+   key:0,
+   exp:String.raw`\(L\) 恆過 \((2,1)\)（在第一象限）。<br>若 \(m\lt0\)：往左上方延伸，一定進入第二象限。<br>若 \(m=0\)：\(y=1\) 通過第二象限。<br>若 \(m\gt0\)：直線往左下延伸，要不進入第二象限，\(y\) 截距須 \(\le0\)：\(1-2m\le0\Rightarrow m\ge\dfrac{1}{2}\)。<br>（\(m=\dfrac{1}{2}\) 時 \(L:y=\dfrac{1}{2}x\) 過原點，原點不屬於任何象限。）<br>故 \(m\ge\dfrac{1}{2}\)，選 (1)。`},
+  {id:"S04-V1",
+   tag:"S04",
+   level:"易",
+   cat:"基本分",
+   type:"mc",
+   vary:true,
+   reasons:[String.raw`點斜式 \(y-y_0=m(x-x_0)\) 代入負坐標時沒有變號`, "整理成一般式移項時常數項算錯", "把斜率的正負號弄反"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const ms = [[1,1],[-1,1],[2,1],[-2,1],[3,1],[-3,1],[4,1],[-4,1],[1,2],[-1,2],[3,2],[-3,2],[2,3],[-2,3]];
+     const norm = (a, b, c) => { const g = V.gcd(V.gcd(a, b), c) || 1; let s = (a < 0 || (a === 0 && b < 0)) ? -1 : 1; return [s * a / g, s * b / g, s * c / g]; };
+     const lineOf = (p, q, x0, y0) => norm(p, -q, q * y0 - p * x0);   // q(y-y0)=p(x-x0) → px-qy+(qy0-px0)=0
+     let x0 = 0, y0 = 0, p = 1, q = 1, cand = [], ok = false;
+     for (let i = 0; i < 50 && !ok; i++) {
+       [p, q] = R.pick(ms);
+       x0 = R.nz(-6, 6); y0 = R.nz(-6, 6);
+       cand = [lineOf(p, q, x0, y0), lineOf(p, q, -x0, -y0), lineOf(p, q, x0, -y0), lineOf(-p, q, x0, y0)];
+       const keys = cand.map(c => c.join(","));
+       ok = new Set(keys).size === 4;
+     }
+     if (!ok) { p = 4; q = 1; x0 = 2; y0 = -3; cand = [lineOf(4,1,2,-3), lineOf(4,1,-2,3), lineOf(4,1,2,3), lineOf(-4,1,2,-3)]; }
+     const m = V.F(p, q);
+     const mt = V.fTex(m);
+     const [a, b, c] = cand[0];
+     return {
+       stem: String.raw`通過點 \(${V.pt(x0, y0)}\) 且斜率為 \(${V.fTex(m)}\) 的直線方程式為何？`,
+       opts: cand.map(l => String.raw`\(${V.lin(l[0], l[1], l[2])}\)`),
+       ans: [0],
+       exp: String.raw`點斜式：\(y-${V.fPar(y0)}=${mt}(x-${V.fPar(x0)})\)。<br>` + (q === 1 ? "" : String.raw`兩邊乘以 \(${q}\)：\(${q}(y-${V.fPar(y0)})=${p}(x-${V.fPar(x0)})\)。<br>`) + String.raw`整理得 \(${V.lin(a, b, c)}\)。<br>檢查：\(x=${x0}\)、\(y=${y0}\) 代入左式 \(=0\) ✔。`
+     };
+   }},
+  {id:"S04-V2",
+   tag:"S04",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:["點斜式代入負坐標時沒有變號", "求截距時令錯變數（求 y 截距卻令 y=0）", "移項或分數運算時正負號出錯"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const ms = [[1,1],[-1,1],[2,1],[-2,1],[3,1],[-3,1],[1,2],[-1,2],[3,2],[-3,2],[2,3],[-2,3],[1,3],[-1,3]];
+     let p = 1, q = 1, x0 = 0, y0 = 0, ask = "y", ans = V.F(0), ok = false;
+     for (let i = 0; i < 50 && !ok; i++) {
+       [p, q] = R.pick(ms);
+       x0 = R.nz(-6, 6); y0 = R.nz(-6, 6);
+       ask = R.pick(["x", "y"]);
+       const m = V.F(p, q);
+       ans = ask === "y" ? V.sub(y0, V.mul(m, x0)) : V.sub(x0, V.div(y0, m));
+       ok = ans.d <= 3 && Math.abs(V.val(ans)) <= 15 && ans.n !== 0;
+     }
+     if (!ok) { p = -2; q = 1; x0 = 3; y0 = -1; ask = "y"; ans = V.F(5); }
+     const m = V.F(p, q);
+     const mt = (m.n === 1 && m.d === 1) ? "" : (m.n === -1 && m.d === 1) ? "-" : V.fTex(m);
+     const exp = ask === "y"
+       ? String.raw`點斜式：\(y-${V.fPar(y0)}=${mt}(x-${V.fPar(x0)})\)。<br>求 \(y\) 截距，令 \(x=0\)：\(y=${y0}+${V.fPar(m)}\times(0-${V.fPar(x0)})=${y0}+${V.fPar(V.mul(m, -x0))}=${V.fTex(ans)}\)。`
+       : String.raw`點斜式：\(y-${V.fPar(y0)}=${mt}(x-${V.fPar(x0)})\)。<br>求 \(x\) 截距，令 \(y=0\)：\(0-${V.fPar(y0)}=${mt}(x-${V.fPar(x0)})\)<br>\(\Rightarrow x-${V.fPar(x0)}=${V.fPar(-y0)}\div${V.fPar(m)}=${V.fTex(V.div(-y0, m))}\Rightarrow x=${V.fTex(ans)}\)。`;
+     return {
+       stem: String.raw`通過點 \(${V.pt(x0, y0)}\) 且斜率為 \(${V.fTex(m)}\) 的直線，其 \(${ask}\) 截距為＿＿＿＿。`,
+       ans: V.fAns(ans),
+       exp
+     };
+   }},
+  // ===== S05 斜截式 =====
   {id:"S05-1",
    tag:"S05",
    level:"易",
@@ -394,7 +933,150 @@ window.BANK_UNIT05 = [
    reasons:[String.raw`沒先由題意推出 \(a\gt0\)、\(b\lt0\)`, String.raw`判斷 \(ab\)、\(a-b\)、\(b^2\) 的正負時出錯`, String.raw`不知道「斜率負或 \(y\) 截距正」就一定經過第二象限`],
    key:0,
    exp:String.raw`過一、三、四象限且不過原點 \(\Rightarrow\) 斜率 \(a\gt0\)、\(y\) 截距 \(b\lt0\)。<br>直線 \(y=mx+k\) 經過第二象限 \(\Leftrightarrow\) \(m\lt0\) 或 \(k\gt0\)。<br>(1) 斜率 \(b\lt0\) ✓ (2) 斜率 \(ab\lt0\) ✓ (3) 截距 \(-b\gt0\) ✓<br>(4) 斜率 \(a-b\gt0\)、截距 \(ab\lt0\)：過一、三、四，✗<br>(5) 斜率 \(b^2\gt0\)、截距 \(b\lt0\)：過一、三、四，✗`},
-  // ===== S06 =====
+  {id:"S05-7",
+   tag:"S05",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`直線 \(y=\dfrac{3}{4}x-6\) 的 \(x\) 截距為＿＿＿＿。`,
+   ans:"8",
+   reasons:[String.raw`把 \(y\) 截距 \(-6\) 當成 \(x\) 截距`, String.raw`令 \(y=0\) 後解方程式時乘錯，算成 \(\dfrac{9}{2}\)`, "移項時正負號出錯得到 −8"],
+   key:0,
+   exp:String.raw`\(x\) 截距：令 \(y=0\)，\(0=\dfrac{3}{4}x-6\Rightarrow\dfrac{3}{4}x=6\Rightarrow x=6\times\dfrac{4}{3}=8\)。`},
+  {id:"S05-8",
+   tag:"S05",
+   level:"易",
+   cat:"基本分",
+   type:"mc",
+   stem:String.raw`斜率為 \(\dfrac{1}{2}\)，且與 \(y\) 軸交於 \((0,-3)\) 的直線方程式為何？`,
+   opts:[String.raw`\(y=-3x+\dfrac{1}{2}\)`, String.raw`\(y=\dfrac{1}{2}x-3\)`, String.raw`\(y=\dfrac{1}{2}x+3\)`, String.raw`\(y=2x-3\)`],
+   ans:[1],
+   reasons:[String.raw`斜截式 \(y=mx+b\) 中 \(m\)、\(b\) 的位置放反`, String.raw`\(y\) 截距的正負號寫錯`, "把斜率寫成倒數"],
+   key:0,
+   exp:String.raw`斜截式 \(y=mx+b\)，\(m\) 為斜率、\(b\) 為 \(y\) 截距。<br>\(m=\dfrac{1}{2}\)、\(b=-3\)：\(y=\dfrac{1}{2}x-3\)，選 (2)。`},
+  {id:"S05-9",
+   tag:"S05",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`直線 \(y=mx+b\) 通過 \((2,1)\)、\((-1,7)\) 兩點，則 \(m+b=\)＿＿＿＿。`,
+   ans:"3",
+   reasons:["兩式相減消去 b 時正負號出錯", String.raw`求出 \(m\) 後代回時算錯 \(b\)`, "斜率分子分母相減順序不一致"],
+   key:0,
+   exp:String.raw`代入兩點：\(1=2m+b\)、\(7=-m+b\)。<br>兩式相減：\(-6=3m\Rightarrow m=-2\)；代回 \(b=7+m=5\)。<br>\(m+b=-2+5=3\)。<br>（另解：\(m+b\) 就是 \(x=1\) 時的 \(y\) 值。）`},
+  {id:"S05-10",
+   tag:"S05",
+   level:"中",
+   cat:"必考題",
+   type:"mc",
+   stem:String.raw`斜率為 \(2\) 的直線 \(L\) 與兩坐標軸圍成的三角形面積為 \(9\)，則 \(L\) 的 \(y\) 截距為何？`,
+   opts:[String.raw`\(6\)`, String.raw`\(3\) 或 \(-3\)`, String.raw`\(6\) 或 \(-6\)`, String.raw`\(3\sqrt{2}\) 或 \(-3\sqrt{2}\)`],
+   ans:[2],
+   reasons:["忘了截距可以是負的，只寫一個答案", "面積公式忘了乘 1/2", String.raw`\(x\) 截距算錯成 \(-2b\)`],
+   key:0,
+   exp:String.raw`設 \(L:y=2x+b\)，\(y\) 截距 \(b\)，\(x\) 截距 \(-\dfrac{b}{2}\)。<br>面積 \(=\dfrac{1}{2}\times|b|\times\left|-\dfrac{b}{2}\right|=\dfrac{b^2}{4}=9\Rightarrow b^2=36\Rightarrow b=\pm6\)。<br>面積只看長度，正負兩種都可以，選 (3)。`},
+  {id:"S05-11",
+   tag:"S05",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`線型函數 \(f(x)=ax+b\) 滿足 \(f(3)=2f(1)\) 且 \(f(2)=6\)，則 \(f(5)=\)＿＿＿＿。`,
+   ans:"12",
+   reasons:[String.raw`把 \(2f(1)\) 寫成 \(f(2)\)`, "列聯立方程式時展開或移項出錯", String.raw`求出 \(a\)、\(b\) 後代入 \(f(5)\) 時算錯`],
+   key:0,
+   exp:String.raw`\(f(3)=2f(1)\)：\(3a+b=2(a+b)\Rightarrow a=b\)。<br>\(f(2)=6\)：\(2a+b=6\Rightarrow3a=6\Rightarrow a=b=2\)。<br>\(f(x)=2x+2\)，\(f(5)=12\)。`},
+  {id:"S05-12",
+   tag:"S05",
+   level:"中",
+   cat:"必考題",
+   type:"mc",
+   stem:String.raw`直線 \(L\) 與直線 \(y=-2x+5\) 有相同的 \(y\) 截距，且 \(L\) 通過點 \((-3,-1)\)，則 \(L\) 的方程式為何？`,
+   opts:[String.raw`\(y=-2x+5\)`, String.raw`\(y=2x-5\)`, String.raw`\(y=-2x-7\)`, String.raw`\(y=2x+5\)`],
+   ans:[3],
+   reasons:["以為 y 截距相同就連斜率也相同", String.raw`代入 \((-3,-1)\) 時負號處理錯誤`, "把 y 截距和斜率搞混"],
+   key:0,
+   exp:String.raw`\(y\) 截距相同，設 \(L:y=mx+5\)。<br>代入 \((-3,-1)\)：\(-1=-3m+5\Rightarrow m=2\)。<br>\(L:y=2x+5\)，選 (4)。<br>（\(y=-2x-7\) 雖然通過 \((-3,-1)\)，但 \(y\) 截距是 \(-7\)。）`},
+  {id:"S05-13",
+   tag:"S05",
+   level:"中",
+   cat:"陷阱題",
+   type:"num",
+   stem:String.raw`直線 \(3y=-2x+12\) 的斜率與 \(y\) 截距之和為＿＿＿＿。`,
+   ans:"10/3",
+   reasons:[String.raw`沒有先把 \(y\) 的係數化成 1，直接讀出斜率 \(-2\)、截距 \(12\)，答成 \(10\)`, "只把常數項除以 3，斜率忘了除", "把斜率的負號漏掉"],
+   key:0,
+   exp:String.raw`斜截式必須是 \(y=mx+b\) 的形式，先兩邊除以 3：\(y=-\dfrac{2}{3}x+4\)。<br>斜率 \(-\dfrac{2}{3}\)、\(y\) 截距 \(4\)，和為 \(4-\dfrac{2}{3}=\dfrac{10}{3}\)。`},
+  {id:"S05-14",
+   tag:"S05",
+   level:"難",
+   cat:"拉分題",
+   type:"multi",
+   stem:String.raw`設 \(a\)、\(b\) 為相異實數，兩直線 \(L_1:y=ax+b\)、\(L_2:y=bx+a\)。下列哪些敘述正確？`,
+   opts:[String.raw`\(L_1\) 與 \(L_2\) 交點的 \(x\) 坐標為 \(1\)`, String.raw`\(L_1\) 與 \(L_2\) 的交點為 \((1,ab)\)`, String.raw`若 \(a\gt0\gt b\)，則 \(L_1\) 不通過第二象限`, String.raw`若 \(ab\lt0\)，則 \(L_1\)、\(L_2\) 中恰有一條通過原點`, String.raw`若 \(a=2\)、\(b=-1\)，則 \(L_1\)、\(L_2\) 與 \(y\) 軸圍成的三角形面積為 \(\dfrac{3}{2}\)`],
+   ans:[0, 2, 4],
+   reasons:[String.raw`解交點時把 \((a-b)x=a-b\) 兩邊除錯，或忘了 \(a\neq b\) 才能相除`, "判斷象限時把斜率與 y 截距的角色搞混", String.raw`三角形的底與高找錯：底應該在 \(y\) 軸上，高是交點的 \(x\) 坐標`],
+   key:0,
+   exp:String.raw`(1) \(ax+b=bx+a\Rightarrow(a-b)x=a-b\)，因 \(a\neq b\)，\(x=1\)。正確。<br>(2) 交點 \(y=a+b\)，交點為 \((1,a+b)\)，不是 \((1,ab)\)。錯誤。<br>(3) 斜率 \(a\gt0\)、\(y\) 截距 \(b\lt0\)，直線通過第一、三、四象限，不過第二象限。正確。<br>(4) \(ab\lt0\) 表示 \(a\)、\(b\) 都不為 0，兩直線的 \(y\) 截距 \(b\)、\(a\) 都不為 0，都不過原點。錯誤。<br>(5) \(L_1:y=2x-1\)、\(L_2:y=-x+2\)，\(y\) 截距 \(-1\)、\(2\)，底 \(=3\)；交點 \((1,1)\)，高 \(=1\)；面積 \(=\dfrac{1}{2}\times3\times1=\dfrac{3}{2}\)。正確。<br>故選 (1)(3)(5)。`},
+  {id:"S05-15",
+   tag:"S05",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`兩直線 \(L_1:y=2x+3\) 與 \(L_2:y=mx-1\) 交於第一象限的點 \(P\)，且 \(L_1\)、\(L_2\) 與 \(y\) 軸圍成的三角形面積為 \(4\)，則 \(m=\)＿＿＿＿。`,
+   ans:"4",
+   reasons:[String.raw`三角形的底找錯，沒有用 \(y\) 軸上兩截距的距離 \(3-(-1)=4\)`, String.raw`高取成 \(P\) 的 \(y\) 坐標而不是 \(x\) 坐標`, String.raw`沒用「第一象限」排除 \(x=-2\) 的情形，答成 \(0\)`],
+   key:0,
+   exp:String.raw`兩直線與 \(y\) 軸交於 \((0,3)\)、\((0,-1)\)，底 \(=3-(-1)=4\)。<br>高 \(=P\) 到 \(y\) 軸的距離 \(=|x_P|\)。面積 \(=\dfrac{1}{2}\times4\times|x_P|=4\Rightarrow|x_P|=2\)。<br>\(P\) 在第一象限，\(x_P=2\)，\(P=(2,2\times2+3)=(2,7)\)。<br>\(P\) 在 \(L_2\) 上：\(7=2m-1\Rightarrow m=4\)。`},
+  {id:"S05-V1",
+   tag:"S05",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   vary:true,
+   reasons:["把 y 截距當成 x 截距", "令 y=0 後移項時正負號出錯", "除以分數斜率時沒有乘倒數"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const ms = [[1,1],[-1,1],[2,1],[-2,1],[3,1],[-3,1],[1,2],[-1,2],[3,2],[-3,2],[2,3],[-2,3],[3,4],[-3,4],[1,3],[-1,3]];
+     let p = 1, q = 1, b = 1, xi = V.F(0), ok = false;
+     for (let i = 0; i < 50 && !ok; i++) {
+       [p, q] = R.pick(ms); b = R.nz(-9, 9);
+       xi = V.div(-b, V.F(p, q));
+       ok = xi.d <= 3 && Math.abs(V.val(xi)) <= 20;
+     }
+     if (!ok) { p = 3; q = 4; b = -6; xi = V.F(8); }
+     const m = V.F(p, q);
+     return {
+       stem: String.raw`直線 \(y=${V.term(m, "x", true)}${V.term(b, "", false)}\) 的 \(x\) 截距為＿＿＿＿。`,
+       ans: V.fAns(xi),
+       exp: String.raw`\(x\) 截距：令 \(y=0\)，\(0=${V.term(m, "x", true)}${V.term(b, "", false)}\Rightarrow ${V.term(m, "x", true)}=${-b}\)<br>\(\Rightarrow x=${V.fPar(-b)}\div${V.fPar(m)}=${V.fTex(xi)}\)。`
+     };
+   }},
+  {id:"S05-V2",
+   tag:"S05",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:["兩式相減消去 b 時正負號出錯", "求出 m 後代回求 b 時算錯", "把題目要求的量弄錯（例如只寫 m 或只寫 b）"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let m = 1, b = 0, x1 = 0, x2 = 0, ok = false;
+     for (let i = 0; i < 50 && !ok; i++) {
+       m = R.nz(-4, 4); b = R.int(-7, 7);
+       x1 = R.int(-4, 4); x2 = R.int(-4, 4);
+       ok = x1 !== x2 && x1 !== 0 && x2 !== 0 && Math.abs(m * x1 + b) <= 15 && Math.abs(m * x2 + b) <= 15;
+     }
+     if (!ok) { m = -2; b = 5; x1 = 2; x2 = -1; }
+     const y1 = m * x1 + b, y2 = m * x2 + b;
+     const ask = R.pick(["b", "m+b", "m-b"]);
+     const val = ask === "b" ? b : ask === "m+b" ? m + b : m - b;
+     return {
+       stem: String.raw`直線 \(y=mx+b\) 通過 \(${V.pt(x1, y1)}\)、\(${V.pt(x2, y2)}\) 兩點，則 \(${ask}=\)＿＿＿＿。`,
+       ans: String(val),
+       exp: String.raw`代入兩點：\(${y1}=${V.expr([[x1, "m"]])}+b\)、\(${y2}=${V.expr([[x2, "m"]])}+b\)。<br>兩式相減：\(${y1 - y2}=${V.expr([[x1 - x2, "m"]])}\Rightarrow m=${m}\)。<br>代回：\(b=${y1}-${V.fPar(m * x1)}=${b}\)。<br>` + (ask === "b" ? String.raw`故 \(b=${b}\)。` : String.raw`故 \(${ask}=${m}${ask === "m+b" ? "+" : "-"}${V.fPar(b)}=${val}\)。`)
+     };
+   }},
+  // ===== S06 截距式 =====
   {id:"S06-1",
    tag:"S06",
    level:"易",
@@ -482,7 +1164,129 @@ window.BANK_UNIT05 = [
    reasons:["以為每一條直線都能寫成截距式", String.raw`沒注意 \(y=2x\) 通過原點，兩截距都是 0，不能當分母`, "把斜截式和截距式搞混"],
    key:0,
    exp:String.raw`\(y=2x\) 通過原點，\(x\) 截距與 \(y\) 截距都是 0，而截距式的分母不能為 0，所以不能寫成截距式。<br>同理，水平線、鉛直線（只有一個截距）也不能寫成截距式。`},
-  // ===== S07 =====
+  {id:"S06-9",
+   tag:"S06",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`直線 \(\dfrac{x}{a}+\dfrac{y}{4}=1\) 通過點 \((3,-2)\)，則 \(a=\)＿＿＿＿。`,
+   ans:"2",
+   reasons:[String.raw`代入時把 \(\dfrac{-2}{4}\) 的負號漏掉，得到 \(a=6\)`, "通分移項時算錯", String.raw`把 \(3\) 代入 \(y\)、\(-2\) 代入 \(x\)`],
+   key:0,
+   exp:String.raw`代入 \((3,-2)\)：\(\dfrac{3}{a}+\dfrac{-2}{4}=1\Rightarrow\dfrac{3}{a}=1+\dfrac{1}{2}=\dfrac{3}{2}\Rightarrow a=2\)。`},
+  {id:"S06-10",
+   tag:"S06",
+   level:"中",
+   cat:"必考題",
+   type:"mc",
+   stem:String.raw`直線 \(L\) 通過點 \((4,-3)\)，且 \(L\) 的 \(x\) 截距與 \(y\) 截距之和為 \(2\)（兩截距皆不為 0），則 \(L\) 的方程式為何？`,
+   opts:[String.raw`只有 \(x+y-1=0\)`, String.raw`\(x+y-1=0\) 或 \(3x-4y-24=0\)`, String.raw`\(x-y-7=0\) 或 \(3x+4y=0\)`, String.raw`只有 \(3x-4y-24=0\)`],
+   ans:[1],
+   reasons:["解出一元二次方程式的兩根後只取一個，漏解", String.raw`設 \(y\) 截距為 \(2-a\) 後通分整理出錯`, "把截距和誤當成截距相等"],
+   key:0,
+   exp:String.raw`設 \(x\) 截距 \(a\)、\(y\) 截距 \(2-a\)，\(L:\dfrac{x}{a}+\dfrac{y}{2-a}=1\)。<br>代入 \((4,-3)\)：\(\dfrac{4}{a}-\dfrac{3}{2-a}=1\)<br>\(\Rightarrow4(2-a)-3a=a(2-a)\Rightarrow a^2-9a+8=0\Rightarrow a=1\) 或 \(8\)。<br>\(a=1\)：\(\dfrac{x}{1}+\dfrac{y}{1}=1\)，即 \(x+y-1=0\)。<br>\(a=8\)：\(\dfrac{x}{8}+\dfrac{y}{-6}=1\)，即 \(3x-4y-24=0\)。<br>兩條都符合，選 (2)。`},
+  {id:"S06-11",
+   tag:"S06",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`直線 \(\dfrac{x}{a}+\dfrac{y}{b}=1\)（\(a\gt b\gt0\)）與兩坐標軸交於 \(A\)、\(B\) 兩點，已知 \(\overline{AB}=10\)，且直線與兩軸圍成的三角形面積為 \(24\)。若此直線通過點 \((4,k)\)，則 \(k=\)＿＿＿＿。`,
+   ans:"3",
+   reasons:["沒有用 a 大於 b 的條件，把 a、b 對調", "面積公式忘了乘 1/2，算成 ab=24", String.raw`由 \(a^2+b^2=100\)、\(ab=48\) 求 \(a\)、\(b\) 時算錯`],
+   key:0,
+   exp:String.raw`\(A(a,0)\)、\(B(0,b)\)。<br>\(\overline{AB}^2=a^2+b^2=100\)；面積 \(\dfrac{1}{2}ab=24\Rightarrow ab=48\)。<br>\((a+b)^2=100+96=196\Rightarrow a+b=14\)；\((a-b)^2=100-96=4\Rightarrow a-b=2\)。<br>\(a=8\)、\(b=6\)，直線 \(\dfrac{x}{8}+\dfrac{y}{6}=1\)。<br>代入 \((4,k)\)：\(\dfrac{1}{2}+\dfrac{k}{6}=1\Rightarrow k=3\)。`},
+  {id:"S06-12",
+   tag:"S06",
+   level:"易",
+   cat:"陷阱題",
+   type:"num",
+   stem:String.raw`直線 \(\dfrac{x}{3}-\dfrac{y}{2}=1\) 的 \(y\) 截距為＿＿＿＿。`,
+   ans:"-2",
+   reasons:[String.raw`直接讀分母 \(2\) 當成 \(y\) 截距，忽略中間是減號`, String.raw`把 \(x\) 截距 \(3\) 當成 \(y\) 截距`, String.raw`令錯變數，令 \(y=0\) 去求`],
+   key:0,
+   exp:String.raw`截距式是 \(\dfrac{x}{a}+\dfrac{y}{b}=1\)，中間要是加號：\(\dfrac{x}{3}+\dfrac{y}{-2}=1\)，\(y\) 截距為 \(-2\)。<br>或令 \(x=0\)：\(-\dfrac{y}{2}=1\Rightarrow y=-2\)。`},
+  {id:"S06-13",
+   tag:"S06",
+   level:"中",
+   cat:"陷阱題",
+   type:"mc",
+   stem:String.raw`直線 \(L\) 通過點 \((2,1)\)，且 \(L\) 的 \(x\) 截距是 \(y\) 截距的 \(2\) 倍，則 \(L\) 的方程式為何？`,
+   opts:[String.raw`只有 \(x+2y-4=0\)`, String.raw`只有 \(x-2y=0\)`, String.raw`\(2x+y-5=0\) 或 \(x-2y=0\)`, String.raw`\(x+2y-4=0\) 或 \(x-2y=0\)`],
+   ans:[3],
+   reasons:["直接設截距式，漏掉兩截距都是 0（過原點）的直線", String.raw`把「\(x\) 截距是 \(y\) 截距的 2 倍」設反成 \(\dfrac{x}{b}+\dfrac{y}{2b}=1\)`, "代入點後解方程式算錯"],
+   key:0,
+   exp:String.raw`情形一：兩截距都不為 0，設 \(\dfrac{x}{2b}+\dfrac{y}{b}=1\)，代入 \((2,1)\)：\(\dfrac{1}{b}+\dfrac{1}{b}=1\Rightarrow b=2\)，得 \(\dfrac{x}{4}+\dfrac{y}{2}=1\)，即 \(x+2y-4=0\)。<br>情形二：兩截距都是 0（過原點），\(0=2\times0\) 也符合。過原點與 \((2,1)\)：\(y=\dfrac{1}{2}x\)，即 \(x-2y=0\)。<br>截距式無法表示過原點的直線，要另外考慮！選 (4)。`},
+  {id:"S06-14",
+   tag:"S06",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`過點 \(P(2,1)\) 的直線 \(L\) 與 \(x\) 軸正向交於 \(A\)、與 \(y\) 軸正向交於 \(B\)，\(O\) 為原點，則 \(\triangle OAB\) 面積的最小值為＿＿＿＿。`,
+   ans:"4",
+   reasons:[String.raw`使用算幾不等式時寫成 \(\dfrac{2}{a}+\dfrac{1}{b}\ge\sqrt{\dfrac{2}{ab}}\)，漏了係數 2`, "求出 ab 的最小值後忘了乘 1/2", String.raw`以為 \(P\) 是 \(\overline{AB}\) 中點時面積最小，卻算錯截距`],
+   key:0,
+   exp:String.raw`設 \(L:\dfrac{x}{a}+\dfrac{y}{b}=1\)（\(a,b\gt0\)），過 \(P\)：\(\dfrac{2}{a}+\dfrac{1}{b}=1\)。<br>算幾不等式：\(1=\dfrac{2}{a}+\dfrac{1}{b}\ge2\sqrt{\dfrac{2}{a}\cdot\dfrac{1}{b}}=2\sqrt{\dfrac{2}{ab}}\Rightarrow\dfrac{2}{ab}\le\dfrac{1}{4}\Rightarrow ab\ge8\)。<br>等號成立於 \(\dfrac{2}{a}=\dfrac{1}{b}=\dfrac{1}{2}\)，即 \(a=4\)、\(b=2\)。<br>面積 \(=\dfrac{1}{2}ab\ge4\)，最小值為 \(4\)。`},
+  {id:"S06-15",
+   tag:"S06",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`直線 \(L:\dfrac{x}{a}+\dfrac{y}{b}=1\) 與兩坐標軸圍成的三角形，周長為 \(12\)、面積為 \(6\)，則滿足條件的直線 \(L\) 共有＿＿＿＿條。`,
+   ans:"8",
+   reasons:["只考慮截距為正的情形，漏掉負截距", String.raw`只算 \(|a|=3,|b|=4\)，漏了 \(|a|=4,|b|=3\)`, "周長忘了加斜邊，列錯方程式"],
+   key:0,
+   exp:String.raw`設 \(p=|a|\)、\(q=|b|\)，三角形兩股為 \(p\)、\(q\)，斜邊 \(\sqrt{p^2+q^2}\)。<br>面積：\(pq=12\)；周長：\(p+q+\sqrt{p^2+q^2}=12\)。<br>\(\sqrt{p^2+q^2}=12-(p+q)\)，平方：\(p^2+q^2=144-24(p+q)+(p+q)^2\Rightarrow0=144-24(p+q)+2pq\Rightarrow p+q=7\)。<br>\(p+q=7\)、\(pq=12\Rightarrow\{p,q\}=\{3,4\}\)。<br>\((|a|,|b|)=(3,4)\) 或 \((4,3)\)，每種 \(a\)、\(b\) 各有正負兩種，共 \(2\times2\times2=8\) 條。`},
+  {id:"S06-V1",
+   tag:"S06",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:["代入點坐標時負號處理錯誤", "通分移項時算錯", "把點的 x、y 坐標代反"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let a = 2, b = 4, x0 = 3, y0 = -2, ok = false;
+     for (let i = 0; i < 50 && !ok; i++) {
+       b = R.nz(-6, 6); y0 = R.nz(-8, 8); x0 = R.nz(-8, 8);
+       if (y0 === b || Math.abs(b) === 1) continue;
+       const af = V.F(x0 * b, b - y0);
+       ok = af.d === 1 && af.n !== 0 && Math.abs(af.n) !== 1 && Math.abs(af.n) <= 12 && af.n !== x0;
+       if (ok) a = af.n;
+     }
+     if (!ok) { a = 2; b = 4; x0 = 3; y0 = -2; }
+     const r = V.sub(1, V.F(y0, b));     // x0/a = r
+     return {
+       stem: String.raw`直線 \(\dfrac{x}{a}+\dfrac{y}{${b}}=1\) 通過點 \(${V.pt(x0, y0)}\)，則 \(a=\)＿＿＿＿。`,
+       ans: String(a),
+       exp: String.raw`代入 \(${V.pt(x0, y0)}\)：\(\dfrac{${x0}}{a}+\dfrac{${y0}}{${b}}=1\)<br>\(\Rightarrow\dfrac{${x0}}{a}=1-${V.fPar(V.F(y0, b))}=${V.fTex(r)}\)<br>\(\Rightarrow a=${x0}\div${V.fPar(r)}=${a}\)。`
+     };
+   }},
+  {id:"S06-V2",
+   tag:"S06",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:["面積公式忘了乘 1/2", "截距為負時直接用負數相乘，沒有取絕對值", "求截距時令錯變數"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let A = 2, B = 3, C = 6, ok = false;
+     for (let i = 0; i < 50 && !ok; i++) {
+       A = R.nz(-6, 6); B = R.nz(-6, 6); C = R.nz(-12, 12);
+       const ar = V.F(C * C, 2 * Math.abs(A * B));
+       ok = V.gcd(V.gcd(A, B), C) === 1 && ar.d <= 4 && V.val(ar) <= 40 && !(Math.abs(A) === 1 && Math.abs(B) === 1);
+     }
+     if (!ok) { A = 2; B = -3; C = 6; }
+     const xi = V.F(C, A), yi = V.F(C, B);
+     const area = V.F(C * C, 2 * Math.abs(A * B));
+     const absT = f => V.fTex(V.F(Math.abs(f.n), f.d));
+     return {
+       stem: String.raw`直線 \(${V.term(A, "x", true)}${V.term(B, "y", false)}=${C}\) 與兩坐標軸所圍成的三角形面積為＿＿＿＿。`,
+       ans: V.fAns(area),
+       exp: String.raw`令 \(y=0\)：\(x\) 截距 \(=${V.fTex(xi)}\)；令 \(x=0\)：\(y\) 截距 \(=${V.fTex(yi)}\)。<br>` + (xi.d === 1 && yi.d === 1 ? String.raw`（也可化成截距式 \(\dfrac{x}{${xi.n}}+\dfrac{y}{${yi.n}}=1\)。）<br>` : "") + String.raw`面積 \(=\dfrac{1}{2}\times${absT(xi)}\times${absT(yi)}=${V.fTex(area)}\)（邊長取絕對值）。`
+     };
+   }},
+  // ===== S07 一般式的斜率與截距 =====
   {id:"S07-1",
    tag:"S07",
    level:"易",
@@ -558,7 +1362,135 @@ window.BANK_UNIT05 = [
    reasons:[String.raw`\(L_1\) 的 \(y\) 係數是 \(a\)，斜率應為 \(-\dfrac{1}{a}\)，誤套成 \(-a\)`, String.raw`截距 \(-b\)、\(-d\) 的負號沒處理`, String.raw`看錯哪一條是 \(L_1\)、哪一條是 \(L_2\)`],
    key:0,
    exp:String.raw`\(L_1\)：斜率 \(-\dfrac{1}{a}\gt0\Rightarrow a\lt0\)；\(x\) 截距 \(-b\gt0\Rightarrow b\lt0\)。<br>\(L_2\)：斜率 \(-c\lt0\Rightarrow c\gt0\)；\(y\) 截距 \(-d\gt0\Rightarrow d\lt0\)。<br>\(ab\)：兩負相乘為正，\(ab\gt0\)。<br>故 (2)(3)(5) 正確。`},
-  // ===== S08 =====
+  {id:"S07-8",
+   tag:"S07",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`直線 \(2x-5y-10=0\) 的 \(y\) 截距為＿＿＿＿。`,
+   ans:"-2",
+   reasons:[String.raw`令錯變數，令 \(y=0\) 求出 \(x\) 截距 \(5\)`, "移項時正負號出錯，得到 2", String.raw`以為 \(y\) 截距就是常數項 \(-10\)`],
+   key:0,
+   exp:String.raw`\(y\) 截距：令 \(x=0\)，\(-5y-10=0\Rightarrow y=-2\)。`},
+  {id:"S07-9",
+   tag:"S07",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`直線 \(ax+3y-6=0\) 的斜率為 \(4\)，則此直線的 \(x\) 截距為＿＿＿＿。`,
+   ans:"-1/2",
+   reasons:[String.raw`斜率公式 \(-\dfrac{a}{b}\) 漏了負號，得到 \(a=12\)`, String.raw`誤以為斜率是 \(\dfrac{a}{3}\) 或 \(-\dfrac{3}{a}\)`, String.raw`求 \(x\) 截距時令錯變數`],
+   key:0,
+   exp:String.raw`一般式 \(ax+by+c=0\) 的斜率為 \(-\dfrac{a}{b}\)：\(-\dfrac{a}{3}=4\Rightarrow a=-12\)。<br>直線 \(-12x+3y-6=0\)，令 \(y=0\)：\(-12x=6\Rightarrow x=-\dfrac{1}{2}\)。`},
+  {id:"S07-10",
+   tag:"S07",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`直線 \((2a-1)x+(a+3)y-6=0\) 的 \(x\) 截距與 \(y\) 截距相等（皆不為 0），則 \(a=\)＿＿＿＿。`,
+   ans:"4",
+   reasons:[String.raw`\(x\) 截距、\(y\) 截距寫錯（漏了常數項移項後的正負號）`, String.raw`令 \(2a-1=-(a+3)\)，把「相等」做成「相反數」`, "解一元一次方程式移項錯誤"],
+   key:0,
+   exp:String.raw`令 \(y=0\)：\(x\) 截距 \(=\dfrac{6}{2a-1}\)；令 \(x=0\)：\(y\) 截距 \(=\dfrac{6}{a+3}\)。<br>\(\dfrac{6}{2a-1}=\dfrac{6}{a+3}\Rightarrow2a-1=a+3\Rightarrow a=4\)。<br>此時直線 \(7x+7y-6=0\)，兩截距都是 \(\dfrac{6}{7}\)。`},
+  {id:"S07-11",
+   tag:"S07",
+   level:"中",
+   cat:"必考題",
+   type:"mc",
+   stem:String.raw`直線 \(L\) 與直線 \(2x-3y+6=0\) 的斜率相同，且 \(L\) 的 \(y\) 截距為 \(-4\)，則 \(L\) 的方程式為何？`,
+   opts:[String.raw`\(2x-3y-12=0\)`, String.raw`\(3x-2y-8=0\)`, String.raw`\(2x+3y+12=0\)`, String.raw`\(2x-3y+12=0\)`],
+   ans:[0],
+   reasons:[String.raw`斜率公式記錯成 \(-\dfrac{b}{a}\)，得到 \(\dfrac{3}{2}\)`, String.raw`\(y\) 截距與常數項的正負關係搞錯`, String.raw`斜率 \(-\dfrac{a}{b}\) 的負號漏掉`],
+   key:0,
+   exp:String.raw`\(2x-3y+6=0\) 的斜率 \(=-\dfrac{2}{-3}=\dfrac{2}{3}\)。<br>\(L:y=\dfrac{2}{3}x-4\Rightarrow3y=2x-12\Rightarrow2x-3y-12=0\)。<br>檢查 \(y\) 截距：令 \(x=0\)，\(-3y=12\Rightarrow y=-4\) ✔。選 (1)。`},
+  {id:"S07-12",
+   tag:"S07",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`直線 \(kx-2y+(k+4)=0\) 的 \(x\) 截距為 \(3\)，則此直線的斜率為＿＿＿＿。`,
+   ans:"-1/2",
+   reasons:[String.raw`代入 \((3,0)\) 時誤代成 \((0,3)\)`, String.raw`斜率公式 \(-\dfrac{a}{b}\) 的正負號算錯，得到 \(\dfrac{1}{2}\)`, String.raw`解 \(4k+4=0\) 時移項錯誤`],
+   key:0,
+   exp:String.raw`\(x\) 截距為 3，表示 \((3,0)\) 在直線上：\(3k-0+k+4=0\Rightarrow k=-1\)。<br>直線 \(-x-2y+3=0\)，斜率 \(=-\dfrac{-1}{-2}=-\dfrac{1}{2}\)。`},
+  {id:"S07-13",
+   tag:"S07",
+   level:"中",
+   cat:"陷阱題",
+   type:"tf",
+   stem:String.raw`當 \(k=-1\) 時，直線 \((k-2)x+(k+1)y+3=0\) 的斜率為 \(0\)。`,
+   opts:["○ 正確", "✕ 錯誤"],
+   ans:[1],
+   reasons:[String.raw`\(y\) 的係數為 0 時硬套 \(-\dfrac{a}{b}\)，把「分母為 0」誤當成「斜率為 0」`, "把鉛直線和水平線搞混", "代入 k 時把係數算錯"],
+   key:0,
+   exp:String.raw`\(k=-1\)：\(-3x+0\cdot y+3=0\Rightarrow x=1\)，是鉛直線，<b>沒有斜率</b>。<br>斜率為 0 的是水平線（\(x\) 的係數為 0）。故錯誤。`},
+  {id:"S07-14",
+   tag:"S07",
+   level:"難",
+   cat:"拉分題",
+   type:"multi",
+   stem:String.raw`設直線 \(L:ax+by+c=0\)，其中 \(ac\lt0\)、\(bc\gt0\)。下列哪些敘述正確？`,
+   opts:[String.raw`\(L\) 的斜率為正`, String.raw`\(L\) 的 \(y\) 截距為正`, String.raw`\(L\) 的 \(x\) 截距小於 \(y\) 截距`, String.raw`\(L\) 不通過第二象限`, String.raw`直線 \(ax-by+c=0\) 通過第二象限`],
+   ans:[0, 3, 4],
+   reasons:[String.raw`由 \(ac\lt0\)、\(bc\gt0\) 推 \(a\)、\(b\) 的關係時出錯（應為 \(a\)、\(b\) 異號）`, String.raw`截距公式 \(-\dfrac{c}{a}\)、\(-\dfrac{c}{b}\) 漏了負號`, "由斜率與截距判斷通過象限時弄錯"],
+   key:0,
+   exp:String.raw`\(ac\lt0\)：\(a\)、\(c\) 異號；\(bc\gt0\)：\(b\)、\(c\) 同號。所以 \(a\)、\(b\) 異號。<br>(1) 斜率 \(-\dfrac{a}{b}\)，\(\dfrac{a}{b}\lt0\)，斜率為正。正確。<br>(2) \(y\) 截距 \(-\dfrac{c}{b}\)，\(\dfrac{c}{b}\gt0\)，\(y\) 截距為負。錯誤。<br>(3) \(x\) 截距 \(-\dfrac{c}{a}\gt0\)，\(y\) 截距為負，所以 \(x\) 截距較大。錯誤。<br>(4) 斜率正、\(y\) 截距負，通過第一、三、四象限，不過第二象限。正確。<br>(5) \(ax-by+c=0\)：斜率 \(\dfrac{a}{b}\lt0\)，\(y\) 截距 \(\dfrac{c}{b}\gt0\)，通過第一、二、四象限。正確。<br>故選 (1)(4)(5)。`},
+  {id:"S07-15",
+   tag:"S07",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`設 \(k\gt0\)，直線 \(kx+y-2k-3=0\) 與 \(x\) 軸、\(y\) 軸的正向圍成的三角形面積為 \(16\)，則所有可能的 \(k\) 值之和為＿＿＿＿。`,
+   ans:"5",
+   reasons:[String.raw`\(x\) 截距算錯，寫成 \(2k+3\) 或 \(\dfrac{k}{2k+3}\)`, "面積公式忘了乘 1/2", "整理成一元二次方程式後只取一根，或兩根和用錯"],
+   key:0,
+   exp:String.raw`令 \(x=0\)：\(y\) 截距 \(=2k+3\)；令 \(y=0\)：\(x\) 截距 \(=\dfrac{2k+3}{k}\)（\(k\gt0\) 時兩者皆正）。<br>面積：\(\dfrac{1}{2}\cdot\dfrac{2k+3}{k}\cdot(2k+3)=16\Rightarrow(2k+3)^2=32k\)<br>\(\Rightarrow4k^2-20k+9=0\Rightarrow(2k-1)(2k-9)=0\Rightarrow k=\dfrac{1}{2}\) 或 \(\dfrac{9}{2}\)。<br>兩者都大於 0，和為 \(5\)。`},
+  {id:"S07-V1",
+   tag:"S07",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   vary:true,
+   reasons:[String.raw`斜率公式 \(-\dfrac{a}{b}\) 漏了負號`, String.raw`把斜率記成 \(-\dfrac{b}{a}\)，算成倒數`, "分數沒有約分或正負號整理錯"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let a = 3, b = -2, c = 6, ok = false;
+     for (let i = 0; i < 50 && !ok; i++) {
+       a = R.nz(-9, 9); b = R.nz(-9, 9); c = R.int(-9, 9);
+       ok = Math.abs(b) !== 1 && Math.abs(a) !== Math.abs(b) && V.gcd(V.gcd(a, b), c) === 1;
+     }
+     if (!ok) { a = 3; b = -2; c = 6; }
+     const m = V.F(-a, b);
+     return {
+       stem: String.raw`直線 \(${V.lin(a, b, c)}\) 的斜率為＿＿＿＿。`,
+       ans: V.fAns(m),
+       exp: String.raw`一般式 \(ax+by+c=0\) 的斜率為 \(-\dfrac{a}{b}\)。<br>\(a=${a}\)、\(b=${b}\)，斜率 \(=-\dfrac{${a}}{${b}}=${V.fTex(m)}\)。<br>（也可化成 \(y=${V.term(m, "x", true)}${V.term(V.F(-c, b), "", false)}\) 讀出斜率。）`
+     };
+   }},
+  {id:"S07-V2",
+   tag:"S07",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:[String.raw`截距公式 \(-\dfrac{c}{a}\)、\(-\dfrac{c}{b}\) 漏了負號`, "求 x 截距時令 x=0（令錯變數）", "兩個分數相加時通分出錯"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let a = 4, b = 5, c = -20, s = V.F(9), ok = false;
+     for (let i = 0; i < 50 && !ok; i++) {
+       a = R.nz(-6, 6); b = R.nz(-6, 6); c = R.nz(-12, 12);
+       s = V.add(V.F(-c, a), V.F(-c, b));
+       ok = a !== b && V.gcd(V.gcd(a, b), c) === 1 && s.n !== 0 && s.d <= 6 && Math.abs(V.val(s)) <= 20;
+     }
+     if (!ok) { a = 4; b = 5; c = -20; s = V.F(9); }
+     const xi = V.F(-c, a), yi = V.F(-c, b);
+     return {
+       stem: String.raw`直線 \(${V.lin(a, b, c)}\) 的 \(x\) 截距與 \(y\) 截距之和為＿＿＿＿。`,
+       ans: V.fAns(s),
+       exp: String.raw`令 \(y=0\)：\(${V.term(a, "x", true)}${V.term(c, "", false)}=0\Rightarrow x=${V.fTex(xi)}\)。<br>令 \(x=0\)：\(${V.term(b, "y", true)}${V.term(c, "", false)}=0\Rightarrow y=${V.fTex(yi)}\)。<br>和 \(=${V.fTex(xi)}+${V.fPar(yi)}=${V.fTex(s)}\)。`
+     };
+   }},
+  // ===== S08 水平線與鉛直線 =====
   {id:"S08-1",
    tag:"S08",
    level:"易",
@@ -624,7 +1556,147 @@ window.BANK_UNIT05 = [
    reasons:["不知道「平分矩形面積的直線必過矩形中心」", String.raw`矩形中心算錯（應為 \((2,3)\)）`, String.raw`把斜率算成 \(\dfrac{2}{3}\)`],
    key:0,
    exp:String.raw`矩形是中心對稱圖形，過其中心的直線把矩形分成全等的兩部分；反過來，平分面積的直線必過中心。<br>中心為 \(\left(\dfrac{-1+5}{2},\dfrac{1+5}{2}\right)=(2,3)\)，所以 \(m=\dfrac{3}{2}=1.5\)。<br>（\(y=1.5x\) 確實穿過矩形：\(x=1\) 時 \(y=1.5\)，\(x=10/3\) 時 \(y=5\)。）`},
-  // ===== S09 =====
+  {id:"S08-7",
+   tag:"S08",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`通過點 \((-4,7)\) 且與 \(y\) 軸平行的直線，其 \(x\) 截距為＿＿＿＿。`,
+   ans:"-4",
+   reasons:[String.raw`把「與 \(y\) 軸平行」當成水平線，寫成 \(y=7\)`, "以為鉛直線沒有 x 截距", String.raw`把 \(x\) 截距和 \(y\) 截距搞混，答 \(7\)`],
+   key:0,
+   exp:String.raw`與 \(y\) 軸平行的直線是鉛直線，線上每一點的 \(x\) 坐標都相同。<br>過 \((-4,7)\) 的鉛直線為 \(x=-4\)。<br>它與 \(x\) 軸交於 \((-4,0)\)，所以 \(x\) 截距為 \(-4\)。`},
+  {id:"S08-8",
+   tag:"S08",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`兩點 \(A(2k-1,\,k)\)、\(B(k+4,\,3k-2)\) 所連成的直線為鉛直線，則線段 \(\overline{AB}\) 的長為＿＿＿＿。`,
+   ans:"8",
+   reasons:[String.raw`把鉛直線的條件寫成兩點的 \(y\) 坐標相等`, String.raw`求出 \(k\) 後忘了代回去算長度，直接答 \(k\)`, String.raw`鉛直線段的長度誤用 \(x\) 坐標相減`],
+   key:0,
+   exp:String.raw`鉛直線上每一點的 \(x\) 坐標相同：\(2k-1=k+4\)，得 \(k=5\)。<br>代回：\(A(9,5)\)、\(B(9,13)\)。<br>\(\overline{AB}=|13-5|=8\)。`},
+  {id:"S08-9",
+   tag:"S08",
+   level:"中",
+   cat:"必考題",
+   type:"mc",
+   stem:String.raw`若直線 \((a-2)x+(a+3)y+6=0\) 為水平線，則此直線的方程式為何？`,
+   opts:[String.raw`\(x=\dfrac{6}{5}\)`, String.raw`\(y=\dfrac{6}{5}\)`, String.raw`\(y=-\dfrac{6}{5}\)`, String.raw`\(x=-\dfrac{6}{5}\)`],
+   ans:[2],
+   reasons:[String.raw`把水平線的條件記成「\(y\) 的係數為 0」（那是鉛直線）`, "移項時正負號弄錯", String.raw`求出 \(a\) 後沒有代回原式，直接猜答案`],
+   key:0,
+   exp:String.raw`水平線的方程式形如 \(y=k\)，所以 \(x\) 的係數必須為 0（且 \(y\) 的係數不為 0）：\(a-2=0\)，\(a=2\)。<br>代回：\(5y+6=0\)，即 \(y=-\dfrac{6}{5}\)。<br>注意：若令 \(a+3=0\)（\(a=-3\)），得到 \(-5x+6=0\)，那是鉛直線 \(x=\dfrac{6}{5}\)。`},
+  {id:"S08-10",
+   tag:"S08",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`從點 \(P(-3,4)\) 分別向直線 \(x=2\) 與直線 \(y=-1\) 作垂線，垂足依序為 \(Q\)、\(R\)，則 \(\overline{QR}=\)＿＿＿＿。`,
+   ans:"5√2",
+   reasons:[String.raw`以為向鉛直線 \(x=2\) 作垂線也是鉛直方向，垂足找錯`, "垂足的 x、y 坐標寫反", "兩點距離公式忘了開根號"],
+   key:0,
+   exp:String.raw`與鉛直線 \(x=2\) 垂直的是水平線，所以從 \(P\) 水平移到 \(x=2\)：\(Q(2,4)\)。<br>與水平線 \(y=-1\) 垂直的是鉛直線，所以從 \(P\) 鉛直移到 \(y=-1\)：\(R(-3,-1)\)。<br>\(\overline{QR}=\sqrt{(2+3)^2+(4+1)^2}=\sqrt{50}=5\sqrt{2}\)。`},
+  {id:"S08-11",
+   tag:"S08",
+   level:"中",
+   cat:"必考題",
+   type:"multi",
+   stem:"下列哪些所表示的直線是水平線？",
+   opts:[String.raw`\(y+3=0\)`, String.raw`\(2x-7=0\)`, String.raw`通過 \((1,4)\)、\((-3,4)\) 兩點的直線`, String.raw`通過 \((2,5)\)、\((2,-1)\) 兩點的直線`, String.raw`\(3x+2y=3(x-1)\)`],
+   ans:[0, 2, 4],
+   reasons:[String.raw`沒有先化簡 \(3x+2y=3(x-1)\)，看到含 \(x\) 就以為不是水平線`, String.raw`把「兩點 \(x\) 坐標相同」誤當成水平線`, String.raw`把 \(2x-7=0\) 也當成水平線`],
+   key:0,
+   exp:String.raw`(1) \(y=-3\)，水平線 ✓。<br>(2) \(x=\dfrac{7}{2}\)，鉛直線 ✗。<br>(3) 兩點 \(y\) 坐標都是 4，直線為 \(y=4\)，水平線 ✓。<br>(4) 兩點 \(x\) 坐標都是 2，直線為 \(x=2\)，鉛直線 ✗。<br>(5) 展開：\(3x+2y=3x-3\)，得 \(2y=-3\)，即 \(y=-\dfrac{3}{2}\)，水平線 ✓。`},
+  {id:"S08-12",
+   tag:"S08",
+   level:"易",
+   cat:"陷阱題",
+   type:"tf",
+   stem:String.raw`方程式 \(y=0\) 所表示的直線是 \(y\) 軸。`,
+   opts:["○ 正確", "✕ 錯誤"],
+   ans:[1],
+   reasons:[String.raw`看到「\(y\)」就以為是 \(y\) 軸`, String.raw`沒想到「\(y\) 坐標為 0 的點」都落在 \(x\) 軸上`, String.raw`把坐標軸的方程式背反了（\(y\) 軸其實是 \(x=0\)）`],
+   key:0,
+   exp:String.raw`\(y=0\) 表示所有 \(y\) 坐標為 0 的點，例如 \((1,0)\)、\((-5,0)\)，這些點都在 \(x\) 軸上。<br>所以 \(y=0\) 是 \(x\) 軸；\(y\) 軸的方程式是 \(x=0\)。敘述錯誤。`},
+  {id:"S08-13",
+   tag:"S08",
+   level:"中",
+   cat:"陷阱題",
+   type:"num",
+   stem:String.raw`通過點 \((4,-3)\) 且垂直於 \(y\) 軸的直線，與直線 \(2x+y=1\) 交點的 \(x\) 坐標為＿＿＿＿。`,
+   ans:"2",
+   reasons:[String.raw`把「垂直於 \(y\) 軸」當成鉛直線 \(x=4\)`, String.raw`代入 \(y=-3\) 後移項正負號弄錯`, String.raw`算成交點的 \(y\) 坐標`],
+   key:0,
+   exp:String.raw`垂直於 \(y\) 軸（\(y\) 軸是鉛直的）的直線是水平線，過 \((4,-3)\) 即 \(y=-3\)。<br>代入 \(2x+y=1\)：\(2x-3=1\)，\(x=2\)。<br>交點為 \((2,-3)\)，\(x\) 坐標為 \(2\)。`},
+  {id:"S08-14",
+   tag:"S08",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`\(x\) 軸、\(y\) 軸與直線 \(x+2y=8\) 圍成一個三角形。直線 \(x=k\)（\(0\lt k\lt 8\)）把此三角形分成左右兩部分，若左側部分的面積是右側部分的 \(8\) 倍，則 \(k=\)＿＿＿＿。`,
+   ans:"16/3",
+   reasons:[String.raw`把「左側是右側的 8 倍」當成右側占全部的 \(\dfrac{1}{8}\)`, String.raw`右側小三角形的高 \(\dfrac{8-k}{2}\) 算錯`, String.raw`開根號後得到 \(8-k\) 的值，忘了再求 \(k\)`],
+   key:0,
+   exp:String.raw`三角形頂點為 \((0,0)\)、\((8,0)\)、\((0,4)\)，面積 \(\dfrac{1}{2}\times8\times4=16\)。<br>左：右 \(=8:1\)，所以右側面積為 \(16\times\dfrac{1}{9}=\dfrac{16}{9}\)。<br>右側是直角三角形，頂點 \((k,0)\)、\((8,0)\)、\(\left(k,\dfrac{8-k}{2}\right)\)，面積 \(\dfrac{1}{2}(8-k)\cdot\dfrac{8-k}{2}=\dfrac{(8-k)^2}{4}\)。<br>\(\dfrac{(8-k)^2}{4}=\dfrac{16}{9}\)，\((8-k)^2=\dfrac{64}{9}\)，\(8-k=\dfrac{8}{3}\)（\(8-k\gt0\)）。<br>\(k=8-\dfrac{8}{3}=\dfrac{16}{3}\)。`},
+  {id:"S08-15",
+   tag:"S08",
+   level:"難",
+   cat:"拉分題",
+   type:"mc",
+   stem:String.raw`直線 \(x=a\) 與兩直線 \(y=x\)、\(y=-x+4\) 圍成一個面積為 \(9\) 的三角形，則 \(a\) 的值為何？`,
+   opts:[String.raw`\(5\)`, String.raw`\(-1\)`, String.raw`\(2+3\sqrt{2}\) 或 \(2-3\sqrt{2}\)`, String.raw`\(5\) 或 \(-1\)`],
+   ans:[3],
+   reasons:[String.raw`只畫了 \(x=a\) 在交點右側的情形，漏掉左側的解`, String.raw`面積多除了一次 2，得到 \((a-2)^2=18\)`, String.raw`把底邊長寫成 \(|a-2|\)，沒有算兩交點的 \(y\) 坐標差`],
+   key:0,
+   exp:String.raw`\(y=x\) 與 \(y=-x+4\) 交於 \((2,2)\)。<br>\(x=a\) 與兩線交於 \((a,a)\)、\((a,4-a)\)，底邊長 \(|a-(4-a)|=|2a-4|=2|a-2|\)。<br>高為 \((2,2)\) 到 \(x=a\) 的水平距離 \(|a-2|\)。<br>面積 \(\dfrac{1}{2}\cdot2|a-2|\cdot|a-2|=(a-2)^2=9\)，\(a-2=\pm3\)。<br>\(a=5\) 或 \(a=-1\)（\(x=a\) 在交點左右兩側各有一解）。`},
+  {id:"S08-V1",
+   tag:"S08",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   vary:true,
+   reasons:[String.raw`把到 \(x=h\) 的距離用 \(y\) 坐標去算（兩個距離算反）`, "相減後忘了取絕對值，出現負的距離", String.raw`以為點到直線 \(x=h\) 的距離就是 \(|h|\)`],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let a = 3, b = -2, h = -1, k = 4;
+     for (let i = 0; i < 50; i++) {
+       a = R.int(-6, 6); b = R.int(-6, 6); h = R.int(-6, 6); k = R.int(-6, 6);
+       if (a !== h && b !== k && h !== k) break;
+       a = 3; b = -2; h = -1; k = 4;
+     }
+     const d1 = Math.abs(a - h), d2 = Math.abs(b - k);
+     return {
+       stem: String.raw`點 \(P${V.pt(a, b)}\) 到直線 \(x=${h}\) 的距離，與 \(P\) 到直線 \(y=${k}\) 的距離之和為＿＿＿＿。`,
+       ans: String(d1 + d2),
+       exp: String.raw`\(x=${h}\) 是鉛直線，\(P\) 到它的距離是水平距離：\(\left|${a}-${V.fPar(h)}\right|=${d1}\)。<br>\(y=${k}\) 是水平線，\(P\) 到它的距離是鉛直距離：\(\left|${b}-${V.fPar(k)}\right|=${d2}\)。<br>和為 \(${d1}+${d2}=${d1 + d2}\)。`
+     };
+   }},
+  {id:"S08-V2",
+   tag:"S08",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:[String.raw`三角形面積忘了乘 \(\dfrac{1}{2}\)`, "求頂點時代錯直線，兩股長算錯", "股長相減後沒有取絕對值"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const h = R.int(-5, 5), k = R.int(-5, 5);
+     const p = R.nz(-6, 6), q = R.nz(-6, 6);
+     // 第三條線通過 (h+p,k) 與 (h,k+q)：qx+py-(qh+pk+pq)=0
+     let A = q, B = p, C = -(q * h + p * k + p * q);
+     let g = V.gcd(V.gcd(A, B), C) || 1;
+     if (A < 0) g = -g;
+     A /= g; B /= g; C /= g;
+     const area = V.F(Math.abs(p * q), 2);
+     const yv = k + q, xv = h + p;
+     return {
+       stem: String.raw`三直線 \(x=${h}\)、\(y=${k}\)、\(${V.lin(A, B, C)}\) 所圍成的三角形面積為＿＿＿＿。`,
+       ans: V.fAns(area),
+       exp: String.raw`\(x=${h}\) 與 \(y=${k}\) 交於 \(${V.pt(h, k)}\)，此處為直角。<br>\(x=${h}\) 代入 \(${V.lin(A, B, C)}\)，得 \(y=${yv}\)，交點 \(${V.pt(h, yv)}\)。<br>\(y=${k}\) 代入，得 \(x=${xv}\)，交點 \(${V.pt(xv, k)}\)。<br>兩股長為 \(|${yv}-${V.fPar(k)}|=${Math.abs(q)}\)、\(|${xv}-${V.fPar(h)}|=${Math.abs(p)}\)。<br>面積 \(=\dfrac{1}{2}\times${Math.abs(q)}\times${Math.abs(p)}=${V.fTex(area)}\)。`
+     };
+   }},
+  // ===== S09 點的平移 =====
   {id:"S09-1",
    tag:"S09",
    level:"易",
@@ -678,7 +1750,156 @@ window.BANK_UNIT05 = [
    reasons:[String.raw`沒想到「平移後仍在 \(L\) 上」代表平移方向就是直線方向，斜率 \(\dfrac{1}{2}\)`, String.raw`把斜率算成 \(\dfrac{2}{1}=2\)`, String.raw`求 \(x\) 截距時移項符號錯`],
    key:0,
    exp:String.raw`點 \(P\) 與平移後的點都在 \(L\) 上，所以 \(L\) 的斜率 \(=\dfrac{1}{2}\)（往右 2、往上 1）。<br>\(L:y-4=\dfrac{1}{2}(x-1)\)，令 \(y=0\)：\(-8=x-1\Rightarrow x=-7\)。`},
-  // ===== S10 =====
+  {id:"S09-6",
+   tag:"S09",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`將點 \((-2,5)\) 向右平移 \(6\) 單位、再向下平移 \(8\) 單位後得到點 \((a,b)\)，則 \(ab=\)＿＿＿＿。`,
+   ans:"-12",
+   reasons:[String.raw`向下平移卻把 \(y\) 坐標加 8`, String.raw`左右平移時改到 \(y\) 坐標`, "最後乘積的正負號算錯"],
+   key:0,
+   exp:String.raw`向右 6 單位：\(x\) 坐標 \(+6\)，\(-2+6=4\)。<br>向下 8 單位：\(y\) 坐標 \(-8\)，\(5-8=-3\)。<br>\((a,b)=(4,-3)\)，\(ab=4\times(-3)=-12\)。`},
+  {id:"S09-7",
+   tag:"S09",
+   level:"易",
+   cat:"基本分",
+   type:"tf",
+   stem:String.raw`將點 \((a,b)\) 向上平移 \(3\) 單位，得到的點為 \((a+3,\,b)\)。`,
+   opts:["○ 正確", "✕ 錯誤"],
+   ans:[1],
+   reasons:[String.raw`把上下平移改到 \(x\) 坐標`, String.raw`以為向上平移是 \(y\) 坐標減 3`, "左右、上下兩個方向背反了"],
+   key:0,
+   exp:String.raw`上下平移只改變 \(y\) 坐標，\(x\) 坐標不變。<br>向上 3 單位：\((a,\,b+3)\)。<br>\((a+3,\,b)\) 是向右平移 3 單位的結果，敘述錯誤。`},
+  {id:"S09-8",
+   tag:"S09",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`點 \(P(2a-1,\,a+3)\) 向左平移 \(4\) 單位後落在 \(y\) 軸上，則 \(P\) 的 \(y\) 坐標為＿＿＿＿。`,
+   ans:"11/2",
+   reasons:[String.raw`向左平移卻把 \(x\) 坐標加 4`, String.raw`以為「落在 \(y\) 軸上」是 \(y\) 坐標為 0`, String.raw`求出 \(a\) 後忘了代回求 \(P\) 的 \(y\) 坐標`],
+   key:0,
+   exp:String.raw`向左 4 單位：新點為 \((2a-5,\,a+3)\)。<br>落在 \(y\) 軸上，\(x\) 坐標為 0：\(2a-5=0\)，\(a=\dfrac{5}{2}\)。<br>\(P\) 的 \(y\) 坐標 \(=a+3=\dfrac{5}{2}+3=\dfrac{11}{2}\)。`},
+  {id:"S09-9",
+   tag:"S09",
+   level:"中",
+   cat:"必考題",
+   type:"mc",
+   stem:String.raw`某平移將點 \(A(-1,3)\) 移到 \(A'(2,1)\)，同一平移將點 \(B\) 移到 \(B'(5,-4)\)，則 \(B\) 的坐標為何？`,
+   opts:[String.raw`\((8,-6)\)`, String.raw`\((2,-2)\)`, String.raw`\((8,-2)\)`, String.raw`\((2,-6)\)`],
+   ans:[1],
+   reasons:[String.raw`方向用反了：把 \(B'\) 再往同方向平移一次`, String.raw`平移量的 \(y\) 部分正負號弄錯`, String.raw`把 \(A\) 到 \(A'\) 的平移量算成「原來減新的」`],
+   key:0,
+   exp:String.raw`平移量：向右 \(2-(-1)=3\)，向上 \(1-3=-2\)（即向下 2）。<br>\(B\) 經此平移成為 \(B'\)，所以 \(B=B'\) 反向平移：\(x=5-3=2\)，\(y=-4-(-2)=-2\)。<br>\(B(2,-2)\)。`},
+  {id:"S09-10",
+   tag:"S09",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`將點 \(P(3,1)\) 向右平移 \(a\) 單位（\(a\gt0\)）、再向下平移 \(2\) 單位得到 \(P'\)。若 \(P'\) 與點 \(Q(-1,4)\) 的距離為 \(13\)，則 \(a=\)＿＿＿＿。`,
+   ans:"8",
+   reasons:[String.raw`忘了 \(a\gt0\)，把 \(4+a=-12\) 的解也寫進去`, String.raw`向下平移卻把 \(y\) 坐標加 2`, "距離公式兩邊沒有一起平方"],
+   key:0,
+   exp:String.raw`\(P'=(3+a,\,1-2)=(3+a,\,-1)\)。<br>\(\overline{P'Q}^2=(3+a+1)^2+(-1-4)^2=(4+a)^2+25=169\)。<br>\((4+a)^2=144\)，\(4+a=\pm12\)，\(a=8\) 或 \(a=-16\)。<br>因為 \(a\gt0\)，\(a=8\)。`},
+  {id:"S09-11",
+   tag:"S09",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`某平移將點 \((a,2)\) 移到 \((5,b)\)，同一平移也將點 \((1,b)\) 移到 \((a,6)\)，則 \(ab=\)＿＿＿＿。`,
+   ans:"12",
+   reasons:["兩個點的平移量一個用「新減舊」、一個用「舊減新」，前後不一致", String.raw`把 \(x\) 方向和 \(y\) 方向的平移量混在同一條式子`, String.raw`解出 \(a\)、\(b\) 後算成 \(a+b\)`],
+   key:0,
+   exp:String.raw`同一平移，兩點的平移量相同。<br>\(x\) 方向：\(5-a=a-1\)，\(a=3\)。<br>\(y\) 方向：\(b-2=6-b\)，\(b=4\)。<br>驗證：平移量為向右 2、向上 2，\((3,2)\to(5,4)\)、\((1,4)\to(3,6)\) ✓。<br>\(ab=12\)。`},
+  {id:"S09-12",
+   tag:"S09",
+   level:"中",
+   cat:"陷阱題",
+   type:"mc",
+   stem:String.raw`點 \(P\) 先向左平移 \(3\) 單位、再向上平移 \(2\) 單位後，得到點 \((1,-4)\)，則 \(P\) 的坐標為何？`,
+   opts:[String.raw`\((-2,-2)\)`, String.raw`\((4,-2)\)`, String.raw`\((4,-6)\)`, String.raw`\((-2,-6)\)`],
+   ans:[2],
+   reasons:[String.raw`反推原來的點時沒有把方向反過來，直接對 \((1,-4)\) 做同樣的平移`, String.raw`只把 \(x\) 方向反過來，\(y\) 方向忘了反`, String.raw`只把 \(y\) 方向反過來，\(x\) 方向忘了反`],
+   key:0,
+   exp:String.raw`設 \(P(x,y)\)，平移後為 \((x-3,\,y+2)=(1,-4)\)。<br>\(x=1+3=4\)，\(y=-4-2=-6\)。<br>\(P(4,-6)\)。（要反推原點，方向要反過來：向右 3、向下 2。）`},
+  {id:"S09-13",
+   tag:"S09",
+   level:"中",
+   cat:"陷阱題",
+   type:"num",
+   stem:String.raw`某平移將點 \(A(1,2)\) 移到 \(A'(4,-1)\)。若點 \(B\) 經同一平移後成為 \(B'(0,3)\)，則 \(\overline{AB}=\)＿＿＿＿。`,
+   ans:"4√2",
+   reasons:[String.raw`求 \(B\) 時平移方向用反，得到 \(B(3,0)\)`, String.raw`把 \(\overline{AB}\) 誤算成 \(\overline{AA'}\) 的長度`, "兩點距離公式忘了開根號"],
+   key:0,
+   exp:String.raw`平移量：向右 3、向下 3。<br>\(B=B'\) 反向平移：\((0-3,\,3+3)=(-3,6)\)。<br>\(\overline{AB}=\sqrt{(-3-1)^2+(6-2)^2}=\sqrt{32}=4\sqrt{2}\)。<br>另解：平移不改變距離，\(\overline{AB}=\overline{A'B'}=\sqrt{(0-4)^2+(3+1)^2}=4\sqrt{2}\)。`},
+  {id:"S09-14",
+   tag:"S09",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`平面上三點 \(A(1,1)\)、\(B(5,2)\)、\(C(3,6)\)。以這三點為其中三個頂點作平行四邊形，第四個頂點 \(D\) 共有三種可能。這三個可能的 \(D\) 所圍成的三角形面積為＿＿＿＿。`,
+   ans:"36",
+   reasons:["只找到一個或兩個可能的 D", "用平移找 D 時方向弄反，D 的坐標算錯", "用「外接矩形扣掉三角形」時少扣或多扣一塊"],
+   key:0,
+   exp:String.raw`平行四邊形對邊可由平移得到：<br>\(\overline{AB}\) 與 \(\overline{DC}\) 為對邊：\(D_1=C-(B-A)=(3-4,\,6-1)=(-1,5)\)。<br>\(\overline{AC}\) 與 \(\overline{DB}\) 為對邊：\(D_2=B-(C-A)=(5-2,\,2-5)=(3,-3)\)。<br>\(\overline{BA}\) 與 \(\overline{CD}\) 為對邊：\(D_3=C+(B-A)=(7,7)\)。<br>外接矩形 \(x\) 由 \(-1\) 到 \(7\)、\(y\) 由 \(-3\) 到 \(7\)，面積 \(8\times10=80\)。<br>扣掉三個直角三角形：\(\dfrac{4\times8}{2}+\dfrac{4\times10}{2}+\dfrac{8\times2}{2}=16+20+8=44\)。<br>面積 \(=80-44=36\)。`},
+  {id:"S09-15",
+   tag:"S09",
+   level:"難",
+   cat:"拉分題",
+   type:"mc",
+   stem:String.raw`點 \(P\) 在直線 \(x+y=2\) 上。將 \(P\) 向右平移 \(1\) 單位、再向上平移 \(2\) 單位後得到 \(P'\)，且 \(P'\) 到原點的距離為 \(5\)，則 \(P\) 的坐標為何？`,
+   opts:[String.raw`\((5,0)\) 或 \((0,5)\)`, String.raw`\((4,-2)\) 或 \((-1,3)\)`, String.raw`\((4,-2)\)`, String.raw`\((4,-2)\) 或 \((-3,5)\)`],
+   ans:[1],
+   reasons:[String.raw`求出 \(P'\) 後忘了再反推回 \(P\)`, "一元二次方程式只取一個解，漏解", "平移方向代反，P' 坐標寫錯"],
+   key:1,
+   exp:String.raw`設 \(P(t,\,2-t)\)，則 \(P'(t+1,\,4-t)\)。<br>\((t+1)^2+(4-t)^2=25\)，\(2t^2-6t+17=25\)，\(t^2-3t-4=0\)。<br>\((t-4)(t+1)=0\)，\(t=4\) 或 \(t=-1\)。<br>\(P(4,-2)\) 或 \(P(-1,3)\)（對應 \(P'(5,0)\)、\(P'(0,5)\)）。`},
+  {id:"S09-V1",
+   tag:"S09",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   vary:true,
+   reasons:["左右平移改到 y 坐標、上下平移改到 x 坐標", "向左（或向下）平移卻用加的", "兩坐標相加時正負號算錯"],
+   key:1,
+   gen:R => { const V = window.VARY;
+     let a = 2, b = -3, h = 4, k = 5, sx = 1, sy = -1;
+     for (let i = 0; i < 50; i++) {
+       a = R.int(-6, 6); b = R.int(-6, 6); h = R.int(1, 7); k = R.int(1, 7); sx = R.sign(); sy = R.sign();
+       if (sx * h + sy * k !== 0 && h !== k) break;
+       a = 2; b = -3; h = 4; k = 5; sx = 1; sy = -1;
+     }
+     const p = a + sx * h, q = b + sy * k;
+     const dx = sx > 0 ? "右" : "左", dy = sy > 0 ? "上" : "下";
+     return {
+       stem: String.raw`將點 \(${V.pt(a, b)}\) 向${dx}平移 \(${h}\) 單位、再向${dy}平移 \(${k}\) 單位後得到點 \((p,q)\)，則 \(p+q=\)＿＿＿＿。`,
+       ans: String(p + q),
+       exp: String.raw`向${dx} \(${h}\) 單位：\(x\) 坐標${sx > 0 ? "加" : "減"} \(${h}\)，\(p=${a}${sx > 0 ? "+" : "-"}${h}=${p}\)。<br>向${dy} \(${k}\) 單位：\(y\) 坐標${sy > 0 ? "加" : "減"} \(${k}\)，\(q=${b}${sy > 0 ? "+" : "-"}${k}=${q}\)。<br>\(p+q=${p}+${V.fPar(q)}=${p + q}\)。`
+     };
+   }},
+  {id:"S09-V2",
+   tag:"S09",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:[String.raw`方向用反了：把 \(B'\) 再往同方向平移一次`, "平移量算成「原來減新的」，正負號全反", "只反推了 x 方向，y 方向忘了反"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let ax = 1, ay = 2, h = 3, k = -2, bx = 4, by = -1;
+     for (let i = 0; i < 50; i++) {
+       ax = R.int(-5, 5); ay = R.int(-5, 5); h = R.nz(-5, 5); k = R.nz(-5, 5); bx = R.int(-5, 5); by = R.int(-5, 5);
+       if (h + k !== 0 && !(bx === ax + h && by === ay + k) && !(bx === ax && by === ay)) break;
+       ax = 1; ay = 2; h = 3; k = -2; bx = 4; by = -1;
+     }
+     const a2x = ax + h, a2y = ay + k, cx = bx - h, cy = by - k;
+     return {
+       stem: String.raw`某平移將點 \(A${V.pt(ax, ay)}\) 移到 \(A'${V.pt(a2x, a2y)}\)。若點 \(B\) 經同一平移後成為 \(B'${V.pt(bx, by)}\)，且 \(B\) 的坐標為 \((p,q)\)，則 \(p+q=\)＿＿＿＿。`,
+       ans: String(cx + cy),
+       exp: String.raw`平移量：\(x\) 方向 \(${a2x}-${V.fPar(ax)}=${h}\)，\(y\) 方向 \(${a2y}-${V.fPar(ay)}=${k}\)。<br>\(B\) 平移後為 \(B'\)，所以 \(B\) 要由 \(B'\) 反向平移：\(p=${bx}-${V.fPar(h)}=${cx}\)，\(q=${by}-${V.fPar(k)}=${cy}\)。<br>\(p+q=${cx}+${V.fPar(cy)}=${cx + cy}\)。`
+     };
+   }},
+  // ===== S10 直線的平移 =====
   {id:"S10-1",
    tag:"S10",
    level:"易",
@@ -743,7 +1964,157 @@ window.BANK_UNIT05 = [
    reasons:[String.raw`誤以為兩直線的距離就是平移量 \(h\)`, String.raw`平移後常數項只改了 \(h\)，漏乘 \(x\) 的係數 3`, "平行線距離公式的分母忘了開根號"],
    key:0,
    exp:String.raw`平移後：\(3(x-h)-4y+2=0\Rightarrow 3x-4y+2-3h=0\)。<br>兩平行線距離 \(=\dfrac{|2-(2-3h)|}{\sqrt{3^2+4^2}}=\dfrac{3h}{5}=3\Rightarrow h=5\)。<br>（水平移動 5，但兩線的垂直距離只有 3。）`},
-  // ===== S11 =====
+  {id:"S10-7",
+   tag:"S10",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`將直線 \(y=3x-2\) 向上平移 \(5\) 單位，所得直線的 \(y\) 截距為＿＿＿＿。`,
+   ans:"3",
+   reasons:[String.raw`向上平移卻把截距減 5，得 \(-7\)`, "以為向上平移會改變斜率", String.raw`把 \(y\) 截距和 \(x\) 截距搞混`],
+   key:0,
+   exp:String.raw`向上平移 5 單位，每一點的 \(y\) 坐標加 5：\(y=3x-2+5=3x+3\)。<br>斜率不變，\(y\) 截距為 \(3\)。`},
+  {id:"S10-8",
+   tag:"S10",
+   level:"中",
+   cat:"必考題",
+   type:"mc",
+   stem:String.raw`將直線 \(x+3y-6=0\) 向左平移 \(2\) 單位、再向下平移 \(1\) 單位，所得直線方程式為何？`,
+   opts:[String.raw`\(x+3y-11=0\)`, String.raw`\(x+3y-7=0\)`, String.raw`\(x+3y-5=0\)`, String.raw`\(x+3y-1=0\)`],
+   ans:[3],
+   reasons:[String.raw`向左平移卻把 \(x\) 換成 \(x-2\)、向下卻把 \(y\) 換成 \(y-1\)（兩個方向都反）`, "只有 x 方向代對，y 方向代反", "只有 y 方向代對，x 方向代反"],
+   key:0,
+   exp:String.raw`向左 2、向下 1：原直線上的點 \((x_0,y_0)\) 移到 \((x,y)=(x_0-2,\,y_0-1)\)，所以 \(x_0=x+2\)、\(y_0=y+1\)。<br>代入原式：\((x+2)+3(y+1)-6=0\)。<br>整理得 \(x+3y-1=0\)。`},
+  {id:"S10-9",
+   tag:"S10",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`將直線 \(2x-y+4=0\) 向右平移 \(a\) 單位、再向下平移 \(2\) 單位後通過原點，則 \(a=\)＿＿＿＿。`,
+   ans:"1",
+   reasons:[String.raw`向右平移卻把 \(x\) 換成 \(x+a\)`, String.raw`向下平移卻把 \(y\) 換成 \(y-2\)`, "代入原點後移項正負號弄錯"],
+   key:0,
+   exp:String.raw`向右 \(a\)、向下 2：把 \(x\) 換成 \(x-a\)、\(y\) 換成 \(y+2\)。<br>新直線：\(2(x-a)-(y+2)+4=0\)。<br>過原點：\(-2a-2+4=0\)，\(a=1\)。`},
+  {id:"S10-10",
+   tag:"S10",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`將直線 \(y=-2x+1\) 向右平移 \(3\) 單位所得的直線，也可以由原直線向上平移 \(k\) 單位得到，則 \(k=\)＿＿＿＿。`,
+   ans:"6",
+   reasons:[String.raw`向右平移寫成 \(y=-2(x+3)+1\)，得到 \(k=-6\)`, "以為「向右 3」就等於「向上 3」", "展開括號時漏乘斜率"],
+   key:0,
+   exp:String.raw`向右 3 單位：\(y=-2(x-3)+1=-2x+7\)。<br>向上 \(k\) 單位：\(y=-2x+1+k\)。<br>兩者相同：\(1+k=7\)，\(k=6\)。<br>（直線往右下傾斜，向右推等於整條往上抬。）`},
+  {id:"S10-11",
+   tag:"S10",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`兩平行直線 \(L_1:3x-y+2=0\)、\(L_2:3x-y-7=0\)。將 \(L_1\) 向右平移 \(a\) 單位可得到 \(L_2\)；將 \(L_1\) 向下平移 \(b\) 單位也可得到 \(L_2\)，則 \(a+b=\)＿＿＿＿。`,
+   ans:"12",
+   reasons:["以為向右平移量就是常數項的差 9", String.raw`平移時 \(x\)、\(y\) 代換的正負號用反`, "只求出 a 或 b 其中一個"],
+   key:0,
+   exp:String.raw`向右 \(a\)：\(3(x-a)-y+2=0\)，即 \(3x-y+2-3a=0\)。與 \(L_2\) 比較：\(2-3a=-7\)，\(a=3\)。<br>向下 \(b\)：\(3x-(y+b)+2=0\)，即 \(3x-y+2-b=0\)。比較：\(2-b=-7\)，\(b=9\)。<br>\(a+b=12\)。`},
+  {id:"S10-12",
+   tag:"S10",
+   level:"易",
+   cat:"陷阱題",
+   type:"tf",
+   stem:String.raw`將直線 \(y=2x\) 向右平移 \(1\) 單位，所得直線方程式為 \(y=2x+2\)。`,
+   opts:["○ 正確", "✕ 錯誤"],
+   ans:[1],
+   reasons:[String.raw`以為「向右」就是把 \(x\) 換成 \(x+1\)`, "把向右平移和向上平移搞混", "沒有拿一個點代進去檢查"],
+   key:0,
+   exp:String.raw`向右 1 單位：把 \(x\) 換成 \(x-1\)，得 \(y=2(x-1)=2x-2\)。<br>檢查：原線上的 \((0,0)\) 右移後為 \((1,0)\)，代入 \(y=2x-2\) 成立；代入 \(y=2x+2\) 不成立。敘述錯誤。`},
+  {id:"S10-13",
+   tag:"S10",
+   level:"中",
+   cat:"陷阱題",
+   type:"num",
+   stem:String.raw`將鉛直線 \(x=-2\) 先向上平移 \(5\) 單位、再向右平移 \(3\) 單位，所得直線的 \(x\) 截距為＿＿＿＿。`,
+   ans:"1",
+   reasons:["以為向上平移也會改變鉛直線的位置", String.raw`向右平移卻把 \(x\) 坐標減 3，得 \(x=-5\)`, String.raw`把上下、左右的平移量全部加到 \(x\) 坐標上`],
+   key:0,
+   exp:String.raw`鉛直線向上平移後還是同一條直線（線上的點只是沿著直線本身移動）。<br>再向右 3 單位：\(x=-2+3=1\)。<br>所得直線 \(x=1\)，\(x\) 截距為 \(1\)。`},
+  {id:"S10-14",
+   tag:"S10",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`將直線 \(x+2y-4=0\) 向右平移 \(h\) 單位（\(h\gt0\)）後，所得直線與兩坐標軸所圍成的三角形面積，是原直線與兩坐標軸所圍成三角形面積的 \(4\) 倍，則 \(h=\)＿＿＿＿。`,
+   ans:"4",
+   reasons:["以為面積 4 倍就是截距 4 倍", String.raw`平移後的 \(x\) 截距寫成 \(4-h\)`, String.raw`忘了平移後 \(y\) 截距也跟著改變`],
+   key:0,
+   exp:String.raw`原直線截距：\(x\) 截距 4、\(y\) 截距 2，面積 \(\dfrac{1}{2}\times4\times2=4\)。<br>向右 \(h\)：\((x-h)+2y-4=0\)，\(x\) 截距 \(4+h\)、\(y\) 截距 \(\dfrac{4+h}{2}\)。<br>面積 \(\dfrac{1}{2}(4+h)\cdot\dfrac{4+h}{2}=\dfrac{(4+h)^2}{4}=16\)。<br>\((4+h)^2=64\)，\(4+h=8\)（\(h\gt0\)），\(h=4\)。`},
+  {id:"S10-15",
+   tag:"S10",
+   level:"難",
+   cat:"拉分題",
+   type:"mc",
+   stem:String.raw`某平移將點 \(A(1,2)\) 移到 \(A'(3,-1)\)。直線 \(L:2x+y-4=0\) 經同一平移後得到直線 \(L'\)，則 \(L'\) 與兩坐標軸所圍成的三角形面積為何？`,
+   opts:[String.raw`\(4\)`, String.raw`\(\dfrac{25}{4}\)`, String.raw`\(\dfrac{9}{4}\)`, String.raw`\(\dfrac{25}{2}\)`],
+   ans:[1],
+   reasons:["以為平移後圖形全等，面積不變（但和坐標軸圍成的三角形會變）", "平移方向代反，得到 2x+y-3=0", String.raw`三角形面積忘了乘 \(\dfrac{1}{2}\)`],
+   key:0,
+   exp:String.raw`平移量：向右 2、向下 3。<br>\(L'\)：把 \(x\) 換成 \(x-2\)、\(y\) 換成 \(y+3\)：\(2(x-2)+(y+3)-4=0\)，即 \(2x+y-5=0\)。<br>\(x\) 截距 \(\dfrac{5}{2}\)，\(y\) 截距 \(5\)。<br>面積 \(\dfrac{1}{2}\times\dfrac{5}{2}\times5=\dfrac{25}{4}\)。`},
+  {id:"S10-V1",
+   tag:"S10",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   vary:true,
+   reasons:[String.raw`代換方向用反：向右 \(h\) 把 \(x\) 換成 \(x+h\)、向上 \(k\) 把 \(y\) 換成 \(y+k\)`, "展開時漏乘係數", "常數項合併時正負號算錯"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let a = 2, b = -1, c = 3, sx = 1, sy = 1, h = 2, k = 1;
+     for (let i = 0; i < 50; i++) {
+       a = R.nz(-5, 5); b = R.nz(-5, 5); c = R.int(-9, 9); sx = R.sign(); sy = R.sign(); h = R.int(1, 5); k = R.int(1, 5);
+       if (V.gcd(a, b) === 1 && a > 0 && a * sx * h + b * sy * k !== 0) break;
+       a = 2; b = -1; c = 3; sx = 1; sy = 1; h = 2; k = 1;
+     }
+     const dx = sx * h, dy = sy * k;
+     const d = c - a * dx - b * dy;
+     const hx = sx > 0 ? "右" : "左", vy = sy > 0 ? "上" : "下";
+     const xs = `x${dx > 0 ? "-" : "+"}${h}`, ys = `y${dy > 0 ? "-" : "+"}${k}`;
+     return {
+       stem: String.raw`將直線 \(${V.lin(a, b, c)}\) 向${hx}平移 \(${h}\) 單位、再向${vy}平移 \(${k}\) 單位，所得直線方程式可寫成 \(${V.expr([[a, "x"], [b, "y"]])}+d=0\)，則 \(d=\)＿＿＿＿。`,
+       ans: String(d),
+       exp: String.raw`向${hx} \(${h}\)：把 \(x\) 換成 \(${xs}\)；向${vy} \(${k}\)：把 \(y\) 換成 \(${ys}\)。<br>\(${a === 1 ? "" : a}(${xs})${b === 1 ? "+" : b === -1 ? "-" : (b > 0 ? "+" : "") + b}(${ys})${V.term(c, "")}=0\)。<br>展開：\(${V.lin(a, b, d)}\)，所以 \(d=${d}\)。`
+     };
+   }},
+  {id:"S10-V2",
+   tag:"S10",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:["平移時 x、y 的代換方向用反", "代入點坐標後移項正負號弄錯", "把平移量當成常數項的變化量，沒有乘上係數"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let a = 1, b = 2, p = 3, q = -1, dir = 0, t = 3;
+     for (let i = 0; i < 50; i++) {
+       a = R.nz(-4, 4); b = R.nz(-4, 4); p = R.int(-5, 5); q = R.int(-5, 5); dir = R.int(0, 3); t = R.int(1, 6);
+       if (V.gcd(a, b) === 1 && a > 0) break;
+       a = 1; b = 2; p = 3; q = -1; dir = 0; t = 3;
+     }
+     const ux = [1, -1, 0, 0][dir], uy = [0, 0, 1, -1][dir];
+     const dname = ["右", "左", "上", "下"][dir];
+     // 平移後直線 a(x-t*ux)+b(y-t*uy)+c=0 通過 (p,q)
+     let c = -(a * (p - t * ux) + b * (q - t * uy));
+     const g = V.gcd(V.gcd(a, b), c) || 1;
+     const A = a / g, B = b / g, C = c / g;
+     const sub = ux !== 0 ? `x${ux > 0 ? "-" : "+"}k` : `y${uy > 0 ? "-" : "+"}k`;
+     const coef = ux !== 0 ? A : B;
+     const lhs = ux !== 0 ? `${A === 1 ? "" : A}(${p}${ux > 0 ? "-" : "+"}k)${V.term(B * q, "")}${V.term(C, "")}`
+                          : `${V.term(A * p, "", true)}${B === 1 ? (A * p ? "+" : "") : B === -1 ? "-" : (B > 0 && A * p ? "+" : "") + B}(${q}${uy > 0 ? "-" : "+"}k)${V.term(C, "")}`;
+     const const0 = A * p + B * q + C;   // 原式代入 P 的值
+     return {
+       stem: String.raw`將直線 \(${V.lin(A, B, C)}\) 向${dname}平移 \(k\) 單位（\(k\gt0\)）後通過點 \(P${V.pt(p, q)}\)，則 \(k=\)＿＿＿＿。`,
+       ans: String(t),
+       exp: String.raw`向${dname}平移 \(k\) 單位：把 ${ux !== 0 ? String.raw`\(x\)` : String.raw`\(y\)`} 換成 \(${sub}\)。<br>新直線過 \(P${V.pt(p, q)}\)，代入：\(${lhs}=0\)。<br>整理：\(${const0}${coef * (ux + uy) > 0 ? "-" : "+"}${Math.abs(coef) === 1 ? "" : Math.abs(coef)}k=0\)，得 \(k=${t}\)。`
+     };
+   }},
+  // ===== S11 兩直線平行 =====
   {id:"S11-1",
    tag:"S11",
    level:"易",
@@ -862,7 +2233,95 @@ window.BANK_UNIT05 = [
    reasons:[String.raw`把 \(B\) 點當成 \(D\) 點`, String.raw`過 \(C\) 作平行線時常數項算錯`, String.raw`以為 \(D\) 就是 \(C\) 對原點的某種對稱點`],
    key:0,
    exp:String.raw`\(CD\mathbin{/\mkern-6mu/} AB\)：過 \(C\) 作 \(x-2y=5-12=-7\)。<br>與 \(AD:3x+y=0\) 聯立：\(y=-3x\)，\(x+6x=-7\Rightarrow x=-1\)，\(y=3\)，\(D(-1,3)\)。<br>驗證：\(B=A+C-D=(6,3)\)，在 \(x-2y=0\) 上 ✓。`},
-  // ===== S12 =====
+  {id:"S11-12",
+   tag:"S11",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`通過點 \((2,1)\) 且與直線 \(y=-3x+5\) 平行的直線，其 \(y\) 截距為＿＿＿＿。`,
+   ans:"7",
+   reasons:[String.raw`以為平行線的 \(y\) 截距也相同，直接答 5`, "點斜式代入時正負號弄錯", "斜率取成負倒數（那是垂直）"],
+   key:1,
+   exp:String.raw`平行 ⇒ 斜率相同，為 \(-3\)。<br>過 \((2,1)\)：\(y-1=-3(x-2)\)，即 \(y=-3x+7\)。<br>\(y\) 截距為 \(7\)。`},
+  {id:"S11-13",
+   tag:"S11",
+   level:"易",
+   cat:"基本分",
+   type:"mc",
+   stem:String.raw`下列哪一條直線與直線 \(x-2y+4=0\) 平行？`,
+   opts:[String.raw`\(2x-4y+3=0\)`, String.raw`\(2x+y-1=0\)`, String.raw`\(x+2y+4=0\)`, String.raw`\(2x-y+4=0\)`],
+   ans:[0],
+   reasons:[String.raw`把 \(x\)、\(y\) 係數對調當成平行`, "只看常數項相同就以為平行", "把垂直的直線誤選成平行"],
+   key:0,
+   exp:String.raw`\(x-2y+4=0\) 的斜率為 \(\dfrac{1}{2}\)。<br>各選項斜率：\(\dfrac{2}{4}=\dfrac{1}{2}\)、\(-2\)、\(-\dfrac{1}{2}\)、\(2\)。<br>只有 \(2x-4y+3=0\) 斜率相同，且常數項不成比例，不重合，故平行。`},
+  {id:"S11-14",
+   tag:"S11",
+   level:"中",
+   cat:"陷阱題",
+   type:"num",
+   stem:String.raw`直線 \(L_1\) 通過 \(A(k,1)\)、\(B(2,5)\) 兩點，直線 \(L_2\) 通過 \(C(3,k)\)、\(D(3,-4)\) 兩點。若 \(L_1\mathbin{/\mkern-6mu/}L_2\)，則 \(k=\)＿＿＿＿。`,
+   ans:"2",
+   reasons:[String.raw`\(L_2\) 沒有斜率，硬套「斜率相等」而算不出來或亂算`, "以為鉛直線之間不能互相平行", String.raw`把平行條件寫成 \(A\)、\(B\) 的 \(y\) 坐標相同`],
+   key:0,
+   exp:String.raw`\(C\)、\(D\) 的 \(x\) 坐標都是 3，\(L_2\) 為鉛直線 \(x=3\)（沒有斜率）。<br>\(L_1\mathbin{/\mkern-6mu/}L_2\)，所以 \(L_1\) 也要是鉛直線：\(A\)、\(B\) 的 \(x\) 坐標相同，\(k=2\)。<br>此時 \(L_1:x=2\)，與 \(x=3\) 平行且不重合 ✓。`},
+  {id:"S11-15",
+   tag:"S11",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`平行四邊形 \(ABCD\) 中，邊 \(\overline{AB}\) 在直線 \(x-y+1=0\) 上，邊 \(\overline{AD}\) 在直線 \(2x+y-4=0\) 上，且兩對角線交於 \(M(3,2)\)，則頂點 \(B\) 的 \(x\) 坐標為＿＿＿＿。`,
+   ans:"11/3",
+   reasons:[String.raw`不知道對角線互相平分，求不出 \(C\)`, String.raw`過 \(C\) 作的直線取成平行 \(\overline{AB}\)，而不是平行 \(\overline{AD}\)`, "聯立方程式計算錯誤"],
+   key:1,
+   exp:String.raw`\(A\) 是兩邊的交點：\(x-y=-1\)、\(2x+y=4\)，相加得 \(x=1\)，\(A(1,2)\)。<br>對角線互相平分，\(M\) 是 \(\overline{AC}\) 中點：\(C=(2\cdot3-1,\,2\cdot2-2)=(5,2)\)。<br>\(\overline{BC}\mathbin{/\mkern-6mu/}\overline{AD}\)，過 \(C\) 斜率 \(-2\)：\(y-2=-2(x-5)\)，即 \(2x+y-12=0\)。<br>\(B\) 是它與 \(x-y+1=0\) 的交點：相加得 \(3x=11\)，\(x=\dfrac{11}{3}\)。`},
+  {id:"S11-V1",
+   tag:"S11",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   vary:true,
+   reasons:["以為平行線的 y 截距也相同", "代入點求常數項時正負號弄錯", String.raw`求 \(y\) 截距時忘了除以 \(y\) 的係數`],
+   key:2,
+   gen:R => { const V = window.VARY;
+     let a = 2, b = 3, c = -1, p = 1, q = 2;
+     for (let i = 0; i < 50; i++) {
+       a = R.nz(-5, 5); b = R.nz(-4, 4); c = R.int(-9, 9); p = R.int(-5, 5); q = R.int(-5, 5);
+       if (V.gcd(a, b) === 1 && a > 0 && a * p + b * q + c !== 0) break;
+       a = 2; b = 3; c = -1; p = 1; q = 2;
+     }
+     const k = -(a * p + b * q);
+     const yi = V.F(-k, b);
+     return {
+       stem: String.raw`通過點 \(P${V.pt(p, q)}\) 且與直線 \(${V.lin(a, b, c)}\) 平行的直線，其 \(y\) 截距為＿＿＿＿。`,
+       ans: V.fAns(yi),
+       exp: String.raw`平行 ⇒ \(x\)、\(y\) 係數相同，設所求直線為 \(${V.expr([[a, "x"], [b, "y"]])}+k=0\)。<br>代入 \(P${V.pt(p, q)}\)：\(${V.expr([[a * p, ""]])}${V.term(b * q, "") || "+0"}+k=0\)，\(k=${k}\)。<br>直線 \(${V.lin(a, b, k)}\)，令 \(x=0\)：${b === 1 ? "" : String.raw`\(${V.term(b, "y", true)}=${-k}\)，`}\(y=${V.fTex(yi)}\)。`
+     };
+   }},
+  {id:"S11-V2",
+   tag:"S11",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:["斜率算成 b/a 或忘了負號", "兩點斜率公式分子分母寫反", "解一次方程式時移項錯誤"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let a = 2, b = 3, c = 1, x1 = 1, y1 = 2, m = 1;
+     for (let i = 0; i < 50; i++) {
+       a = R.nz(-5, 5); b = R.nz(-4, 4); c = R.int(-9, 9); x1 = R.int(-5, 5); y1 = R.int(-5, 5); m = R.nz(-2, 2);
+       const x2t = x1 + b * m;
+       if (V.gcd(a, b) === 1 && a > 0 && a * x1 + b * y1 + c !== 0 && Math.abs(x2t) <= 9 && Math.abs(y1 - a * m) <= 12) break;
+       a = 2; b = 3; c = 1; x1 = 1; y1 = 2; m = 1;
+     }
+     const x2 = x1 + b * m, k = y1 - a * m;
+     const slope = V.F(-a, b);
+     return {
+       stem: String.raw`直線 \(L_1\) 通過 \(A${V.pt(x1, y1)}\)、\(B(${x2},k)\) 兩點，且 \(L_1\) 與直線 \(L_2:${V.lin(a, b, c)}\) 平行，則 \(k=\)＿＿＿＿。`,
+       ans: String(k),
+       exp: String.raw`\(L_2\) 的斜率為 \(${V.fTex(slope)}\)。<br>平行 ⇒ \(m_{AB}=\dfrac{k-${V.fPar(y1)}}{${x2}-${V.fPar(x1)}}=\dfrac{k-${V.fPar(y1)}}{${x2 - x1}}=${V.fTex(slope)}\)。<br>\(k-${V.fPar(y1)}=${V.fPar(slope)}\times${V.fPar(x2 - x1)}=${-a * m}\)，\(k=${k}\)。`
+     };
+   }},
+  // ===== S12 兩直線垂直 =====
   {id:"S12-1",
    tag:"S12",
    level:"易",
@@ -981,7 +2440,113 @@ window.BANK_UNIT05 = [
    reasons:["忘了水平線與鉛直線也互相垂直，但鉛直線沒有斜率", String.raw`把「斜率乘積為 \(-1\Rightarrow\) 垂直」的條件反過來無條件使用`, "以為每條直線都有斜率"],
    key:0,
    exp:String.raw`反例：\(x=1\) 與 \(y=2\) 互相垂直，但 \(x=1\) 沒有斜率，無法相乘。<br>正確說法：兩條<b>都有斜率</b>的直線垂直 \(\Leftrightarrow m_1m_2=-1\)。`},
-  // ===== S13 =====
+  {id:"S12-12",
+   tag:"S12",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`直線 \(L\) 與直線 \(3x-4y+1=0\) 垂直，則 \(L\) 的斜率為＿＿＿＿。`,
+   ans:"-4/3",
+   reasons:["只取倒數忘了變號", "只變號忘了取倒數", String.raw`原直線斜率算成 \(-\dfrac{3}{4}\)`],
+   key:0,
+   exp:String.raw`\(3x-4y+1=0\) 的斜率為 \(-\dfrac{3}{-4}=\dfrac{3}{4}\)。<br>垂直 ⇒ 斜率乘積為 \(-1\)：\(L\) 的斜率為 \(-\dfrac{4}{3}\)。`},
+  {id:"S12-13",
+   tag:"S12",
+   level:"中",
+   cat:"陷阱題",
+   type:"num",
+   stem:String.raw`通過點 \((1,2)\) 且與直線 \(2x+3y-1=0\) 垂直的直線，其 \(x\) 截距為＿＿＿＿。`,
+   ans:"-1/3",
+   reasons:[String.raw`只把 \(x\)、\(y\) 係數對調、沒有變號，寫成 \(3x+2y+k=0\)`, String.raw`原直線斜率算成 \(\dfrac{2}{3}\)，負倒數取錯`, String.raw`把 \(x\) 截距和 \(y\) 截距搞混`],
+   key:0,
+   exp:String.raw`與 \(2x+3y-1=0\) 垂直的直線可設為 \(3x-2y+k=0\)（係數對調且一個變號）。<br>代入 \((1,2)\)：\(3-4+k=0\)，\(k=1\)，直線 \(3x-2y+1=0\)。<br>令 \(y=0\)：\(3x+1=0\)，\(x=-\dfrac{1}{3}\)。<br>（若誤寫成 \(3x+2y-7=0\)，會得到錯誤的 \(\dfrac{7}{3}\)。）`},
+  {id:"S12-14",
+   tag:"S12",
+   level:"中",
+   cat:"陷阱題",
+   type:"tf",
+   stem:String.raw`直線 \(ax+2y=1\) 與直線 \(2x+ay=3\) 不可能互相垂直（\(a\) 為實數）。`,
+   opts:["○ 正確", "✕ 錯誤"],
+   ans:[1],
+   reasons:[String.raw`用斜率 \(-\dfrac{a}{2}\) 與 \(-\dfrac{2}{a}\) 相乘得 1，就以為不可能垂直，漏了 \(a=0\)`, "忘了水平線與鉛直線也互相垂直", String.raw`以為 \(a=0\) 時直線不存在`],
+   key:0,
+   exp:String.raw`用係數判斷：\(a_1a_2+b_1b_2=a\cdot2+2\cdot a=4a=0\)，得 \(a=0\)。<br>\(a=0\) 時兩直線為 \(y=\dfrac{1}{2}\)（水平線）與 \(x=\dfrac{3}{2}\)（鉛直線），互相垂直。<br>用斜率相乘只適用於兩線都有斜率（\(a\ne0\)），才會漏掉這個情形。敘述錯誤。`},
+  {id:"S12-15",
+   tag:"S12",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`已知 \(A(0,4)\)、\(B(5,1)\)。\(x\) 軸上的點 \(P\) 使 \(\triangle ABP\) 為直角三角形，則所有可能的 \(P\) 之 \(x\) 坐標的總和為＿＿＿＿。`,
+   ans:"7",
+   reasons:[String.raw`只考慮直角在 \(P\) 的情形，漏了直角在 \(A\) 或 \(B\)`, "直角在 P 時的一元二次方程式只取一個根", "垂直條件的斜率乘積算錯正負號"],
+   key:0,
+   exp:String.raw`設 \(P(p,0)\)，\(m_{AB}=\dfrac{1-4}{5-0}=-\dfrac{3}{5}\)。<br>直角在 \(A\)：\(m_{AP}=\dfrac{-4}{p}=\dfrac{5}{3}\)，\(p=-\dfrac{12}{5}\)。<br>直角在 \(B\)：\(m_{BP}=\dfrac{-1}{p-5}=\dfrac{5}{3}\)，\(p=\dfrac{22}{5}\)。<br>直角在 \(P\)：\(m_{PA}\cdot m_{PB}=\dfrac{4}{-p}\cdot\dfrac{1}{5-p}=-1\)，\(p^2-5p+4=0\)，\(p=1\) 或 \(4\)。<br>總和 \(-\dfrac{12}{5}+\dfrac{22}{5}+1+4=2+5=7\)。`},
+  {id:"S12-16",
+   tag:"S12",
+   level:"難",
+   cat:"拉分題",
+   type:"mc",
+   stem:String.raw`以 \(A(1,1)\)、\(B(4,2)\) 為相鄰兩頂點，以 \(\overline{AB}\) 為一邊作正方形 \(ABCD\)，則頂點 \(D\) 的坐標可能為何？`,
+   opts:[String.raw`\((0,4)\)`, String.raw`\((3,5)\) 或 \((5,-1)\)`, String.raw`\((0,4)\) 或 \((2,-2)\)`, String.raw`\((-2,4)\) 或 \((4,-2)\)`],
+   ans:[2],
+   reasons:[String.raw`只畫了正方形在 \(\overline{AB}\) 一側的情形，漏解`, String.raw`把與 \(A\) 相鄰的 \(D\) 和與 \(B\) 相鄰的 \(C\) 搞混`, String.raw`\(\overline{AD}\) 的長度沒有等於 \(\overline{AB}\)`],
+   key:0,
+   exp:String.raw`\(m_{AB}=\dfrac{1}{3}\)，\(\overline{AD}\perp\overline{AB}\)，所以 \(AD\) 的斜率為 \(-3\)，可設 \(D(1+t,\,1-3t)\)。<br>\(\overline{AD}=\overline{AB}=\sqrt{10}\)：\(t^2+9t^2=10\)，\(t=\pm1\)。<br>\(t=1\)：\(D(2,-2)\)；\(t=-1\)：\(D(0,4)\)。<br>正方形可在 \(\overline{AB}\) 的兩側，兩個都對。`},
+  {id:"S12-V1",
+   tag:"S12",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   vary:true,
+   reasons:["垂直線的係數只對調、忘了變號（變成平行或其他直線）", "代入點求常數項時正負號弄錯", String.raw`求 \(y\) 截距時忘了除以 \(y\) 的係數`],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let a = 2, b = 3, c = 1, p = 1, q = 2;
+     for (let i = 0; i < 50; i++) {
+       a = R.nz(-4, 4); b = R.nz(-5, 5); c = R.int(-9, 9); p = R.int(-5, 5); q = R.int(-5, 5);
+       if (V.gcd(a, b) === 1 && a > 0) break;
+       a = 2; b = 3; c = 1; p = 1; q = 2;
+     }
+     // 垂直線：係數對調且一個變號，取 x 係數為正
+     const P = b > 0 ? b : -b, Q = b > 0 ? -a : a;
+     const k = -(P * p + Q * q);
+     const yi = V.F(-k, Q);
+     return {
+       stem: String.raw`通過點 \(P${V.pt(p, q)}\) 且與直線 \(${V.lin(a, b, c)}\) 垂直的直線，其 \(y\) 截距為＿＿＿＿。`,
+       ans: V.fAns(yi),
+       exp: String.raw`垂直 ⇒ \(x\)、\(y\) 係數對調且一個變號，設所求直線為 \(${V.expr([[P, "x"], [Q, "y"]])}+k=0\)。<br>代入 \(P${V.pt(p, q)}\)：\(${V.fTex(P * p)}${V.term(Q * q, "") || "+0"}+k=0\)，\(k=${k}\)。<br>直線 \(${V.lin(P, Q, k)}\)，令 \(x=0\)：${Q === 1 ? "" : String.raw`\(${V.term(Q, "y", true)}=${-k}\)，`}\(y=${V.fTex(yi)}\)。`
+     };
+   }},
+  {id:"S12-V2",
+   tag:"S12",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:[String.raw`垂直條件寫成 \(a_1b_2-a_2b_1=0\)（那是平行）`, String.raw`垂直條件寫成 \(a_1a_2-b_1b_2=0\)，少了正負號`, "展開含 k 的式子時漏乘或移項錯"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const par = u => (u === 0 ? "k" : `(k${u > 0 ? "+" : "-"}${Math.abs(u)})`);
+     let u = 1, v = 2, w = 3, z = -1, c1 = 4, c2 = -3;
+     for (let i = 0; i < 50; i++) {
+       u = R.int(-5, 5); v = R.nz(-4, 4); w = R.nz(-4, 4); z = R.int(-5, 5); c1 = R.nz(-9, 9); c2 = R.nz(-9, 9);
+       if (w + v === 0) continue;
+       const f = V.F(-(u * w + v * z), w + v);
+       if (f.d <= 3 && Math.abs(f.n) <= 15) break;
+       u = 1; v = 2; w = 3; z = -1; c1 = 4; c2 = -3;
+     }
+     const kk = V.F(-(u * w + v * z), w + v);
+     const L1 = `${par(u)}x${V.term(v, "y")}${V.term(c1, "")}=0`;
+     const L2 = `${V.term(w, "x", true)}+${par(z)}y${V.term(c2, "")}=0`;
+     const cf = (c, first) => (c === 1 ? (first ? "" : "+") : c === -1 ? "-" : (c > 0 && !first ? "+" : "") + c);
+     const s1 = `${cf(w, true)}${par(u)}`, s2 = `${cf(v, false)}${par(z)}`;
+     return {
+       stem: String.raw`若直線 \(L_1:${L1}\) 與直線 \(L_2:${L2}\) 互相垂直，則 \(k=\)＿＿＿＿。`,
+       ans: V.fAns(kk),
+       exp: String.raw`兩直線垂直 ⇔ 兩直線「\(x\) 係數的乘積」加上「\(y\) 係數的乘積」等於 0（即 \(a_1a_2+b_1b_2=0\)）。<br>\(${s1}${s2}=0\)。<br>\(${V.expr([[w + v, "k"], [u * w + v * z, ""]])}=0\)，\(k=${V.fTex(kk)}\)。`
+     };
+   }},
+  // ===== S13 中垂線方程式 =====
   {id:"S13-1",
    tag:"S13",
    level:"易",
@@ -1067,7 +2632,146 @@ window.BANK_UNIT05 = [
    reasons:[String.raw`看到 \(A\)、\(B\) 的 \(y\) 坐標都是 2，就以為中垂線是 \(y=2\)（那是直線 \(AB\) 本身）`, "中點坐標算錯", "以為中垂線一定是斜的"],
    key:0,
    exp:String.raw`\(\overline{AB}\) 是水平線段（在 \(y=2\) 上），它的中垂線是過中點 \((3,2)\) 的鉛直線 \(x=3\)。`},
-  // ===== S14 =====
+  {id:"S13-9",
+   tag:"S13",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`線段 \(\overline{AB}\) 的兩端點為 \(A(-3,1)\)、\(B(1,5)\)。若 \(\overline{AB}\) 的中垂線方程式為 \(x+y+c=0\)，則 \(c=\)＿＿＿＿。`,
+   ans:"-2",
+   reasons:["中點坐標算錯（沒有除以 2）", String.raw`以為中垂線要過 \(A\) 或 \(B\)`, "代入中點後移項正負號弄錯"],
+   key:0,
+   exp:String.raw`中點 \(M=\left(\dfrac{-3+1}{2},\dfrac{1+5}{2}\right)=(-1,3)\)。<br>\(m_{AB}=\dfrac{5-1}{1+3}=1\)，中垂線斜率 \(-1\)，形式 \(x+y+c=0\) 正確。<br>中垂線過 \(M\)：\(-1+3+c=0\)，\(c=-2\)。`},
+  {id:"S13-10",
+   tag:"S13",
+   level:"中",
+   cat:"必考題",
+   type:"mc",
+   stem:String.raw`已知 \(A(2,-1)\)、\(B(4,5)\)，則線段 \(\overline{AB}\) 的中垂線方程式為何？`,
+   opts:[String.raw`\(x+3y-9=0\)`, String.raw`\(3x-y-7=0\)`, String.raw`\(x-3y+3=0\)`, String.raw`\(x+3y+1=0\)`],
+   ans:[0],
+   reasons:[String.raw`直接用 \(\overline{AB}\) 的斜率，忘了取負倒數`, "負倒數只取倒數、沒有變號", "中垂線寫成過 A 而不是過中點"],
+   key:0,
+   exp:String.raw`中點 \(M=(3,2)\)，\(m_{AB}=\dfrac{5+1}{4-2}=3\)。<br>中垂線斜率 \(-\dfrac{1}{3}\)，過 \(M\)：\(y-2=-\dfrac{1}{3}(x-3)\)。<br>整理：\(3y-6=-x+3\)，即 \(x+3y-9=0\)。`},
+  {id:"S13-11",
+   tag:"S13",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`點 \(P(a,b)\) 在直線 \(x-2y+1=0\) 上，且 \(P\) 到 \(A(0,3)\)、\(B(4,1)\) 的距離相等，則 \(a+b=\)＿＿＿＿。`,
+   ans:"3",
+   reasons:[String.raw`沒想到 \(P\) 在 \(\overline{AB}\) 的中垂線上，列不出第二條式子`, "中垂線斜率取錯（沒取負倒數）", "聯立方程式代入時計算錯誤"],
+   key:0,
+   exp:String.raw`\(\overline{PA}=\overline{PB}\) ⇒ \(P\) 在 \(\overline{AB}\) 的中垂線上。<br>中點 \((2,2)\)，\(m_{AB}=\dfrac{1-3}{4-0}=-\dfrac{1}{2}\)，中垂線斜率 \(2\)：\(y=2x-2\)。<br>代入 \(x-2y+1=0\)：\(x-2(2x-2)+1=0\)，\(-3x+5=0\)，\(x=\dfrac{5}{3}\)，\(y=\dfrac{4}{3}\)。<br>\(a+b=\dfrac{5}{3}+\dfrac{4}{3}=3\)。`},
+  {id:"S13-12",
+   tag:"S13",
+   level:"中",
+   cat:"陷阱題",
+   type:"tf",
+   stem:String.raw`已知 \(A(1,5)\)、\(B(5,1)\)，則直線 \(y=x\) 上恰有一個點 \(P\) 滿足 \(\overline{PA}=\overline{PB}\)。`,
+   opts:["○ 正確", "✕ 錯誤"],
+   ans:[1],
+   reasons:[String.raw`以為「直線與中垂線」一定恰交於一點，沒檢查 \(y=x\) 是否就是中垂線`, String.raw`只算出中點 \((3,3)\) 就以為是唯一的點`, "中垂線方程式算錯"],
+   key:0,
+   exp:String.raw`\(\overline{AB}\) 的中點 \((3,3)\)，\(m_{AB}=\dfrac{1-5}{5-1}=-1\)，中垂線斜率 1：\(y-3=x-3\)，即 \(y=x\)。<br>直線 \(y=x\) 本身就是中垂線，線上每一點都滿足 \(\overline{PA}=\overline{PB}\)，有無限多個。敘述錯誤。`},
+  {id:"S13-13",
+   tag:"S13",
+   level:"中",
+   cat:"陷阱題",
+   type:"num",
+   stem:String.raw`已知 \(A(3,-2)\)、\(B(3,6)\)，則線段 \(\overline{AB}\) 的中垂線與直線 \(2x+y=10\) 交點的 \(x\) 坐標為＿＿＿＿。`,
+   ans:"4",
+   reasons:[String.raw`\(\overline{AB}\) 是鉛直線段，卻把中垂線寫成鉛直線 \(x=3\)`, String.raw`中點 \(y\) 坐標算錯（寫成 4 或 \(-4\)）`, "求成交點的 y 坐標"],
+   key:0,
+   exp:String.raw`\(A\)、\(B\) 的 \(x\) 坐標相同，\(\overline{AB}\) 是鉛直線段（沒有斜率）。<br>中垂線與它垂直，是水平線，過中點 \((3,2)\)：\(y=2\)。<br>代入 \(2x+y=10\)：\(2x=8\)，\(x=4\)。`},
+  {id:"S13-14",
+   tag:"S13",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`\(\triangle ABC\) 的三頂點為 \(A(0,0)\)、\(B(6,0)\)、\(C(2,4)\)。若點 \(O\) 到三頂點的距離都相等，則 \(\overline{OA}=\)＿＿＿＿。`,
+   ans:"√10",
+   reasons:[String.raw`把「到三頂點等距的點」當成重心 \(\left(\dfrac{8}{3},\dfrac{4}{3}\right)\)`, "中垂線斜率沒取負倒數", String.raw`求出 \(O\) 後忘了算距離，直接回答坐標`],
+   key:0,
+   exp:String.raw`\(O\) 是兩條中垂線的交點（外心）。<br>\(\overline{AB}\) 的中垂線：\(x=3\)。<br>\(\overline{AC}\) 中點 \((1,2)\)，\(m_{AC}=2\)，中垂線 \(y-2=-\dfrac{1}{2}(x-1)\)。<br>代入 \(x=3\)：\(y=2-1=1\)，\(O(3,1)\)。<br>\(\overline{OA}=\sqrt{9+1}=\sqrt{10}\)（檢查：\(\overline{OB}=\sqrt{9+1}\)、\(\overline{OC}=\sqrt{1+9}\) ✓）。`},
+  {id:"S13-15",
+   tag:"S13",
+   level:"難",
+   cat:"拉分題",
+   type:"mc",
+   stem:String.raw`菱形 \(ABCD\) 中，\(A(1,2)\)、\(C(5,4)\)，且頂點 \(B\) 在 \(x\) 軸上，則頂點 \(D\) 的坐標為何？`,
+   opts:[String.raw`\(\left(\dfrac{9}{2},0\right)\)`, String.raw`\((0,9)\)`, String.raw`\(\left(\dfrac{3}{2},3\right)\)`, String.raw`\(\left(\dfrac{3}{2},6\right)\)`],
+   ans:[3],
+   reasons:[String.raw`不知道菱形的對角線 \(\overline{BD}\) 就在 \(\overline{AC}\) 的中垂線上`, String.raw`求出 \(B\) 就停了，沒有再用中點求 \(D\)`, String.raw`把中垂線的 \(y\) 截距 \((0,9)\) 當成 \(D\)`],
+   key:1,
+   exp:String.raw`菱形四邊等長，\(\overline{BA}=\overline{BC}\)、\(\overline{DA}=\overline{DC}\)，所以 \(B\)、\(D\) 都在 \(\overline{AC}\) 的中垂線上。<br>\(\overline{AC}\) 中點 \(M(3,3)\)，\(m_{AC}=\dfrac{1}{2}\)，中垂線 \(y-3=-2(x-3)\)，即 \(y=-2x+9\)。<br>\(B\) 在 \(x\) 軸上：\(0=-2x+9\)，\(B\left(\dfrac{9}{2},0\right)\)。<br>\(M\) 也是 \(\overline{BD}\) 中點：\(D=\left(6-\dfrac{9}{2},\,6-0\right)=\left(\dfrac{3}{2},6\right)\)。`},
+  {id:"S13-V1",
+   tag:"S13",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:[String.raw`直接用 \(\overline{AB}\) 的斜率當中垂線斜率，忘了取負倒數`, "中點坐標算錯（沒有除以 2）", "求截距時令錯變數為 0（x 截距、y 截距搞混）"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let x1 = -1, y1 = 2, x2 = 3, y2 = 4, which = 0;
+     for (let i = 0; i < 50; i++) {
+       x1 = R.int(-5, 5); y1 = R.int(-5, 5); x2 = R.int(-5, 5); y2 = R.int(-5, 5); which = R.int(0, 1);
+       if (x1 !== x2 && y1 !== y2) {
+         const den = which ? 2 * (x2 - x1) : 2 * (y2 - y1);
+         const f = V.F(x2 * x2 + y2 * y2 - x1 * x1 - y1 * y1, den);
+         if (f.d <= 4) break;
+       }
+       x1 = -1; y1 = 2; x2 = 3; y2 = 4; which = 0;
+     }
+     const mx = V.F(x1 + x2, 2), my = V.F(y1 + y2, 2);
+     const mAB = V.F(y2 - y1, x2 - x1), mP = V.F(-(x2 - x1), y2 - y1);
+     // 中垂線：y - my = mP (x - mx)
+     const yi = V.sub(my, V.mul(mP, mx));          // y 截距
+     const xi = V.sub(mx, V.div(my, mP));          // x 截距（mP ≠ 0）
+     const ansF = which ? xi : yi;
+     const cP = mP.d === 1 && mP.n === 1 ? "" : mP.d === 1 && mP.n === -1 ? "-" : V.fPar(mP);
+     const name = which ? String.raw`\(x\) 截距` : String.raw`\(y\) 截距`;
+     const step = which
+       ? String.raw`令 \(y=0\)：\(${V.fTex(V.mul(-1, my))}=${cP}\left(x-${V.fPar(mx)}\right)\)，\(x-${V.fPar(mx)}=${V.fTex(V.div(V.mul(-1, my), mP))}\)，\(x=${V.fTex(xi)}\)。`
+       : String.raw`令 \(x=0\)：\(y=${V.fTex(my)}+${V.fPar(mP)}\times${V.fPar(V.mul(-1, mx))}=${V.fTex(yi)}\)。`;
+     return {
+       stem: String.raw`已知 \(A${V.pt(x1, y1)}\)、\(B${V.pt(x2, y2)}\)，則線段 \(\overline{AB}\) 的中垂線之${name}為＿＿＿＿。`,
+       ans: V.fAns(ansF),
+       exp: String.raw`中點 \(M${V.pt(mx, my)}\)，\(m_{AB}=\dfrac{${y2}-${V.fPar(y1)}}{${x2}-${V.fPar(x1)}}=${V.fTex(mAB)}\)。<br>中垂線斜率為負倒數 \(${V.fTex(mP)}\)，方程式 \(y-${V.fPar(my)}=${cP}\left(x-${V.fPar(mx)}\right)\)。<br>${step}`
+     };
+   }},
+  {id:"S13-V2",
+   tag:"S13",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:[String.raw`沒想到 \(\overline{PA}=\overline{PB}\) 表示 \(P\) 在 \(\overline{AB}\) 的中垂線上`, "中垂線斜率沒取負倒數", "聯立方程式代入時計算錯誤"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let mx = 1, my = 2, u = 2, v = 1, t0 = 1, s = 1;
+     for (let i = 0; i < 50; i++) {
+       mx = R.int(-3, 3); my = R.int(-3, 3); u = R.nz(-3, 3); v = R.nz(-3, 3); t0 = R.nz(-2, 2); s = R.int(-3, 3);
+       const px = mx - t0 * v, py = my + t0 * u;
+       // L 不可與中垂線平行（中垂線方向 (-v,u)），也不可與中垂線重合；坐標別太大
+       if (s * (-v) !== u && Math.abs(px) <= 8 && Math.abs(py) <= 8 && Math.abs(py - s * px) <= 12 && Math.abs(mx - u) <= 7 && Math.abs(my - v) <= 7 && Math.abs(mx + u) <= 7 && Math.abs(my + v) <= 7) break;
+       mx = 1; my = 2; u = 2; v = 1; t0 = 1; s = 1;
+     }
+     const ax = mx - u, ay = my - v, bx = mx + u, by = my + v;
+     const px = mx - t0 * v, py = my + t0 * u, n = py - s * px;
+     // 中垂線：u(x-mx)+v(y-my)=0 → ux+vy-(u mx+v my)=0
+     let gg = V.gcd(V.gcd(u, v), -(u * mx + v * my)) || 1; if (u < 0) gg = -gg;
+     const U = u / gg, W = v / gg, C0 = -(u * mx + v * my) / gg;
+     const mAB = V.F(v, u), mP = V.F(-u, v);
+     const Ltex = `y=${V.expr([[s, "x"], [n, ""]])}`;
+     return {
+       stem: String.raw`點 \(P(a,b)\) 在直線 \(${Ltex}\) 上，且 \(P\) 到 \(A${V.pt(ax, ay)}\)、\(B${V.pt(bx, by)}\) 的距離相等，則 \(a+b=\)＿＿＿＿。`,
+       ans: String(px + py),
+       exp: String.raw`\(\overline{PA}=\overline{PB}\) ⇒ \(P\) 在 \(\overline{AB}\) 的中垂線上。<br>中點 \(${V.pt(mx, my)}\)，\(m_{AB}=${V.fTex(mAB)}\)，中垂線斜率 \(${V.fTex(mP)}\)，方程式 \(${V.lin(U, W, C0)}\)。<br>把 \(${Ltex}\) 代入：\(${V.expr([[U + W * s, "x"], [W * n + C0, ""]])}=0\)，得 \(a=${px}\)，\(b=${py}\)。<br>\(a+b=${px}+${V.fPar(py)}=${px + py}\)。`
+     };
+   }},
+  // ===== S14 點對直線的對稱點 =====
   {id:"S14-1",
    tag:"S14",
    level:"易",
@@ -1186,7 +2890,106 @@ window.BANK_UNIT05 = [
    reasons:[String.raw`沒先判斷 \(A\)、\(B\) 在 \(x\) 軸的同側或異側`, "以為最短路徑一定要用對稱點", String.raw`把 \(\overline{PA}+\overline{PB}\) 最小和 \(|\overline{PA}-\overline{PB}|\) 最大的作法搞混`],
    key:0,
    exp:String.raw`\(A\) 在 \(x\) 軸上方、\(B\) 在下方（異側），直接連 \(\overline{AB}\)，與 \(x\) 軸的交點就是所求，最小值為 \(\overline{AB}\)。<br>只有 \(A\)、\(B\) 在<b>同側</b>時，才需要先作對稱點。`},
-  // ===== S15 =====
+  {id:"S14-12",
+   tag:"S14",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`點 \(P(-2,5)\) 對水平線 \(y=-1\) 的對稱點為 \(Q(a,b)\)，則 \(a+b=\)＿＿＿＿。`,
+   ans:"-9",
+   reasons:[String.raw`以為對 \(y=-1\) 對稱就是把 \(y\) 坐標變號，得 \((-2,-5)\)`, String.raw`對水平線對稱時把 \(x\) 坐標也一起改了`, String.raw`中點公式 \(\dfrac{5+b}{2}=-1\) 移項算錯`],
+   key:0,
+   exp:String.raw`對水平線 \(y=-1\) 對稱，\(x\) 坐標不變：\(a=-2\)。<br>\(\overline{PQ}\) 的中點在 \(y=-1\) 上：\(\dfrac{5+b}{2}=-1\Rightarrow b=-7\)，\(Q(-2,-7)\)。<br>\(a+b=-2+(-7)=-9\)。`},
+  {id:"S14-13",
+   tag:"S14",
+   level:"中",
+   cat:"陷阱題",
+   type:"num",
+   stem:String.raw`點 \(P(4,-1)\) 對直線 \(L:x-y+3=0\) 的對稱點為 \(Q\)，則 \(Q\) 的 \(y\) 坐標為＿＿＿＿。`,
+   ans:"7",
+   reasons:[String.raw`看到 \(L\) 的斜率是 1，就直接把 \(x\)、\(y\) 對調得 \((-1,4)\)（只有對 \(y=x\) 才能這樣做）`, String.raw`只求到垂足 \((0,3)\) 就當成對稱點`, "解聯立方程式時正負號算錯"],
+   key:0,
+   exp:String.raw`過 \(P\) 且垂直 \(L\) 的直線斜率為 \(-1\)：\(y+1=-(x-4)\)，即 \(x+y-3=0\)。<br>與 \(L:x-y+3=0\) 聯立，兩式相加得 \(2x=0\)，\(x=0\)、\(y=3\)，垂足 \(H(0,3)\)。<br>\(H\) 是 \(\overline{PQ}\) 的中點：\(Q=(2\times0-4,\ 2\times3-(-1))=(-4,7)\)，\(y\) 坐標為 7。<br>驗證：中點 \((0,3)\) 在 \(L\) 上，\(m_{PQ}=\dfrac{7-(-1)}{-4-4}=-1\) 與 \(L\) 垂直 ✓。<br>注意：\(L\) 是 \(y=x+3\)，不是 \(y=x\)，不能直接對調坐標。`},
+  {id:"S14-14",
+   tag:"S14",
+   level:"中",
+   cat:"陷阱題",
+   type:"tf",
+   stem:String.raw`直線 \(y=2x+1\) 對直線 \(y=x\) 對稱後所得直線的斜率為 \(\dfrac{1}{2}\)。`,
+   opts:["○ 正確", "✕ 錯誤"],
+   ans:[0],
+   reasons:[String.raw`把「對 \(y=x\) 對稱」和「互相垂直」搞混，以為斜率要變成負倒數 \(-\dfrac{1}{2}\)`, "以為對稱後斜率不變，仍是 2", String.raw`\(x\)、\(y\) 對調後沒有重新整理成 \(y=\cdots\) 的形式就讀斜率`],
+   key:0,
+   exp:String.raw`對 \(y=x\) 對稱：\((x,y)\to(y,x)\)，把方程式中的 \(x\)、\(y\) 互換，得 \(x=2y+1\)，即 \(y=\dfrac{1}{2}x-\dfrac{1}{2}\)，斜率 \(\dfrac{1}{2}\)。<br>檢查：原直線過 \((0,1)\)、\((1,3)\)，對稱點 \((1,0)\)、\((3,1)\)，斜率 \(\dfrac{1-0}{3-1}=\dfrac{1}{2}\) ✓。<br>斜率變成倒數（不是負倒數），敘述正確。`},
+  {id:"S14-15",
+   tag:"S14",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`\(A(1,3)\)、\(B(5,-1)\)，點 \(P\) 在 \(x\) 軸上移動，則 \(|\overline{PA}-\overline{PB}|\) 的最大值為＿＿＿＿。`,
+   ans:"2√5",
+   reasons:[String.raw`沒有先作對稱點，直接用 \(\overline{AB}=4\sqrt{2}\) 當答案（求「差的最大值」時兩點要在同側）`, String.raw`和「\(\overline{PA}+\overline{PB}\) 最小」的作法搞混，以為 \(P\) 要取在 \(A\)、\(B\) 之間`, String.raw`\(B\) 對 \(x\) 軸的對稱點寫成 \((-5,-1)\) 或 \((-5,1)\)`],
+   key:0,
+   exp:String.raw`\(A\) 在 \(x\) 軸上方、\(B\) 在下方（異側）。取 \(B\) 對 \(x\) 軸的對稱點 \(B'(5,1)\)，對 \(x\) 軸上的每一點 \(P\) 都有 \(\overline{PB}=\overline{PB'}\)。<br>\(A\)、\(B'\) 在同側，由三角形「兩邊之差小於第三邊」：\(|\overline{PA}-\overline{PB'}|\le\overline{AB'}=\sqrt{(5-1)^2+(1-3)^2}=2\sqrt{5}\)。<br>等號成立於 \(P\)、\(A\)、\(B'\) 共線，即 \(P\) 為直線 \(AB'\) 與 \(x\) 軸的交點：\(AB'\)：\(y-3=-\dfrac{1}{2}(x-1)\)，令 \(y=0\) 得 \(x=7\)，\(P(7,0)\)。<br>最大值為 \(2\sqrt{5}\)。`},
+  {id:"S14-V1",
+   tag:"S14",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   vary:true,
+   reasons:["以為對鉛直線或水平線對稱只要把坐標變號（那是對坐標軸對稱）", "對鉛直線對稱時把 y 坐標也改了（或對水平線對稱時改了 x 坐標）", "由中點公式反推對稱點時移項算錯"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let vert = true, x0 = 3, y0 = 2, c = -1;
+     for (let i = 0; i < 50; i++) {
+       vert = R.int(0, 1) === 1; x0 = R.int(-6, 6); y0 = R.int(-6, 6); c = R.nz(-5, 5);
+       if (vert ? x0 !== c : y0 !== c) break;
+       vert = true; x0 = 3; y0 = 2; c = -1;
+     }
+     const a = vert ? 2 * c - x0 : x0, b = vert ? y0 : 2 * c - y0, s = a + b;
+     const line = vert ? `x=${c}` : `y=${c}`;
+     const step = vert
+       ? String.raw`對鉛直線 \(x=${c}\) 對稱，\(y\) 坐標不變：\(b=${y0}\)。<br>\(\overline{PQ}\) 的中點在 \(x=${c}\) 上：\(\dfrac{${x0}+a}{2}=${c}\Rightarrow a=${2 * c}-${V.fPar(x0)}=${a}\)。`
+       : String.raw`對水平線 \(y=${c}\) 對稱，\(x\) 坐標不變：\(a=${x0}\)。<br>\(\overline{PQ}\) 的中點在 \(y=${c}\) 上：\(\dfrac{${y0}+b}{2}=${c}\Rightarrow b=${2 * c}-${V.fPar(y0)}=${b}\)。`;
+     return {
+       stem: String.raw`點 \(P${V.pt(x0, y0)}\) 對直線 \(${line}\) 的對稱點為 \(Q(a,b)\)，則 \(a+b=\)＿＿＿＿。`,
+       ans: String(s),
+       exp: step + String.raw`<br>\(Q${V.pt(a, b)}\)，\(a+b=${a}+${V.fPar(b)}=${s}\)。`
+     };
+   }},
+  {id:"S14-V2",
+   tag:"S14",
+   level:"中",
+   cat:"必考題",
+   type:"mc",
+   vary:true,
+   reasons:["只求到垂足就當成對稱點", String.raw`誤以為對斜線對稱都可以把 \(x\)、\(y\) 坐標對調`, "由垂足（中點）反推對稱點時加減算錯"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const dirs = [[1, 2], [2, 1], [1, -2], [2, -1], [1, 3], [3, 1], [1, -3], [3, -1], [1, 1], [1, -1]];
+     const key = p => p[0] + "," + p[1];
+     let a = 1, b = 2, hx = 1, hy = 1, t = 1, P, Q, D;
+     let ok = false;
+     for (let i = 0; i < 50 && !ok; i++) {
+       [a, b] = R.pick(dirs); hx = R.int(-4, 4); hy = R.int(-4, 4); t = R.pick([-2, -1, 1, 2]);
+       P = [hx + t * a, hy + t * b]; Q = [hx - t * a, hy - t * b];
+       D = [[hx, hy], [P[1], P[0]], [P[0] - 2 * t * a, P[1] + 2 * t * b]];
+       const all = [Q, ...D];
+       ok = all.concat([P]).every(p => Math.abs(p[0]) <= 9 && Math.abs(p[1]) <= 9) && new Set(all.map(key)).size === 4;
+     }
+     if (!ok) { a = 1; b = 2; hx = 1; hy = 1; t = 1; P = [2, 3]; Q = [0, -1]; D = [[1, 1], [3, 2], [0, 7]]; }
+     const c = -(a * hx + b * hy);
+     let pa = b, pb = -a, pc = a * P[1] - b * P[0];
+     const g = V.gcd(V.gcd(pa, pb), pc) || 1; pa /= g; pb /= g; pc /= g;
+     const opt = p => String.raw`\(${V.pt(p[0], p[1])}\)`;
+     return {
+       stem: String.raw`點 \(P${V.pt(P[0], P[1])}\) 對直線 \(L:${V.lin(a, b, c)}\) 的對稱點為何？`,
+       opts: [opt(Q), opt(D[0]), opt(D[1]), opt(D[2])],
+       ans: [0],
+       exp: String.raw`過 \(P\) 且垂直 \(L\) 的直線：\(${V.lin(pa, pb, pc)}\)。<br>與 \(L\) 聯立，解得垂足 \(H${V.pt(hx, hy)}\)。<br>\(H\) 是 \(P\) 與對稱點 \(Q\) 的中點：\(Q=(2\times${V.fPar(hx)}-${V.fPar(P[0])},\ 2\times${V.fPar(hy)}-${V.fPar(P[1])})=${V.pt(Q[0], Q[1])}\)。<br>驗證：\(\overline{PQ}\) 中點 \(${V.pt(hx, hy)}\) 在 \(L\) 上，且 \(PQ\perp L\) ✓。`
+     };
+   }},
+  // ===== S15 點到直線的距離 =====
   {id:"S15-1",
    tag:"S15",
    level:"易",
@@ -1303,7 +3106,100 @@ window.BANK_UNIT05 = [
    reasons:["忘了距離公式分子有絕對值", String.raw`沒想到 \(k\) 可能是負數`, "以為距離可以是負的"],
    key:0,
    exp:String.raw`距離 \(=\dfrac{|0+0+k|}{\sqrt{3^2+4^2}}=\dfrac{|k|}{5}\)。當 \(k\lt0\) 時 \(\dfrac{k}{5}\) 是負數，不可能是距離。<br>例如 \(k=-10\)，距離為 2，不是 \(-2\)。`},
-  // ===== S16 =====
+  {id:"S15-12",
+   tag:"S15",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`點 \((1,3)\) 到直線 \(y=2x+4\) 的距離為＿＿＿＿。`,
+   ans:"3√5/5",
+   reasons:[String.raw`沒先移項成一般式 \(2x-y+4=0\) 就代公式，係數的正負號弄錯`, String.raw`分母 \(\sqrt{2^2+(-1)^2}\) 算錯`, String.raw`算到 \(\dfrac{3}{\sqrt{5}}\) 後沒有有理化分母`],
+   key:0,
+   exp:String.raw`先化成一般式：\(2x-y+4=0\)。<br>\(d=\dfrac{|2\cdot1-3+4|}{\sqrt{2^2+(-1)^2}}=\dfrac{3}{\sqrt{5}}=\dfrac{3\sqrt{5}}{5}\)。`},
+  {id:"S15-13",
+   tag:"S15",
+   level:"中",
+   cat:"陷阱題",
+   type:"num",
+   stem:String.raw`點 \((2,1)\) 到直線 \(3x=4y+8\) 的距離為＿＿＿＿。`,
+   ans:"6/5",
+   reasons:[String.raw`沒移項就把常數 8 當成 \(c=+8\)，算成 \(\dfrac{|6-4+8|}{5}=2\)`, String.raw`移項時 \(4y\) 沒有變號，寫成 \(3x+4y-8=0\)`, "忘了加絕對值，得到負的距離"],
+   key:0,
+   exp:String.raw`距離公式要用一般式 \(ax+by+c=0\)，先移項：\(3x-4y-8=0\)。<br>\(d=\dfrac{|3\cdot2-4\cdot1-8|}{\sqrt{3^2+(-4)^2}}=\dfrac{|-6|}{5}=\dfrac{6}{5}\)。`},
+  {id:"S15-14",
+   tag:"S15",
+   level:"易",
+   cat:"陷阱題",
+   type:"tf",
+   stem:String.raw`原點到直線 \(y=-3x+10\) 的距離為 \(10\)。`,
+   opts:["○ 正確", "✕ 錯誤"],
+   ans:[1],
+   reasons:[String.raw`把 \(y\) 截距 10 誤當成原點到直線的距離`, String.raw`距離公式的分母 \(\sqrt{3^2+1^2}\) 漏算`, "以為直線與 y 軸的交點就是離原點最近的點"],
+   key:0,
+   exp:String.raw`一般式 \(3x+y-10=0\)，\(d=\dfrac{|0+0-10|}{\sqrt{3^2+1^2}}=\dfrac{10}{\sqrt{10}}=\sqrt{10}\)。<br>10 是原點到 \(y\) 截距點 \((0,10)\) 的距離；直線上離原點最近的點是垂足，不是 \((0,10)\)。敘述錯誤。`},
+  {id:"S15-15",
+   tag:"S15",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`在所有通過點 \(P(2,-1)\) 的直線中，與點 \(A(-1,3)\) 距離最大的直線為 \(L\)，則 \(L\) 的 \(x\) 截距為＿＿＿＿。`,
+   ans:"10/3",
+   reasons:[String.raw`沒想到「\(A\) 到過 \(P\) 的直線的距離 \(\le\overline{AP}\)」，等號成立時 \(L\perp AP\)`, "垂直時斜率取負倒數算錯", String.raw`求 \(x\) 截距時令錯變數（令成 \(x=0\)）`],
+   key:0,
+   exp:String.raw`設 \(H\) 為 \(A\) 到 \(L\) 的垂足，則 \(d(A,L)=\overline{AH}\le\overline{AP}\)（直角三角形 \(AHP\) 中斜邊最長），等號成立於 \(H=P\)，即 \(L\perp AP\)。<br>\(m_{AP}=\dfrac{-1-3}{2-(-1)}=-\dfrac{4}{3}\)，所以 \(L\) 的斜率為 \(\dfrac{3}{4}\)：\(y+1=\dfrac{3}{4}(x-2)\)，即 \(3x-4y-10=0\)。<br>令 \(y=0\)：\(x=\dfrac{10}{3}\)。（此時最大距離為 \(\overline{AP}=5\)。）`},
+  {id:"S15-V1",
+   tag:"S15",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   vary:true,
+   reasons:["代入負數坐標時沒加括號，正負號算錯", String.raw`分母忘了開根號，直接用 \(a^2+b^2\) 去除`, "忘了取絕對值，得到負的距離"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const ab = [[3, 4], [4, 3], [5, 12], [12, 5], [6, 8], [8, 6]];
+     let a = 3, b = -4, c = 5, x0 = 2, y0 = -1, v = 15;
+     for (let i = 0; i < 50; i++) {
+       const p = R.pick(ab); a = p[0]; b = p[1] * R.sign(); c = R.int(-12, 12); x0 = R.int(-6, 6); y0 = R.int(-6, 6);
+       v = a * x0 + b * y0 + c;
+       if (v !== 0) break;
+       a = 3; b = -4; c = 5; x0 = 2; y0 = -1; v = 15;
+     }
+     const n = Math.round(Math.sqrt(a * a + b * b)), d = V.F(Math.abs(v), n);
+     const num = `${a}\\times${V.fPar(x0)}${b < 0 ? "-" : "+"}${Math.abs(b)}\\times${V.fPar(y0)}${c === 0 ? "" : (c < 0 ? "-" : "+") + Math.abs(c)}`;
+     return {
+       stem: String.raw`點 \(${V.pt(x0, y0)}\) 到直線 \(${V.lin(a, b, c)}\) 的距離為＿＿＿＿。`,
+       ans: V.fAns(d),
+       exp: String.raw`\(d=\dfrac{|${num}|}{\sqrt{${a}^2+${V.fPar(b)}^2}}=\dfrac{|${v}|}{${n}}=${V.fTex(d)}\)。`
+     };
+   }},
+  {id:"S15-V2",
+   tag:"S15",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:[String.raw`去絕對值只取一種情況，沒有用 \(k\) 的正負條件挑選`, String.raw`忘了把分母乘過去，直接令 \(|\cdots+k|\) 等於距離`, "代入點坐標時正負號算錯"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const ab = [[3, 4], [4, 3], [3, -4], [4, -3], [5, 12], [12, -5], [6, 8], [8, -6]];
+     let a = 3, b = 4, x0 = 1, y0 = -2, d = 3, s = -5, pos = true;
+     for (let i = 0; i < 50; i++) {
+       [a, b] = R.pick(ab); x0 = R.int(-5, 5); y0 = R.int(-5, 5); d = R.int(1, 4); pos = R.int(0, 1) === 1;
+       s = a * x0 + b * y0;
+       const n0 = Math.round(Math.sqrt(a * a + b * b));
+       if (Math.abs(s) < n0 * d && s !== 0) break;
+       a = 3; b = 4; x0 = 1; y0 = -2; d = 3; s = -5; pos = true;
+     }
+     const n = Math.round(Math.sqrt(a * a + b * b)), nd = n * d, r1 = -s + nd, r2 = -s - nd, k = pos ? r1 : r2;
+     const line = V.term(a, "x", true) + V.term(b, "y") + "+k=0";
+     const sub = `${a}\\times${V.fPar(x0)}${b < 0 ? "-" : "+"}${Math.abs(b)}\\times${V.fPar(y0)}+k`;
+     return {
+       stem: String.raw`點 \(${V.pt(x0, y0)}\) 到直線 \(${line}\) 的距離為 \(${d}\)，且 \(k${pos ? "\\gt" : "\\lt"}0\)，則 \(k=\)＿＿＿＿。`,
+       ans: String(k),
+       exp: String.raw`\(\dfrac{|${sub}|}{\sqrt{${a}^2+${V.fPar(b)}^2}}=${d}\Rightarrow\dfrac{|${s}+k|}{${n}}=${d}\Rightarrow|${s}+k|=${nd}\)。<br>\(${s}+k=${nd}\) 或 \(${s}+k=-${nd}\)，得 \(k=${r1}\) 或 \(k=${r2}\)。<br>因 \(k${pos ? "\\gt" : "\\lt"}0\)，\(k=${k}\)。`
+     };
+   }},
+  // ===== S16 兩平行線的距離 =====
   {id:"S16-1",
    tag:"S16",
    level:"易",
@@ -1377,7 +3273,134 @@ window.BANK_UNIT05 = [
    reasons:[String.raw`沒想到邊長就是 \(C\) 到直線 \(AB\) 的距離`, "把距離當成面積", String.raw`距離平方 \(\left(\dfrac{7}{\sqrt{5}}\right)^2\) 算錯`],
    key:0,
    exp:String.raw`\(BC\perp AB\)，所以邊長 \(=\) \(C\) 到直線 \(AB\) 的距離 \(=\dfrac{|4+6-3|}{\sqrt{5}}=\dfrac{7}{\sqrt{5}}\)。<br>面積 \(=\dfrac{49}{5}=9.8\)。`},
-  // ===== S17 =====
+  {id:"S16-8",
+   tag:"S16",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`兩平行線 \(y=2x+3\) 與 \(y=2x-2\) 的距離為＿＿＿＿。`,
+   ans:"√5",
+   reasons:[String.raw`把兩線的 \(y\) 截距差 5 當成距離`, "沒化成一般式就套公式，分母用錯", String.raw`\(\dfrac{5}{\sqrt{5}}\) 化簡錯`],
+   key:0,
+   exp:String.raw`化成一般式：\(2x-y+3=0\)、\(2x-y-2=0\)。<br>\(d=\dfrac{|3-(-2)|}{\sqrt{2^2+(-1)^2}}=\dfrac{5}{\sqrt{5}}=\sqrt{5}\)。<br>（截距差 5 是沿鉛直方向量的長度，不是兩線間的垂直距離。）`},
+  {id:"S16-9",
+   tag:"S16",
+   level:"易",
+   cat:"基本分",
+   type:"mc",
+   stem:String.raw`下列哪一條直線與直線 \(L:4x-3y+1=0\) 的距離為 \(1\)？`,
+   opts:[String.raw`\(4x-3y-6=0\)`, String.raw`\(8x-6y+6=0\)`, String.raw`\(4x-3y+6=0\)`, String.raw`\(3x-4y+6=0\)`],
+   ans:[2],
+   reasons:[String.raw`沒把 \(8x-6y+6=0\) 化成 \(4x-3y+3=0\) 就直接比較常數項`, String.raw`常數項相減時正負號弄錯，誤以為 \(4x-3y-6=0\) 也符合`, String.raw`沒檢查 \(3x-4y+6=0\) 根本不與 \(L\) 平行`],
+   key:0,
+   exp:String.raw`(1) \(\dfrac{|1-(-6)|}{\sqrt{4^2+3^2}}=\dfrac{7}{5}\) ✗<br>(2) 化成 \(4x-3y+3=0\)：\(\dfrac{|1-3|}{5}=\dfrac{2}{5}\) ✗<br>(3) \(\dfrac{|1-6|}{5}=1\) ✓<br>(4) \(3x-4y+6=0\) 的斜率 \(\dfrac{3}{4}\)，\(L\) 的斜率 \(\dfrac{4}{3}\)，兩線相交，不是平行線 ✗`},
+  {id:"S16-10",
+   tag:"S16",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`直線 \(L_1:6x+by+1=0\) 與 \(L_2:3x-4y+3=0\) 平行，則 \(L_1\) 與 \(L_2\) 的距離為＿＿＿＿。`,
+   ans:"1/2",
+   reasons:[String.raw`求出 \(b=-8\) 後沒把 \(L_2\) 乘 2，直接用 \(|1-3|\) 相減`, String.raw`平行條件列錯，算成 \(b=8\)`, String.raw`分母用 \(\sqrt{3^2+4^2}\) 卻配上 \(L_1\) 的常數項`],
+   key:0,
+   exp:String.raw`平行 \(\Rightarrow\dfrac{6}{3}=\dfrac{b}{-4}\Rightarrow b=-8\)，\(L_1:6x-8y+1=0\)。<br>把 \(L_2\) 乘 2，讓 \(x\)、\(y\) 係數相同：\(6x-8y+6=0\)。<br>\(d=\dfrac{|1-6|}{\sqrt{6^2+(-8)^2}}=\dfrac{5}{10}=\dfrac{1}{2}\)。`},
+  {id:"S16-11",
+   tag:"S16",
+   level:"中",
+   cat:"必考題",
+   type:"mc",
+   stem:String.raw`兩平行線 \(L_1:x+y-1=0\) 與 \(L_2:x+y+k=0\) 的距離為 \(2\sqrt{2}\)，且原點介於 \(L_1\) 與 \(L_2\) 之間，則 \(k=\)？`,
+   opts:[String.raw`\(-5\)`, String.raw`\(3\) 或 \(-5\)`, String.raw`\(7\)`, String.raw`\(3\)`],
+   ans:[3],
+   reasons:[String.raw`解出 \(k=3\) 或 \(-5\) 後，沒有用「原點在兩線之間」挑選`, "「原點在兩線之間」寫成原點代入兩式同號", String.raw`去分母時 \(2\sqrt{2}\times\sqrt{2}\) 算錯`],
+   key:0,
+   exp:String.raw`\(\dfrac{|-1-k|}{\sqrt{1^2+1^2}}=2\sqrt{2}\Rightarrow|k+1|=4\Rightarrow k=3\) 或 \(k=-5\)。<br>原點介於兩線之間 \(\Leftrightarrow\) 原點代入兩式異號。代入 \(L_1\)：\(-1\lt0\)，所以代入 \(L_2\) 要 \(k\gt0\)，\(k=3\)。<br>（\(k=-5\) 時 \(L_2:x+y-5=0\)，原點代入也是負的，原點在兩線的同一側。）`},
+  {id:"S16-12",
+   tag:"S16",
+   level:"易",
+   cat:"陷阱題",
+   type:"tf",
+   stem:String.raw`直線 \(2x+3y-1=0\) 與 \(3x+2y+5=0\) 的距離為 \(\dfrac{|-1-5|}{\sqrt{13}}\)。`,
+   opts:["○ 正確", "✕ 錯誤"],
+   ans:[1],
+   reasons:["沒檢查兩直線是否平行就套用平行線距離公式", "看到係數平方和都是 13，就以為兩線平行", "把公式中的常數項代錯"],
+   key:0,
+   exp:String.raw`兩直線斜率分別為 \(-\dfrac{2}{3}\)、\(-\dfrac{3}{2}\)，不相等，兩直線不平行，會相交（交點處距離為 0）。<br>平行線距離公式 \(\dfrac{|c_1-c_2|}{\sqrt{a^2+b^2}}\) 只能用在 \(x\)、\(y\) 係數相同的兩平行線。敘述錯誤。`},
+  {id:"S16-13",
+   tag:"S16",
+   level:"中",
+   cat:"陷阱題",
+   type:"num",
+   stem:String.raw`兩平行線 \(2x-y=3\) 與 \(4x-2y=-1\) 的距離為＿＿＿＿。`,
+   ans:"7√5/10",
+   reasons:["常數在等號右邊時沒先移項，常數項的正負號弄錯", String.raw`沒把兩式的 \(x\)、\(y\) 係數調成相同就直接相減`, String.raw`有理化 \(\dfrac{7}{2\sqrt{5}}\) 算錯`],
+   key:0,
+   exp:String.raw`先移項成一般式：\(2x-y-3=0\)、\(4x-2y+1=0\)。<br>第一式乘 2：\(4x-2y-6=0\)。<br>\(d=\dfrac{|-6-1|}{\sqrt{4^2+(-2)^2}}=\dfrac{7}{2\sqrt{5}}=\dfrac{7\sqrt{5}}{10}\)。`},
+  {id:"S16-14",
+   tag:"S16",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`四條直線 \(x+2y-1=0\)、\(x+2y+k=0\)、\(2x-y+3=0\)、\(2x-y-7=0\) 圍成一個正方形，且 \(k\gt0\)，則 \(k=\)＿＿＿＿。`,
+   ans:"9",
+   reasons:["沒想到正方形兩組對邊的距離要相等", String.raw`解 \(|k+1|=10\) 時只取了 \(-11\) 或沒用 \(k\gt0\) 挑選`, "兩平行線距離公式的分母沒開根號"],
+   key:0,
+   exp:String.raw`\(x+2y+\cdots=0\) 的斜率 \(-\dfrac{1}{2}\)，\(2x-y+\cdots=0\) 的斜率 \(2\)，兩組互相垂直，四線圍成矩形；要是正方形，兩組平行線的距離必須相等。<br>\(2x-y+3=0\) 與 \(2x-y-7=0\)：\(d=\dfrac{|3-(-7)|}{\sqrt{2^2+1^2}}=\dfrac{10}{\sqrt{5}}=2\sqrt{5}\)。<br>\(\dfrac{|-1-k|}{\sqrt{5}}=2\sqrt{5}\Rightarrow|k+1|=10\Rightarrow k=9\) 或 \(k=-11\)。<br>因 \(k\gt0\)，\(k=9\)。`},
+  {id:"S16-15",
+   tag:"S16",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`正三角形 \(ABC\) 中，\(B\)、\(C\) 在直線 \(3x+4y-4=0\) 上，\(A\) 在直線 \(3x+4y+11=0\) 上，則 \(\triangle ABC\) 的面積為＿＿＿＿。`,
+   ans:"3√3",
+   reasons:["沒想到三角形的高就是兩平行線的距離", String.raw`由高求邊長時關係用錯（正三角形的高 \(=\dfrac{\sqrt{3}}{2}\times\) 邊長）`, String.raw`面積忘了乘 \(\dfrac{1}{2}\)`],
+   key:0,
+   exp:String.raw`\(A\) 到直線 \(BC\) 的距離就是高 \(h\)，也就是兩平行線的距離：\(h=\dfrac{|-4-11|}{\sqrt{3^2+4^2}}=3\)。<br>設邊長 \(s\)，由畢氏定理 \(h^2+\left(\dfrac{s}{2}\right)^2=s^2\Rightarrow h=\dfrac{\sqrt{3}}{2}s\)，所以 \(s=\dfrac{2h}{\sqrt{3}}=\dfrac{6}{\sqrt{3}}=2\sqrt{3}\)。<br>面積 \(=\dfrac{1}{2}\times2\sqrt{3}\times3=3\sqrt{3}\)。`},
+  {id:"S16-V1",
+   tag:"S16",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   vary:true,
+   reasons:["常數項相減時正負號弄錯", String.raw`分母沒有開根號，直接用 \(a^2+b^2\) 去除`, "根式沒有有理化或化簡"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const ab = [[3, 4], [4, 3], [3, -4], [5, 12], [1, 2], [2, 1], [1, -2], [1, 3], [3, -1], [1, 1], [1, -1], [2, -3]];
+     const [a, b] = R.pick(ab);
+     let c1 = R.int(-9, 9), c2 = R.int(-9, 9);
+     for (let i = 0; i < 50 && c1 === c2; i++) c2 = R.int(-9, 9);
+     if (c1 === c2) { c1 = -2; c2 = 8; }
+     const m = a * a + b * b, dc = Math.abs(c1 - c2), d = V.surd(dc, m, m);
+     return {
+       stem: String.raw`兩平行線 \(${V.lin(a, b, c1)}\) 與 \(${V.lin(a, b, c2)}\) 的距離為＿＿＿＿。`,
+       ans: V.sAns(d),
+       exp: String.raw`兩式的 \(x\)、\(y\) 係數相同，\(c_1=${c1}\)、\(c_2=${c2}\)。<br>\(d=\dfrac{|c_1-c_2|}{\sqrt{a^2+b^2}}=\dfrac{|${c1}-${V.fPar(c2)}|}{\sqrt{${a}^2+${V.fPar(b)}^2}}=\dfrac{${dc}}{${V.sTex(V.surd(1, m))}}=${V.sTex(d)}\)。`
+     };
+   }},
+  {id:"S16-V2",
+   tag:"S16",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:[String.raw`沒有先把兩式的 \(x\)、\(y\) 係數調成相同，就直接用常數項相減`, String.raw`調整係數時只乘了 \(x\)、\(y\) 項，常數項沒有一起乘`, "分母開根號或有理化算錯"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     const ab = [[1, 2], [2, 1], [1, -2], [2, -1], [1, 3], [3, 1], [1, -1], [1, 1], [3, 4], [4, -3], [2, 3], [3, -2]];
+     let a = 1, b = 2, t = 2, c1 = 1, c2 = -3;
+     for (let i = 0; i < 50; i++) {
+       [a, b] = R.pick(ab); t = R.pick([2, 3]); c1 = R.int(-6, 6); c2 = R.int(-9, 9);
+       if (c2 % t !== 0 && t * c1 !== c2) break;
+       a = 1; b = 2; t = 2; c1 = 1; c2 = -3;
+     }
+     const m = a * a + b * b, dc = Math.abs(t * c1 - c2), d = V.surd(dc, m, t * m);
+     return {
+       stem: String.raw`兩平行線 \(L_1:${V.lin(a, b, c1)}\) 與 \(L_2:${V.lin(t * a, t * b, c2)}\) 的距離為＿＿＿＿。`,
+       ans: V.sAns(d),
+       exp: String.raw`先讓 \(x\)、\(y\) 係數相同：\(L_1\) 乘以 ${t}，得 \(${V.lin(t * a, t * b, t * c1)}\)（常數項也要乘）。<br>\(d=\dfrac{|${t * c1}-${V.fPar(c2)}|}{\sqrt{${t * a}^2+${V.fPar(t * b)}^2}}=\dfrac{${dc}}{${V.sTex(V.surd(1, t * t * m))}}=${V.sTex(d)}\)。`
+     };
+   }},
+  // ===== S17 直線與線段相交（斜率範圍） =====
   {id:"S17-1",
    tag:"S17",
    level:"易",
@@ -1446,7 +3469,154 @@ window.BANK_UNIT05 = [
    reasons:[String.raw`沒找出直線恆過的定點 \((-1,2)\)`, String.raw`以為範圍端點一定是 \(m_{PA}\)、\(m_{PC}\)，沒比較三個斜率`, "斜率計算錯"],
    key:1,
    exp:String.raw`直線恆過 \(P(-1,2)\)，三角形在 \(x=-1\) 的右側。<br>\(m_{PA}=\dfrac{3}{2}\)，\(m_{PB}=\dfrac{-1}{4}\)，\(m_{PC}=\dfrac{2}{6}=\dfrac{1}{3}\)。<br>直線與三角形相交 \(\Leftrightarrow\) 斜率介於最小與最大值之間：\(-\dfrac{1}{4}\le m\le\dfrac{3}{2}\)。<br>\(a+b=-\dfrac{1}{4}+\dfrac{3}{2}=\dfrac{5}{4}\)。`},
-  // ===== S18 =====
+  {id:"S17-7",
+   tag:"S17",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`直線 \(y=mx+1\) 與線段 \(\overline{AB}\) 相交，其中 \(A(1,4)\)、\(B(4,3)\)。若 \(m\) 的範圍為 \(a\le m\le b\)，則 \(a+b=\)＿＿＿＿。`,
+   ans:"7/2",
+   reasons:[String.raw`沒看出 \(y=mx+1\) 恆過 \((0,1)\)，改用原點算斜率`, String.raw`斜率 \(m_{PB}=\dfrac{3-1}{4-0}\) 算錯`, String.raw`把範圍判斷成兩側（\(m\le a\) 或 \(m\ge b\)）`],
+   key:0,
+   exp:String.raw`\(y=mx+1\) 恆過 \(P(0,1)\)，斜率為 \(m\)。<br>\(m_{PA}=\dfrac{4-1}{1-0}=3\)，\(m_{PB}=\dfrac{3-1}{4-0}=\dfrac{1}{2}\)。<br>\(A\)、\(B\) 都在鉛直線 \(x=0\) 的右側，所以範圍介於兩斜率之間：\(\dfrac{1}{2}\le m\le3\)。<br>\(a+b=\dfrac{1}{2}+3=\dfrac{7}{2}\)。`},
+  {id:"S17-8",
+   tag:"S17",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`水平線 \(y=k\) 與線段 \(\overline{AB}\) 有交點，其中 \(A(1,-2)\)、\(B(3,5)\)，則滿足條件的整數 \(k\) 共有＿＿＿＿個。`,
+   ans:"8",
+   reasons:[String.raw`端點 \(k=-2\)、\(k=5\) 沒有算進去`, String.raw`看成 \(x\) 坐標的範圍 \(1\le k\le3\)`, String.raw`整數個數直接算成 \(5-(-2)=7\)`],
+   key:0,
+   exp:String.raw`水平線 \(y=k\) 與線段相交 \(\Leftrightarrow\) \(k\) 介於兩端點的 \(y\) 坐標之間：\(-2\le k\le5\)（通過端點也算有交點）。<br>整數 \(k=-2,-1,0,1,2,3,4,5\)，共 \(5-(-2)+1=8\) 個。`},
+  {id:"S17-9",
+   tag:"S17",
+   level:"中",
+   cat:"必考題",
+   type:"mc",
+   stem:String.raw`直線 \(mx-y+3m+2=0\) 與線段 \(\overline{AB}\) 相交，其中 \(A(1,6)\)、\(B(2,-3)\)，則 \(m\) 的範圍為何？`,
+   opts:[String.raw`\(m\le-1\) 或 \(m\ge1\)`, String.raw`\(-1\le m\le1\)`, String.raw`\(-1\lt m\lt1\)`, String.raw`\(-2\le m\le5\)`],
+   ans:[1],
+   reasons:[String.raw`沒把直線改寫成 \(y-2=m(x+3)\)，找不到恆過的定點 \((-3,2)\)`, String.raw`\(A\)、\(B\) 在鉛直線 \(x=-3\) 同側，卻寫成兩側的範圍`, "漏了端點的等號"],
+   key:0,
+   exp:String.raw`\(mx-y+3m+2=0\Rightarrow y-2=m(x+3)\)，恆過 \(P(-3,2)\)，斜率為 \(m\)。<br>\(m_{PA}=\dfrac{6-2}{1-(-3)}=1\)，\(m_{PB}=\dfrac{-3-2}{2-(-3)}=-1\)。<br>\(A\)、\(B\) 都在 \(x=-3\) 的右側，所以 \(-1\le m\le1\)。<br>（\(-2\le m\le5\) 是誤用 \((3,2)\) 當定點的結果。）`},
+  {id:"S17-10",
+   tag:"S17",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`過原點且斜率為 \(m\) 的直線與線段 \(\overline{AB}\) 相交，其中 \(A(-2,4)\)、\(B(3,6)\)。滿足 \(-4\le m\le4\) 的整數 \(m\) 共有＿＿＿＿個。`,
+   ans:"6",
+   reasons:[String.raw`沒注意 \(A\)、\(B\) 在 \(y\) 軸兩側，把範圍寫成 \(-2\le m\le2\)`, String.raw`端點 \(m=\pm2\) 沒有算進去`, String.raw`斜率 \(m_{OA}\) 的正負號算錯`],
+   key:0,
+   exp:String.raw`\(m_{OA}=\dfrac{4}{-2}=-2\)，\(m_{OB}=\dfrac{6}{3}=2\)。<br>\(A\) 在 \(y\) 軸左側、\(B\) 在右側，線段穿過 \(y\) 軸（鉛直線 \(x=0\) 與線段相交），直線旋轉時經過鉛直方向，所以 \(m\ge2\) 或 \(m\le-2\)。<br>檢查：\(m=0\) 時 \(y=0\) 與線段不相交（線段上的點 \(y\) 坐標都 \(\ge4\)）。<br>在 \(-4\le m\le4\) 中：\(m=-4,-3,-2,2,3,4\)，共 6 個。`},
+  {id:"S17-11",
+   tag:"S17",
+   level:"中",
+   cat:"必考題",
+   type:"mc",
+   stem:String.raw`過點 \(P(1,0)\) 且斜率為 \(m\) 的直線與線段 \(\overline{AB}\) <b>沒有</b>交點，其中 \(A(3,4)\)、\(B(5,1)\)，則 \(m\) 的範圍為何？`,
+   opts:[String.raw`\(m\lt\dfrac{1}{4}\) 或 \(m\gt2\)`, String.raw`\(\dfrac{1}{4}\lt m\lt2\)`, String.raw`\(m\le\dfrac{1}{4}\) 或 \(m\ge2\)`, String.raw`\(m\lt\dfrac{1}{2}\) 或 \(m\gt4\)`],
+   ans:[0],
+   reasons:["沒有交點的範圍包含了端點斜率（直線通過端點也算有交點）", "把「沒有交點」做成「有交點」的範圍", String.raw`斜率算成 \(\dfrac{\Delta x}{\Delta y}\)`],
+   key:0,
+   exp:String.raw`\(m_{PA}=\dfrac{4-0}{3-1}=2\)，\(m_{PB}=\dfrac{1-0}{5-1}=\dfrac{1}{4}\)。<br>\(A\)、\(B\) 都在 \(x=1\) 的右側，有交點 \(\Leftrightarrow\dfrac{1}{4}\le m\le2\)。<br>沒有交點是其餘部分：\(m\lt\dfrac{1}{4}\) 或 \(m\gt2\)（\(m=\dfrac{1}{4}\) 或 \(2\) 時直線通過 \(B\) 或 \(A\)，算有交點，不可含等號）。`},
+  {id:"S17-12",
+   tag:"S17",
+   level:"中",
+   cat:"陷阱題",
+   type:"tf",
+   stem:String.raw`過原點且斜率為 \(m\) 的直線與線段 \(\overline{AB}\) 相交，其中 \(A(1,-2)\)、\(B(2,4)\)，則 \(m\) 的範圍為 \(-2\le m\le2\)。`,
+   opts:["○ 正確", "✕ 錯誤"],
+   ans:[0],
+   reasons:["看到兩個端點斜率一正一負，就以為範圍一定在兩側", String.raw`沒有畫圖或代 \(m=0\) 檢查`, "端點斜率算錯"],
+   key:0,
+   exp:String.raw`\(m_{OA}=\dfrac{-2}{1}=-2\)，\(m_{OB}=\dfrac{4}{2}=2\)。<br>\(A\)、\(B\) 都在 \(y\) 軸右側，線段不穿過 \(y\) 軸，所以範圍是「介於兩斜率之間」：\(-2\le m\le2\)。<br>檢查：\(m=0\) 時 \(y=0\) 與線段交於 \(\left(\dfrac{4}{3},0\right)\)，確實相交。敘述正確。<br>（範圍在兩側或之間，要看線段有沒有穿過過該點的鉛直線，不是看斜率的正負。）`},
+  {id:"S17-13",
+   tag:"S17",
+   level:"中",
+   cat:"陷阱題",
+   type:"num",
+   stem:String.raw`過點 \(P(1,0)\) 且斜率為 \(m\) 的直線與線段 \(\overline{AB}\) 相交，其中 \(A(1,4)\)、\(B(3,2)\)，則 \(m\) 的最小值為＿＿＿＿。`,
+   ans:"1",
+   reasons:[String.raw`算 \(m_{PA}\) 時分母為 0，就亂代數字或以為題目無解`, String.raw`把範圍寫成 \(m\le1\)，以為 1 是最大值`, String.raw`\(m_{PB}\) 算錯`],
+   key:0,
+   exp:String.raw`\(P\)、\(A\) 的 \(x\) 坐標相同，直線 \(PA\) 是鉛直線 \(x=1\)，沒有斜率。<br>\(m_{PB}=\dfrac{2-0}{3-1}=1\)。<br>直線從 \(PB\) 繞 \(P\) 逆時針轉向鉛直線 \(PA\) 的過程都與線段相交，斜率從 1 一直變大，所以 \(m\ge1\)（沒有最大值），最小值為 1。`},
+  {id:"S17-14",
+   tag:"S17",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`直線 \(L:y=2x+k\) 與線段 \(\overline{AB}\) 有交點，其中 \(A(1,3)\)、\(B(4,-1)\)，則滿足條件的整數 \(k\) 共有＿＿＿＿個。`,
+   ans:"11",
+   reasons:[String.raw`沒想到「線段與直線相交 \(\Leftrightarrow\) 兩端點在直線異側或在直線上」`, String.raw`端點 \(k=-9\)、\(k=1\)（直線通過 \(B\)、\(A\)）沒算進去`, String.raw`代入 \(B(4,-1)\) 時 \(-(-1)\) 的正負號算錯`],
+   key:0,
+   exp:String.raw`令 \(f(x,y)=2x-y+k\)。線段 \(\overline{AB}\) 與 \(L\) 有交點 \(\Leftrightarrow\) \(A\)、\(B\) 在 \(L\) 的異側，或至少一點在 \(L\) 上，即 \(f(A)\)、\(f(B)\) 異號或有一個為 0。<br>\(f(A)=2-3+k=k-1\)，\(f(B)=8+1+k=k+9\)。<br>因為 \(k+9\) 比 \(k-1\) 大，所以要 \(k-1\le0\le k+9\)，即 \(-9\le k\le1\)。<br>整數 \(k\) 共 \(1-(-9)+1=11\) 個。<br>（另解：\(L\) 的斜率固定為 2，上下平移；通過 \(B\) 時 \(k=-9\)，通過 \(A\) 時 \(k=1\)，介於其間都相交。）`},
+  {id:"S17-15",
+   tag:"S17",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`過點 \(P(0,-1)\) 的直線 \(L\) 與線段 \(\overline{AB}\) 相交，其中 \(A(-2,3)\)、\(B(4,1)\)。若 \(L\) 的 \(x\) 截距為正數，則此 \(x\) 截距的最大值為＿＿＿＿。`,
+   ans:"2",
+   reasons:[String.raw`沒注意 \(A\)、\(B\) 在 \(y\) 軸兩側，把範圍寫成 \(-2\le m\le\dfrac{1}{2}\)`, String.raw`\(x\) 截距寫成 \(-\dfrac{1}{m}\)`, String.raw`沒用「\(x\) 截距為正」排除 \(m\le-2\) 的部分`],
+   key:0,
+   exp:String.raw`鉛直線 \(x=0\) 的 \(x\) 截距不是正數，不合，所以設 \(L:y=mx-1\)。<br>\(m_{PA}=\dfrac{3-(-1)}{-2-0}=-2\)，\(m_{PB}=\dfrac{1-(-1)}{4-0}=\dfrac{1}{2}\)。\(A\)、\(B\) 在 \(y\) 軸兩側，所以 \(m\ge\dfrac{1}{2}\) 或 \(m\le-2\)。<br>\(x\) 截距：令 \(y=0\) 得 \(x=\dfrac{1}{m}\)。要 \(\dfrac{1}{m}\gt0\)，須 \(m\gt0\)，所以 \(m\ge\dfrac{1}{2}\)，\(0\lt\dfrac{1}{m}\le2\)。<br>最大值為 2（此時 \(m=\dfrac{1}{2}\)，\(L\) 通過 \(B\)）。`},
+  {id:"S17-V1",
+   tag:"S17",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   vary:true,
+   reasons:["沒判斷兩端點是否在過 P 的鉛直線同側，把範圍寫成兩側", "算斜率時分子、分母相減的順序不一致，正負號錯", "只算了一個端點的斜率，或把最大、最小值弄反"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let px = 0, py = 0, A = [2, 4], B = [4, 2], side = 1;
+     for (let i = 0; i < 50; i++) {
+       px = R.int(-3, 3); py = R.int(-3, 3); side = R.sign();
+       A = [px + side * R.int(1, 5), R.int(-5, 6)]; B = [px + side * R.int(1, 5), R.int(-5, 6)];
+       const cross = (A[0] - px) * (B[1] - py) - (A[1] - py) * (B[0] - px);
+       if (cross !== 0) break;
+       px = 0; py = 0; A = [2, 4]; B = [4, 2]; side = 1;
+     }
+     const mA = V.F(A[1] - py, A[0] - px), mB = V.F(B[1] - py, B[0] - px);
+     const lo = V.val(mA) < V.val(mB) ? mA : mB, hi = lo === mA ? mB : mA, s = V.add(lo, hi);
+     const sl = (Q, m) => String.raw`\dfrac{${Q[1]}-${V.fPar(py)}}{${Q[0]}-${V.fPar(px)}}=${V.fTex(m)}`;
+     return {
+       stem: String.raw`過點 \(P${V.pt(px, py)}\) 且斜率為 \(m\) 的直線與線段 \(\overline{AB}\) 相交，其中 \(A${V.pt(A[0], A[1])}\)、\(B${V.pt(B[0], B[1])}\)。若 \(m\) 的範圍為 \(a\le m\le b\)，則 \(a+b=\)＿＿＿＿。`,
+       ans: V.fAns(s),
+       exp: String.raw`\(m_{PA}=${sl(A, mA)}\)，\(m_{PB}=${sl(B, mB)}\)。<br>\(A\)、\(B\) 都在鉛直線 \(x=${px}\) 的${side > 0 ? "右" : "左"}側，線段不穿過這條鉛直線，所以範圍介於兩斜率之間：\(${V.fTex(lo)}\le m\le${V.fTex(hi)}\)。<br>\(a+b=${V.fTex(lo)}+${V.fPar(hi)}=${V.fTex(s)}\)。`
+     };
+   }},
+  {id:"S17-V2",
+   tag:"S17",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:["沒注意線段穿過過 P 的鉛直線，把「有交點」的範圍寫成介於兩斜率之間", "把端點斜率（直線通過 A 或 B）也算成沒有交點", "斜率計算時正負號錯"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let px = 1, py = -1, A = [-2, 3], B = [4, 2], lo = V.F(-4, 3), hi = V.F(1), list = [-1, 0];
+     for (let i = 0; i < 50; i++) {
+       px = R.int(-3, 3); py = R.int(-3, 3);
+       A = [px - R.int(1, 4), R.int(-5, 6)]; B = [px + R.int(1, 4), R.int(-5, 6)];
+       const mA = V.F(A[1] - py, A[0] - px), mB = V.F(B[1] - py, B[0] - px);
+       lo = V.val(mA) < V.val(mB) ? mA : mB; hi = lo === mA ? mB : mA;
+       list = [];
+       for (let m = Math.floor(V.val(lo)) - 1; m <= Math.ceil(V.val(hi)) + 1; m++) if (m > V.val(lo) + 1e-9 && m < V.val(hi) - 1e-9) list.push(m);
+       if (list.length >= 1 && list.length <= 8 && V.val(lo) !== V.val(hi)) break;
+       px = 1; py = -1; A = [-2, 3]; B = [4, 2]; lo = V.F(-4, 3); hi = V.F(1); list = [-1, 0];
+     }
+     const mA = V.F(A[1] - py, A[0] - px), mB = V.F(B[1] - py, B[0] - px);
+     const sl = (Q, m) => String.raw`\dfrac{${Q[1]}-${V.fPar(py)}}{${Q[0]}-${V.fPar(px)}}=${V.fTex(m)}`;
+     return {
+       stem: String.raw`過點 \(P${V.pt(px, py)}\) 且斜率為 \(m\) 的直線與線段 \(\overline{AB}\) <b>沒有</b>交點，其中 \(A${V.pt(A[0], A[1])}\)、\(B${V.pt(B[0], B[1])}\)，則滿足條件的整數 \(m\) 共有＿＿＿＿個。`,
+       ans: String(list.length),
+       exp: String.raw`\(m_{PA}=${sl(A, mA)}\)，\(m_{PB}=${sl(B, mB)}\)。<br>\(A\) 在鉛直線 \(x=${px}\) 的左側、\(B\) 在右側，線段穿過這條鉛直線，所以有交點時 \(m\le${V.fTex(lo)}\) 或 \(m\ge${V.fTex(hi)}\)。<br>沒有交點：\(${V.fTex(lo)}\lt m\lt${V.fTex(hi)}\)（端點斜率時直線通過 \(A\) 或 \(B\)，算有交點）。<br>整數 \(m=${list.join(",")}\)，共 ${list.length} 個。`
+     };
+   }},
+  // ===== S18 二元一次不等式的圖形 =====
   {id:"S18-1",
    tag:"S18",
    level:"易",
@@ -1515,7 +3685,168 @@ window.BANK_UNIT05 = [
    reasons:[String.raw`只用斜率與截距判斷 \(a\)、\(b\)、\(c\) 的比值，忘了用區域決定整體正負號`, String.raw`原點不在區域內，代入得 \(c\lt0\) 這一步沒想到`, String.raw`\(a+b+c\) 就是代入 \((1,1)\)，沒想到可以用圖判斷`],
    key:0,
    exp:String.raw`原點不在區域內：代入得 \(c\lt0\)。<br>邊界斜率 \(-\dfrac{a}{b}\gt0\Rightarrow ab\lt0\)；\(y\) 截距 \(-\dfrac{c}{b}\gt0\)，又 \(c\lt0\Rightarrow b\gt0\)，故 \(a\lt0\)。<br>\(a+b+c\) 是點 \((1,1)\) 代入的值；\((1,1)\) 與原點在邊界同側，不在區域內，故 \(a+b+c\lt0\)。<br>正確為 (1)(2)(4)。`},
-  // ===== S19 =====
+  {id:"S18-7",
+   tag:"S18",
+   level:"易",
+   cat:"基本分",
+   type:"mc",
+   stem:String.raw`不等式 \(y\gt2x-1\) 的圖形為何？`,
+   opts:[String.raw`直線 \(y=2x-1\) 的下方（不含直線）`, String.raw`直線 \(y=2x-1\) 的上方（含直線）`, String.raw`直線 \(y=2x-1\) 的上方（不含直線）`, String.raw`直線 \(y=2x-1\) 的下方（含直線）`],
+   ans:[2],
+   reasons:[String.raw`把「\(\gt\)」和「\(\ge\)」搞混，以為包含邊界直線`, String.raw`把 \(y\gt\cdots\) 看成直線的下方`, "沒有代點（例如原點）檢查"],
+   key:0,
+   exp:String.raw`\(y\gt2x-1\) 表示點的 \(y\) 坐標比直線上同一個 \(x\) 的點還大，所以在直線上方；不等號沒有等號，不含直線本身。<br>檢查：原點代入 \(0\gt-1\) 成立，而原點在直線 \(y=2x-1\) 的上方（\(x=0\) 時直線上的點是 \((0,-1)\)）✓。`},
+  {id:"S18-8",
+   tag:"S18",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`點 \((k,3)\) 在不等式 \(x-2y+4\ge0\) 的區域內，則 \(k\) 的最小值為＿＿＿＿。`,
+   ans:"2",
+   reasons:[String.raw`代入時 \(-2\times3\) 算錯`, String.raw`移項時不等號方向弄反，得 \(k\le2\)`, "以為邊界上的點不算，答 3"],
+   key:0,
+   exp:String.raw`代入 \(x=k\)、\(y=3\)：\(k-6+4\ge0\Rightarrow k\ge2\)。<br>\(k=2\) 時點 \((2,3)\) 在邊界直線上，「\(\ge\)」包含邊界，所以最小值為 2。`},
+  {id:"S18-9",
+   tag:"S18",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`原點與點 \((2,2)\) 在直線 \(L:x+ky-3=0\) 的異側，則 \(k\) 的範圍可寫成 \(k\gt a\)，\(a=\)＿＿＿＿。`,
+   ans:"1/2",
+   reasons:["把異側的條件記成「代入值同號」（那是同側）", String.raw`代入 \((2,2)\) 時 \(ky\) 漏乘，寫成 \(2+k-3\)`, String.raw`解 \(2k-1\gt0\) 時移項算錯`],
+   key:0,
+   exp:String.raw`令 \(f(x,y)=x+ky-3\)。\(f(0,0)=-3\lt0\)，\(f(2,2)=2+2k-3=2k-1\)。<br>異側 \(\Rightarrow\) 兩值異號，所以 \(2k-1\gt0\Rightarrow k\gt\dfrac{1}{2}\)。<br>\(a=\dfrac{1}{2}\)。`},
+  {id:"S18-10",
+   tag:"S18",
+   level:"中",
+   cat:"必考題",
+   type:"mc",
+   stem:String.raw`\(A(0,2)\)、\(B(3,0)\)，「直線 \(AB\) 的下方（不含直線 \(AB\)）」可用下列哪一個不等式表示？`,
+   opts:[String.raw`\(2x+3y\gt6\)`, String.raw`\(3x+2y\lt6\)`, String.raw`\(2x+3y\le6\)`, String.raw`\(2x+3y\lt6\)`],
+   ans:[3],
+   reasons:[String.raw`用截距式寫直線時 \(x\)、\(y\) 的係數放反，寫成 \(3x+2y=6\)`, String.raw`題目說「不含直線」卻用了 \(\le\)`, "判斷下方時代點檢查弄反"],
+   key:0,
+   exp:String.raw`截距式：\(\dfrac{x}{3}+\dfrac{y}{2}=1\)，乘 6 得 \(2x+3y=6\)。<br>直線下方含原點，原點代入 \(2x+3y\) 得 \(0\lt6\)，所以下方為 \(2x+3y\lt6\)；不含直線，不加等號。`},
+  {id:"S18-11",
+   tag:"S18",
+   level:"中",
+   cat:"必考題",
+   type:"multi",
+   stem:String.raw`若點 \(P(a,b)\) 在第二象限，則 \(P\) <b>一定</b>在下列哪些不等式的區域內？`,
+   opts:[String.raw`\(x-y\lt0\)`, String.raw`\(x+y\gt0\)`, String.raw`\(3x-2y+1\lt0\)`, String.raw`\(2x-3y\lt1\)`, String.raw`\(x-2y-1\lt0\)`],
+   ans:[0, 3, 4],
+   reasons:[String.raw`沒想到用「\(a\lt0\)、\(b\gt0\)」判斷每一個式子的正負`, "只代一個第二象限的點就下結論，沒想到反例", String.raw`把第二象限記成 \(a\gt0\)、\(b\lt0\)`],
+   key:0,
+   exp:String.raw`第二象限：\(a\lt0\)、\(b\gt0\)。<br>(1) \(a-b\)：負數減正數，一定 \(\lt0\) ✓<br>(2) \(a+b\) 正負不一定，例如 \((-3,1)\) 得 \(-2\) ✗<br>(3) \(3a-2b+1\) 不一定，例如 \(\left(-\dfrac{1}{10},\dfrac{1}{10}\right)\) 得 \(\dfrac{1}{2}\gt0\) ✗<br>(4) \(2a-3b\lt0\lt1\) ✓<br>(5) \(a-2b\lt0\)，再減 1 仍 \(\lt0\) ✓`},
+  {id:"S18-12",
+   tag:"S18",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`點 \(P(2t-1,\ t+1)\) 在 \(y\) 軸的右側，且在不等式 \(x-3y+6\gt0\) 的區域內。若 \(t\) 的範圍為 \(a\lt t\lt b\)，則 \(a+b=\)＿＿＿＿。`,
+   ans:"5/2",
+   reasons:[String.raw`「在 \(y\) 軸右側」寫成 \(y\gt0\)`, String.raw`代入時 \(-3(t+1)\) 展開錯`, "兩個條件只用了一個"],
+   key:0,
+   exp:String.raw`在 \(y\) 軸右側：\(x\gt0\)，即 \(2t-1\gt0\Rightarrow t\gt\dfrac{1}{2}\)。<br>代入不等式：\((2t-1)-3(t+1)+6=-t+2\gt0\Rightarrow t\lt2\)。<br>\(\dfrac{1}{2}\lt t\lt2\)，\(a+b=\dfrac{1}{2}+2=\dfrac{5}{2}\)。`},
+  {id:"S18-13",
+   tag:"S18",
+   level:"中",
+   cat:"陷阱題",
+   type:"mc",
+   stem:"如圖，鋪色區域（含邊界直線）可用下列哪一個不等式表示？",
+   fig:{x:[-4, 4], y:[-4, 4], items:[{line:[1, -2, 0]}, {region:[[1, -2, 0, ">="]]}], nums:true},
+   opts:[String.raw`\(x-2y\le0\)`, String.raw`\(x-2y\ge0\)`, String.raw`\(2x-y\ge0\)`, String.raw`\(2x-y\le0\)`],
+   ans:[1],
+   reasons:["邊界通過原點，代入原點得 0 無法判斷，卻仍用原點下結論", String.raw`由圖讀直線時把斜率 \(\dfrac{1}{2}\) 看成 2`, String.raw`以為「\(\ge\)」一定是直線的上方`],
+   key:0,
+   exp:String.raw`邊界通過原點與 \((2,1)\)，斜率 \(\dfrac{1}{2}\)：\(y=\dfrac{1}{2}x\)，即 \(x-2y=0\)。<br>邊界通過原點，原點代入得 0，不能拿來判斷；改代區域內的點 \((2,0)\)：\(x-2y=2\gt0\)。<br>所以區域為 \(x-2y\ge0\)（鋪色區域在直線下方，但不等號是 \(\ge\)，不能只看上下）。`},
+  {id:"S18-14",
+   tag:"S18",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`直線 \(L:y=mx+1\)，\(A(-1,3)\)、\(B(4,-2)\)。若 \(A\)、\(B\) 兩點在 \(L\) 的同一側（都不在 \(L\) 上），且 \(m\) 的範圍為 \(a\lt m\lt b\)，則 \(a\times b=\)＿＿＿＿。`,
+   ans:"3/2",
+   reasons:["解「兩個式子同號」時只考慮同為正，沒考慮同為負", String.raw`代入 \(A(-1,3)\) 時 \(m\times(-1)\) 的正負號錯`, "把同側的條件記成代入值異號"],
+   key:0,
+   exp:String.raw`令 \(f(x,y)=mx-y+1\)。\(f(A)=-m-3+1=-m-2\)，\(f(B)=4m+2+1=4m+3\)。<br>同側 \(\Rightarrow\) \(f(A)\)、\(f(B)\) 同號：<br>同為正：\(-m-2\gt0\) 且 \(4m+3\gt0\)，即 \(m\lt-2\) 且 \(m\gt-\dfrac{3}{4}\)，不可能。<br>同為負：\(-m-2\lt0\) 且 \(4m+3\lt0\)，即 \(-2\lt m\lt-\dfrac{3}{4}\)。<br>\(a\times b=(-2)\times\left(-\dfrac{3}{4}\right)=\dfrac{3}{2}\)。<br>（幾何意義：\(L\) 恆過 \((0,1)\)，通過 \(A\) 時 \(m=-2\)、通過 \(B\) 時 \(m=-\dfrac{3}{4}\)。）`},
+  {id:"S18-15",
+   tag:"S18",
+   level:"難",
+   cat:"拉分題",
+   type:"multi",
+   stem:String.raw`直線 \(L:2x-y+k=0\) 與 \(\triangle ABC\)（含邊界）沒有交點，其中 \(A(0,0)\)、\(B(2,1)\)、\(C(1,3)\)，則 \(k\) 可能為下列哪些值？`,
+   opts:[String.raw`\(-5\)`, String.raw`\(-3\)`, String.raw`\(0\)`, String.raw`\(1\)`, String.raw`\(3\)`],
+   ans:[0, 4],
+   reasons:["沒想到「直線與三角形沒有交點 ⇔ 三個頂點都在直線的同一側」", String.raw`頂點剛好在 \(L\) 上（\(k=-3\)、\(k=1\)）也當成沒有交點`, "代入頂點時計算錯"],
+   key:0,
+   exp:String.raw`令 \(f(x,y)=2x-y+k\)：\(f(A)=k\)，\(f(B)=4-1+k=k+3\)，\(f(C)=2-3+k=k-1\)。<br>沒有交點 \(\Leftrightarrow\) 三頂點都在 \(L\) 的同一側且都不在 \(L\) 上 \(\Leftrightarrow\) 三個值同為正或同為負。<br>同為正：最小的 \(k-1\gt0\Rightarrow k\gt1\)；同為負：最大的 \(k+3\lt0\Rightarrow k\lt-3\)。<br>所以 \(k\gt1\) 或 \(k\lt-3\)：\(-5\)、\(3\) 符合。<br>\(k=-3\) 時 \(B\) 在 \(L\) 上、\(k=1\) 時 \(C\) 在 \(L\) 上，都有交點；\(k=0\) 時 \(L\) 通過 \(A\)。`},
+  {id:"S18-V1",
+   tag:"S18",
+   level:"易",
+   cat:"基本分",
+   type:"mc",
+   vary:true,
+   reasons:["代入負數坐標時沒加括號，正負號算錯", "把「大於」和「小於」看反", String.raw`代入時把 \(x\)、\(y\) 坐標對調`],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let a = 2, b = -3, c = 6, gt = true, good = [1, 2], bad = [[0, 3], [-3, 1], [-1, 2]];
+     let ok = false;
+     for (let i = 0; i < 50 && !ok; i++) {
+       a = R.nz(-4, 4); b = R.nz(-4, 4); c = R.int(-6, 6); gt = R.int(0, 1) === 1;
+       { const g = V.gcd(V.gcd(a, b), c) || 1; a /= g; b /= g; c /= g; }
+       const f = p => a * p[0] + b * p[1] + c, sat = p => (gt ? f(p) > 0 : f(p) < 0);
+       good = null; bad = []; const seen = new Set();
+       for (let j = 0; j < 60 && (good === null || bad.length < 3); j++) {
+         const p = [R.int(-4, 4), R.int(-4, 4)], k = p.join(",");
+         if (seen.has(k) || f(p) === 0) continue;
+         if (sat(p)) { if (good === null) { good = p; seen.add(k); } }
+         else if (bad.length < 3) { bad.push(p); seen.add(k); }
+       }
+       ok = good !== null && bad.length === 3;
+     }
+     if (!ok) { a = 2; b = -3; c = 6; gt = true; good = [1, 2]; bad = [[0, 3], [-3, 1], [-1, 2]]; }
+     const ex = V.expr([[a, "x"], [b, "y"], [c, ""]]), op = gt ? "\\gt" : "\\lt";
+     const f = p => a * p[0] + b * p[1] + c;
+     const opts = [good, ...bad].map(p => String.raw`\(${V.pt(p[0], p[1])}\)`);
+     const line = p => String.raw`\(${V.pt(p[0], p[1])}\)：\(${a}\times${V.fPar(p[0])}${b < 0 ? "-" : "+"}${Math.abs(b)}\times${V.fPar(p[1])}${c === 0 ? "" : (c < 0 ? "-" : "+") + Math.abs(c)}=${f(p)}\) ${(gt ? f(p) > 0 : f(p) < 0) ? "✓" : "✗"}`;
+     return {
+       stem: String.raw`下列哪一點落在不等式 \(${ex}${op}0\) 的區域內？`,
+       opts, ans: [0],
+       exp: String.raw`逐一代入 \(${ex}\)，找${gt ? "大於" : "小於"} 0 的點：<br>` + [good, ...bad].map(line).join("<br>")
+     };
+   }},
+  {id:"S18-V2",
+   tag:"S18",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:["點剛好在直線上時也算進去（在直線上不算在任何一側）", "解一次不等式時除以負數忘了變號", "把異側與同側的條件記反"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let a = 2, b = 1, c = -4, x1 = 1, B = [3, -4], opp = true;
+     for (let i = 0; i < 50; i++) {
+       a = R.nz(-4, 4); b = R.nz(-3, 3); c = R.int(-6, 6); x1 = R.int(-4, 4); B = [R.int(-5, 5), R.int(-5, 5)]; opp = R.int(0, 1) === 1;
+       { const g = V.gcd(V.gcd(a, b), c) || 1; a /= g; b /= g; c /= g; }
+       if (a * B[0] + b * B[1] + c !== 0) break;
+       a = 2; b = 1; c = -4; x1 = 1; B = [3, -4]; opp = true;
+     }
+     const fB = a * B[0] + b * B[1] + c, K = a * x1 + c;
+     const wantPos = opp ? fB < 0 : fB > 0;          // f(A) 要 > 0 嗎
+     const T = V.F(-K, b);                            // b k + K = 0 的根
+     const kGreater = (wantPos && b > 0) || (!wantPos && b < 0);
+     const ans = kGreater ? Math.floor(T.n / T.d) + 1 : Math.ceil(T.n / T.d) - 1;
+     const ex = V.expr([[a, "x"], [b, "y"], [c, ""]]);
+     const fBs = `${a}\\times${V.fPar(B[0])}${b < 0 ? "-" : "+"}${Math.abs(b)}\\times${V.fPar(B[1])}${c === 0 ? "" : (c < 0 ? "-" : "+") + Math.abs(c)}`;
+     const fA = V.expr([[b, "k"], [K, ""]]);
+     return {
+       stem: String.raw`\(A(${x1},k)\)、\(B${V.pt(B[0], B[1])}\) 兩點在直線 \(${V.lin(a, b, c)}\) 的${opp ? "異側" : "同一側"}，則滿足條件的${kGreater ? "最小" : "最大"}整數 \(k\) 為＿＿＿＿。`,
+       ans: String(ans),
+       exp: String.raw`令 \(f(x,y)=${ex}\)。<br>\(f(B)=${fBs}=${fB}${fB > 0 ? "\\gt" : "\\lt"}0\)；\(f(A)=${fA}\)。<br>${opp ? "異側" : "同側"} \(\Rightarrow\) \(f(A)\) 與 \(f(B)\) ${opp ? "異號" : "同號"}，所以 \(${fA}${wantPos ? "\\gt" : "\\lt"}0\Rightarrow k${kGreater ? "\\gt" : "\\lt"}${V.fTex(T)}\)${b < 0 ? "（除以負數，不等號變向）" : ""}。<br>${kGreater ? "最小" : "最大"}整數 \(k=${ans}\)${V.isInt(T) ? String.raw`（\(k=${V.fTex(T)}\) 時 \(A\) 在直線上，不算）` : ""}。`
+     };
+   }},
+  // ===== S19 聯立不等式的區域 =====
   {id:"S19-1",
    tag:"S19",
    level:"易",
@@ -1594,4 +3925,137 @@ window.BANK_UNIT05 = [
    reasons:[String.raw`\(L_1\) 的斜率是 \(-\dfrac{1}{a}\)，誤用 \(-a\) 判斷`, String.raw`截距 \(-b\)、\(-d\) 的負號漏掉`, "沒有利用「原點是否在區域內」來檢查"],
    key:0,
    exp:String.raw`\(L_1\)：\(x\) 截距 \(-b\gt0\Rightarrow b\lt0\)；斜率 \(-\dfrac{1}{a}\gt0\Rightarrow a\lt0\)。<br>\(L_2\)：斜率 \(-c\gt0\Rightarrow c\lt0\)；\(y\) 截距 \(-d\gt0\Rightarrow d\lt0\)。<br>檢查區域：原點不在區域內，代入 \(x+ay+b\) 得 \(b\lt0\)，不滿足 \(\ge0\)，與圖一致。<br>\(ad\)：兩負相乘為正。正確為 (2)(4)(5)。`},
+  {id:"S19-8",
+   tag:"S19",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   stem:String.raw`聯立不等式 \(x\ge0\)、\(y\ge0\)、\(2x+5y\le20\) 所表示區域的面積為＿＿＿＿。`,
+   ans:"20",
+   reasons:[String.raw`截距算錯（\(x\) 截距是 10、\(y\) 截距是 4）`, String.raw`三角形面積忘了乘 \(\dfrac{1}{2}\)`, String.raw`把 \(2x+5y\le20\) 判斷成直線的上方`],
+   key:0,
+   exp:String.raw`\(2x+5y=20\) 的 \(x\) 截距 10、\(y\) 截距 4；原點代入 \(0\le20\) 成立，區域在直線靠原點的一側。<br>區域是以 \((0,0)\)、\((10,0)\)、\((0,4)\) 為頂點的直角三角形，面積 \(=\dfrac{1}{2}\times10\times4=20\)。`},
+  {id:"S19-9",
+   tag:"S19",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`聯立不等式 \(y\ge0\)、\(x-y+2\ge0\)、\(x+2y\le8\) 所表示區域的面積為＿＿＿＿。`,
+   ans:"50/3",
+   reasons:[String.raw`交點 \(\left(\dfrac{4}{3},\dfrac{10}{3}\right)\) 解聯立時算錯`, String.raw`把 \(x-y+2\ge0\) 判斷成直線 \(y=x+2\) 的上方`, String.raw`底邊長算成 8，漏了 \(x\) 軸負向的部分`],
+   key:0,
+   exp:String.raw`三條邊界兩兩的交點：<br>\(y=0\) 與 \(x-y+2=0\)：\((-2,0)\)；\(y=0\) 與 \(x+2y=8\)：\((8,0)\)；<br>\(x-y+2=0\) 與 \(x+2y=8\)：\(y=x+2\) 代入得 \(3x+4=8\)，\(x=\dfrac{4}{3}\)、\(y=\dfrac{10}{3}\)。<br>區域是以這三點為頂點的三角形（代 \((0,1)\) 檢查：\(1\ge0\)、\(1\ge0\)、\(2\le8\) 都成立）。<br>底 \(=8-(-2)=10\)，高 \(=\dfrac{10}{3}\)，面積 \(=\dfrac{1}{2}\times10\times\dfrac{10}{3}=\dfrac{50}{3}\)。`},
+  {id:"S19-10",
+   tag:"S19",
+   level:"中",
+   cat:"必考題",
+   type:"mc",
+   stem:String.raw`以 \(A(0,0)\)、\(B(4,0)\)、\(C(1,3)\) 為頂點的三角形區域（含邊界）可用下列哪一組聯立不等式表示？`,
+   opts:[String.raw`\(y\ge0\)、\(3x-y\ge0\)、\(x+y\le4\)`, String.raw`\(y\ge0\)、\(3x-y\le0\)、\(x+y\le4\)`, String.raw`\(y\ge0\)、\(3x-y\ge0\)、\(x+y\ge4\)`, String.raw`\(y\ge0\)、\(x-3y\ge0\)、\(x+y\le4\)`],
+   ans:[0],
+   reasons:["判斷三角形在每條邊界的哪一側時，沒有用「第三個頂點」代入檢查", String.raw`直線 \(AC\) 寫成 \(x-3y=0\)（斜率倒過來）`, String.raw`直線 \(BC\) 的方程式求錯`],
+   key:0,
+   exp:String.raw`\(AB\)：\(y=0\)，\(C\) 在上方 \(\Rightarrow y\ge0\)。<br>\(AC\)：斜率 3，\(3x-y=0\)；代第三個頂點 \(B(4,0)\)：\(12\ge0\) \(\Rightarrow 3x-y\ge0\)。<br>\(BC\)：斜率 \(\dfrac{3-0}{1-4}=-1\)，\(x+y=4\)；代 \(A(0,0)\)：\(0\le4\) \(\Rightarrow x+y\le4\)。`},
+  {id:"S19-11",
+   tag:"S19",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   stem:String.raw`聯立不等式 \(x\ge0\)、\(y\ge0\)、\(x+2y\le8\)、\(x\le k\)（\(0\lt k\lt8\)）所表示區域的面積為 \(15\)，則 \(k=\)＿＿＿＿。`,
+   ans:"6",
+   reasons:["沒看出區域是梯形，面積式子列錯", String.raw`解出 \(k=6\) 或 \(10\) 後沒有用 \(0\lt k\lt8\) 排除`, String.raw`\(x=k\) 時邊界 \(x+2y=8\) 上的點高度 \(\dfrac{8-k}{2}\) 算錯`],
+   key:0,
+   exp:String.raw`區域是梯形，頂點 \((0,0)\)、\((k,0)\)、\(\left(k,\dfrac{8-k}{2}\right)\)、\((0,4)\)。<br>兩條平行（鉛直）的邊長為 4 與 \(\dfrac{8-k}{2}\)，兩邊相距 \(k\)：面積 \(=\dfrac{1}{2}\left(4+\dfrac{8-k}{2}\right)k=\dfrac{k(16-k)}{4}\)。<br>\(\dfrac{k(16-k)}{4}=15\Rightarrow k^2-16k+60=0\Rightarrow(k-6)(k-10)=0\)。<br>因 \(0\lt k\lt8\)，\(k=6\)。`},
+  {id:"S19-12",
+   tag:"S19",
+   level:"中",
+   cat:"陷阱題",
+   type:"num",
+   stem:String.raw`聯立不等式 \(x\gt0\)、\(y\gt0\)、\(2x+3y\lt12\) 所表示的區域內，格子點（\(x\)、\(y\) 皆為整數的點）共有＿＿＿＿個。`,
+   ans:"7",
+   reasons:[String.raw`不等號沒有等號，卻把邊界上的點（例如 \((3,2)\)）也算進去`, String.raw`沒有按 \(y\) 分類逐列數，漏數`, String.raw`把 \(x\gt0\) 當成 \(x\ge0\)，多算了 \(y\) 軸上的點`],
+   key:0,
+   exp:String.raw`三個不等號都沒有等號，邊界上的點都不算。按 \(y\) 分類（\(y\) 為正整數）：<br>\(y=1\)：\(2x\lt9\)，\(x=1,2,3,4\)，4 個；<br>\(y=2\)：\(2x\lt6\)，\(x=1,2\)，2 個（\((3,2)\) 在邊界上，不算）；<br>\(y=3\)：\(2x\lt3\)，\(x=1\)，1 個；<br>\(y\ge4\)：\(2x\lt0\)，沒有正整數 \(x\)。<br>共 \(4+2+1=7\) 個。`},
+  {id:"S19-13",
+   tag:"S19",
+   level:"易",
+   cat:"陷阱題",
+   type:"tf",
+   stem:String.raw`聯立不等式 \(x\ge0\)、\(y\ge0\)、\(x+y\ge3\) 所表示區域的面積為 \(\dfrac{9}{2}\)。`,
+   opts:["○ 正確", "✕ 錯誤"],
+   ans:[1],
+   reasons:["沒畫圖就直接用三條直線圍成的三角形算面積", String.raw`把 \(x+y\ge3\) 看成 \(x+y\le3\)`, "以為三個不等式一定圍出有限的區域"],
+   key:0,
+   exp:String.raw`\(x+y\ge3\)：原點代入 \(0\ge3\) 不成立，區域在直線 \(x+y=3\) 不含原點的一側（右上方）。<br>區域是第一象限中直線 \(x+y=3\) 右上方的部分，向右、向上無限延伸，沒有有限的面積。<br>\(\dfrac{9}{2}\) 是 \(x+y\le3\) 時三角形的面積。敘述錯誤。`},
+  {id:"S19-14",
+   tag:"S19",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`不等式 \(|x-1|+2|y|\le4\) 所表示區域的面積為＿＿＿＿。`,
+   ans:"16",
+   reasons:[String.raw`去絕對值時只考慮 \(x\ge1\)、\(y\ge0\) 一種情況，只算了四分之一`, String.raw`頂點 \((1,\pm2)\) 算成 \((1,\pm4)\)`, "菱形面積（對角線乘積的一半）忘了除以 2"],
+   key:0,
+   exp:String.raw`分四種情況去絕對值，例如 \(x\ge1\)、\(y\ge0\) 時為 \(x+2y\le5\)，是連接 \((5,0)\)、\((1,2)\) 的線段靠 \((1,0)\) 的一側；其餘三種情況同理（對直線 \(x=1\) 與 \(x\) 軸對稱）。<br>區域是菱形，頂點：\(y=0\) 時 \(|x-1|=4\Rightarrow x=5\) 或 \(-3\)；\(x=1\) 時 \(2|y|=4\Rightarrow y=\pm2\)。<br>對角線長 \(5-(-3)=8\) 與 \(2-(-2)=4\)，面積 \(=\dfrac{1}{2}\times8\times4=16\)。`},
+  {id:"S19-15",
+   tag:"S19",
+   level:"難",
+   cat:"拉分題",
+   type:"num",
+   stem:String.raw`聯立不等式 \(x\ge0\)、\(y\ge0\)、\(x+2y\le6\) 所表示的區域被直線 \(y=mx\) 分成面積相等的兩部分，則 \(m=\)＿＿＿＿。`,
+   ans:"1/2",
+   reasons:[String.raw`沒想到過頂點 \(O\) 平分面積的直線就是中線（通過對邊中點）`, "對邊的中點坐標算錯", String.raw`求出中點 \(\left(3,\dfrac{3}{2}\right)\) 後斜率寫成 \(\dfrac{x}{y}=2\)`],
+   key:0,
+   exp:String.raw`區域是以 \(O(0,0)\)、\(A(6,0)\)、\(B(0,3)\) 為頂點的三角形，面積 9。<br>直線 \(y=mx\) 通過頂點 \(O\)，設它與 \(\overline{AB}\) 交於 \(P\)。\(\triangle OAP\) 與 \(\triangle OBP\) 的高相同（都是 \(O\) 到直線 \(AB\) 的距離），面積比 \(=\overline{AP}:\overline{PB}\)。<br>面積相等 \(\Rightarrow P\) 為 \(\overline{AB}\) 的中點 \(\left(3,\dfrac{3}{2}\right)\)。<br>\(m=\dfrac{3/2}{3}=\dfrac{1}{2}\)。`},
+  {id:"S19-V1",
+   tag:"S19",
+   level:"易",
+   cat:"基本分",
+   type:"num",
+   vary:true,
+   reasons:[String.raw`\(x\)、\(y\) 截距算錯`, String.raw`三角形面積忘了乘 \(\dfrac{1}{2}\)`, "把區域判斷在直線不含原點的一側"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let p = R.int(2, 10), q = R.int(2, 10);
+     const g = V.gcd(p, q), A = q / g, B = p / g, C = p * q / g;
+     const area = V.F(p * q, 2);
+     return {
+       stem: String.raw`聯立不等式 \(x\ge0\)、\(y\ge0\)、\(${V.term(A, "x", true)}${V.term(B, "y")}\le${C}\) 所表示區域的面積為＿＿＿＿。`,
+       ans: V.fAns(area),
+       exp: String.raw`邊界 \(${V.term(A, "x", true)}${V.term(B, "y")}=${C}\)：令 \(y=0\) 得 \(x\) 截距 ${p}，令 \(x=0\) 得 \(y\) 截距 ${q}。<br>原點代入 \(0\le${C}\) 成立，區域在直線靠原點的一側，是以 \((0,0)\)、\((${p},0)\)、\((0,${q})\) 為頂點的直角三角形。<br>面積 \(=\dfrac{1}{2}\times${p}\times${q}=${V.fTex(area)}\)。`
+     };
+   }},
+  {id:"S19-V2",
+   tag:"S19",
+   level:"中",
+   cat:"必考題",
+   type:"num",
+   vary:true,
+   reasons:[String.raw`沒有按 \(y\) 值分類逐列數，漏數或重複`, "邊界上的點該不該算弄錯（有沒有等號）", "坐標軸或邊界直線上的點漏掉或多算"],
+   key:0,
+   gen:R => { const V = window.VARY;
+     let a = 1, b = 2, c = 8, L = 0, strict = false, rows = [], total = 0;
+     for (let i = 0; i < 50; i++) {
+       a = R.int(1, 3); b = R.int(2, 3); c = R.int(6, 12); strict = R.int(0, 1) === 1; L = strict ? 1 : R.int(0, 1);
+       rows = []; total = 0;
+       for (let y = L; ; y++) {
+         const r = c - b * y;                           // a x 要 ≤ r（或 < r）
+         let xmax = strict ? Math.ceil(r / a) - 1 : Math.floor(r / a);
+         if (xmax < L) break;
+         rows.push([y, r, xmax]); total += xmax - L + 1;
+       }
+       if (total >= 3 && rows.length >= 2) break;
+       a = 1; b = 2; c = 8; L = 0; strict = false;
+       rows = [[0, 8, 8], [1, 6, 6], [2, 4, 4], [3, 2, 2], [4, 0, 0]]; total = 25;
+     }
+     const ge = strict ? "\\gt" : "\\ge", le = strict ? "\\lt" : "\\le";
+     const lhs = V.term(a, "x", true);
+     const bd = strict ? 0 : L;
+     const rowTxt = rows.map(([y, r, xm]) => String.raw`\(y=${y}\)：\(${lhs}${le}${r}\)，\(${L}\le x\le${xm}\)，${xm - L + 1} 個`).join("；<br>");
+     return {
+       stem: String.raw`聯立不等式 \(x${ge}${bd}\)、\(y${ge}${bd}\)、\(${lhs}${V.term(b, "y")}${le}${c}\) 所表示的區域內，格子點（\(x\)、\(y\) 皆為整數的點）共有＿＿＿＿個。`,
+       ans: String(total),
+       exp: String.raw`${strict ? String.raw`不等號沒有等號，邊界上的點不算；\(x\gt0\)、\(y\gt0\) 對整數來說就是 \(x\ge1\)、\(y\ge1\)。` : "不等號有等號，邊界上的點也要算。"}按 \(y\) 分類（\(y\ge${L}\) 的整數）：<br>${rowTxt}。<br>\(y\) 再大就沒有符合的 \(x\)。共 ${total} 個。`
+     };
+   }},
 ];

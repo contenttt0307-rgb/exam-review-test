@@ -306,6 +306,16 @@ details.rv[open] summary{margin-bottom:4px}
 .citem .r4{display:flex;gap:8px}
 .mini{font-size:13px;border:1.5px solid var(--line);border-radius:99px;padding:3px 12px}
 .mini.hot{border-color:var(--accent);color:var(--accent);font-weight:700}
+.wbbtn{border-color:var(--bad)}
+.wbbtn .bic{background:var(--bad);font-size:16px}
+.wbbtn .go{color:var(--bad);border-color:var(--bad)}
+.wbtag{display:flex;flex-direction:column;gap:8px;border-top:1px dashed var(--line);padding-top:10px}
+.wbtag .hrow{align-items:center}
+details.wbitem{background:var(--bg);border-radius:12px;padding:10px 12px}
+details.wbitem summary{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none}
+details.wbitem summary::-webkit-details-marker{display:none}
+details.wbitem summary .grow{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+details.wbitem[open]{display:flex;flex-direction:column;gap:8px}
 /* 選項、算式行：高度跟著算式（例如分式）長高，一般選項維持同樣的最低高度，不出現捲動箭頭 */
 .opt>span:last-child{min-width:0;overflow-wrap:anywhere;padding:2px 0}
 .opt,.ln{height:auto}
@@ -335,24 +345,26 @@ window.MathJax = {
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js?v=20261106"></script>
-<script src="concepts.js?v=20261106"></script>
-<script src="concepts2.js?v=20261106"></script>
-<script src="fig.js?v=20261106"></script>
-<script src="cards.js?v=20261106"></script>
-<script src="boss.js?v=20261106"></script>
-<script src="unit01.js?v=20261106"></script>
-<script src="unit02.js?v=20261106"></script>
-<script src="unit03.js?v=20261106"></script>
-<script src="unit04.js?v=20261106"></script>
-<script src="unit05.js?v=20261106"></script>
-<script src="unit06.js?v=20261106"></script>
-<script src="unit07.js?v=20261106"></script>
-<script src="catch05.js?v=20261106"></script>
-<script src="catch06.js?v=20261106"></script>
-<script src="catch07.js?v=20261106"></script>
-<script src="exam_ceec.js?v=20261106"></script>
-<script src="app.js?v=20261106"></script>
+<script src="firebase-config.js?v=20261108"></script>
+<script src="concepts.js?v=20261108"></script>
+<script src="concepts2.js?v=20261108"></script>
+<script src="fig.js?v=20261108"></script>
+<script src="cards.js?v=20261108"></script>
+<script src="cards2.js?v=20261108"></script>
+<script src="boss.js?v=20261108"></script>
+<script src="unit01.js?v=20261108"></script>
+<script src="unit02.js?v=20261108"></script>
+<script src="unit03.js?v=20261108"></script>
+<script src="unit04.js?v=20261108"></script>
+<script src="vary.js?v=20261108"></script>
+<script src="unit05.js?v=20261108"></script>
+<script src="unit06.js?v=20261108"></script>
+<script src="unit07.js?v=20261108"></script>
+<script src="catch05.js?v=20261108"></script>
+<script src="catch06.js?v=20261108"></script>
+<script src="catch07.js?v=20261108"></script>
+<script src="exam_ceec.js?v=20261108"></script>
+<script src="app.js?v=20261108"></script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" async></script>
 </body>
 </html>
