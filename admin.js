@@ -13,6 +13,20 @@ const MS = s => (A.range === "2" ? s.mastered2 : s.mastered) || 0;
 const TD = s => (A.range === "2" ? s.todo2 : (s.todo || []).filter(t => rangeOf(t) === "1")) || [];
 const CORE_ = () => A.range === "2" ? CORE2 : CORE1;
 const BY_ID = Object.fromEntries(BANK.map(q => [q.id, q]));
+/* 第二次段考的五個等級（和學生端相同）：0 未開始、1 練習中、2 會做、3 熟練、4 穩定 */
+const TAG_QS = {}; BANK.forEach(q => { if (!q.supp) (TAG_QS[q.tag] = TAG_QS[q.tag] || []).push(q.id); });
+const LV = [{name: "未開始", c: "l0"}, {name: "練習中", c: "l1"}, {name: "會做", c: "l2"}, {name: "熟練", c: "l3"}, {name: "穩定", c: "l4"}];
+function levelOf(s, t){
+  const qs = s.qs || {}, ids = TAG_QS[t] || [];
+  if (s.ch && s.ch[t] && s.ch[t].stable) return 4;
+  if (s.c && s.c[t] && s.c[t].m) return 3;
+  const ok = ids.filter(id => qs[id] && qs[id].l === 1).length;
+  if (ids.length && ok >= Math.ceil(ids.length * 0.8)) return 2;
+  return ids.some(id => qs[id]) ? 1 : 0;
+}
+const levelCounts = s => { const n = [0, 0, 0, 0, 0]; CORE2.forEach(t => n[levelOf(s, t)]++); return n; };
+const levelBar = n => { const tot = n.reduce((a, b) => a + b, 0) || 1;
+  return `<div class="lvbar" title="${[4, 3, 2, 1, 0].map(k => LV[k].name + " " + n[k]).join("、")}">${[4, 3, 2, 1, 0].map(k => n[k] ? `<i class="${LV[k].c}" style="width:${n[k] / tot * 100}%"></i>` : "").join("")}</div>`; };
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"})[c]);
 
 let auth = null, db = null;
@@ -112,6 +126,9 @@ function vClass(){
   const members = A.roster.filter(r => r.cls === A.cls).sort((a, b) => String(a.seat).localeCompare(String(b.seat), undefined, {numeric: true}));
   const active = members.map(m => bySid[m.sid]).filter(Boolean);
   const avg = active.length ? Math.round(active.reduce((s, x) => s + RD(x), 0) / active.length) : 0;
+  const R2 = A.range === "2";
+  const lvOf = Object.fromEntries(active.map(s => [s.sid, levelCounts(s)]));
+  const avgHi = active.length ? (active.reduce((a, s) => a + lvOf[s.sid][3] + lvOf[s.sid][4], 0) / active.length).toFixed(1) : "0";
 
   // 觀念掌握：使用過的學生中，已攻克的比例（由低到高）
   const conceptRows = CORE_().map(t => {
@@ -120,6 +137,20 @@ function vClass(){
     return {t, pct: active.length ? Math.round(m / active.length * 100) : 0, tried: tried.length};
   }).filter(r => r.tried > 0).sort((a, b) => a.pct - b.pct).slice(0, 10);
 
+  /* 第二次段考：全班觀念弱點表（依全班「最近一次答對率」由低到高） */
+  const weak2 = !R2 ? [] : CORE2.map(t => {
+    let tried = 0, ok = 0; const rs = {}; const lv = [0, 0, 0, 0, 0];
+    for (const s of active) {
+      const qs = s.qs || {}; lv[levelOf(s, t)]++;
+      for (const id of TAG_QS[t] || []) { const st = qs[id]; if (!st) continue; tried++; if (st.l === 1) ok++;
+        (st.r || []).forEach((n, k) => { if (n && k < 3) rs[id + "|" + k] = (rs[id + "|" + k] || 0) + n; if (n && k === 3) rs["idk"] = (rs["idk"] || 0) + n; }); }
+    }
+    const topKey = Object.entries(rs).sort((a, b) => b[1] - a[1])[0];
+    let why = "";
+    if (topKey) { if (topKey[0] === "idk") why = "不知道錯在哪"; else { const [id, k] = topKey[0].split("|"); const q = BY_ID[id]; why = q && q.reasons ? q.reasons[+k] : ""; } }
+    return {t, tried, rate: tried ? Math.round(ok / tried * 100) : null, lv, why, whyN: topKey ? topKey[1] : 0};
+  });
+  const weakShown = weak2.filter(r => r.tried >= 3).sort((a, b) => a.rate - b.rate);
   // 最常答錯的題目：至少 3 人次作答
   const qAgg = {};
   for (const s of active) for (const [id, st] of Object.entries(s.qs || {})) {
@@ -134,10 +165,12 @@ function vClass(){
     const open = A.open === m.sid;
     const main = s
       ? `<tr class="stu" data-a="open" data-k="${esc(m.sid)}"><td class="num">${esc(m.seat)}</td><td>${esc(m.name)}</td><td class="num muted">${esc(m.sid)}</td>
-          <td><div style="display:flex;gap:8px;align-items:center"><div class="bar" style="flex:1"><i style="width:${RD(s)}%"></i></div><span class="num">${RD(s)}%</span></div></td>
-          <td class="num">${MS(s)} / ${CORE_().length}</td><td class="num">${TD(s).length}</td><td>${fmtTime(s.lastActive)}</td></tr>`
-      : `<tr><td class="num">${esc(m.seat)}</td><td>${esc(m.name)}</td><td class="num muted">${esc(m.sid)}</td><td colspan="4" class="none">尚未使用</td></tr>`;
-    const detail = open && s ? `<tr class="detail"><td colspan="7"><b>待攻克的觀念：</b>${TD(s).length ? TD(s).map(t => `<span class="pill bad">${t} ${esc(CONCEPTS[t] || "")}</span>`).join("") : "<span class='muted'>沒有</span>"}
+          ${R2 ? `<td style="min-width:180px">${levelBar(lvOf[m.sid])}</td><td class="num">${lvOf[m.sid][3] + lvOf[m.sid][4]} / ${CORE2.length}</td><td class="num">${lvOf[m.sid][2]}</td>`
+               : `<td><div style="display:flex;gap:8px;align-items:center"><div class="bar" style="flex:1"><i style="width:${RD(s)}%"></i></div><span class="num">${RD(s)}%</span></div></td><td class="num">${MS(s)} / ${CORE_().length}</td>`}
+          <td class="num">${TD(s).length}</td><td>${fmtTime(s.lastActive)}</td></tr>`
+      : `<tr><td class="num">${esc(m.seat)}</td><td>${esc(m.name)}</td><td class="num muted">${esc(m.sid)}</td><td colspan="${R2 ? 5 : 4}" class="none">尚未使用</td></tr>`;
+    const lvList = R2 && s ? [4, 3, 2, 1].map(k => { const ts = CORE2.filter(t => levelOf(s, t) === k); return ts.length ? `<div class="lvline"><span class="pill ${LV[k].c}">${LV[k].name} ${ts.length}</span>${ts.map(t => `<span class="small">${t} ${esc(CONCEPTS[t])}</span>`).join("、")}</div>` : ""; }).join("") : "";
+    const detail = open && s ? `<tr class="detail"><td colspan="${R2 ? 8 : 7}">${lvList}<b>待攻克的觀念：</b>${TD(s).length ? TD(s).map(t => `<span class="pill bad">${t} ${esc(CONCEPTS[t] || "")}</span>`).join("") : "<span class='muted'>沒有</span>"}
       <br><span class="small muted">累計作答 ${s.answered || 0} 題｜${A.range === "2" ? `檢查錯誤練過 ${Object.keys(s.x || {}).length} 題` : `魔王關擊敗 ${Object.keys(s.boss || {}).length} / ${(window.BOSS || []).length} 題`}</span></td></tr>` : "";
     return main + detail;
   }).join("");
@@ -154,16 +187,22 @@ function vClass(){
   <div class="tiles">
     <div class="tile"><b>${members.length}</b><span>班級人數</span></div>
     <div class="tile"><b>${active.length}</b><span>已開始使用</span></div>
-    <div class="tile"><b>${avg}%</b><span>平均${A.range === "2" ? "第二次" : "第一次"}段考準備度（使用者）</span></div>
+    ${R2 ? `<div class="tile"><b>${avgHi}</b><span>平均熟練以上的觀念數（共 ${CORE2.length} 個）</span></div>` : `<div class="tile"><b>${avg}%</b><span>平均第一次段考準備度（使用者）</span></div>`}
     <div class="tile"><b>${active.reduce((s, x) => s + (x.answered || 0), 0)}</b><span>全班累計作答題數</span></div>
   </div>
-  <div class="card"><h2>學生進度</h2><p class="small muted" style="margin:0">點一下學生可以看他的待攻克觀念。</p>
-    <div class="scroll"><table><thead><tr><th>座號</th><th>姓名</th><th>學號</th><th style="min-width:160px">準備度</th><th>已攻克</th><th>待攻克</th><th>最後使用</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <div class="card"><h2>學生進度</h2><p class="small muted" style="margin:0">${R2 ? `點一下學生可以看他每個觀念的等級。等級條顏色：${[4, 3, 2, 1, 0].map(k => `<span class="pill ${LV[k].c}">${LV[k].name}</span>`).join("")}` : "點一下學生可以看他的待攻克觀念。"}</p>
+    <div class="scroll"><table><thead><tr><th>座號</th><th>姓名</th><th>學號</th>${R2 ? `<th>觀念等級</th><th>熟練以上</th><th>會做</th>` : `<th style="min-width:160px">準備度</th><th>已攻克</th>`}<th>待攻克</th><th>最後使用</th></tr></thead><tbody>${rows}</tbody></table></div>
   </div>
   <div class="grid2">
-    <div class="card"><h2>全班最弱的觀念</h2><p class="small muted" style="margin:0">已攻克人數比例最低的觀念（只計有練習過的學生）。</p>
+    ${R2 ? `<div class="card"><h2>全班觀念弱點表</h2><p class="small muted" style="margin:0">依全班「最近一次答對率」由低到高（只列至少 3 人次作答的觀念）。右邊是各等級人數，下方是全班最常選的錯因，可以挑來上課講。</p>
+      ${weakShown.length ? (A.allWeak ? weakShown : weakShown.slice(0, 10)).map(r => `<div class="wrow"><div class="crow"><span>${r.t}　${esc(CONCEPTS[r.t])}</span><div class="bar"><i style="width:${r.rate}%"></i></div><span class="num">${r.rate}%</span></div>
+        <div class="wmeta">${levelBar(r.lv)}<span class="small muted">熟練以上 ${r.lv[3] + r.lv[4]} 人・會做 ${r.lv[2]} 人・沒練過 ${r.lv[0]} 人・${r.tried} 人次</span></div>
+        ${r.why ? `<div class="small muted">最常選的錯因（${r.whyN} 次）：${r.why}</div>` : ""}</div>`).join("")
+        + (weakShown.length > 10 ? `<button class="btn ghost" data-a="allweak">${A.allWeak ? "只看最弱 10 個" : `看全部 ${weakShown.length} 個`}</button>` : "")
+        : `<p class="muted">還沒有足夠的作答資料。</p>`}
+    </div>` : `<div class="card"><h2>全班最弱的觀念</h2><p class="small muted" style="margin:0">已攻克人數比例最低的觀念（只計有練習過的學生）。</p>
       ${conceptRows.length ? conceptRows.map(r => `<div class="crow"><span>${r.t}　${esc(CONCEPTS[r.t])}</span><div class="bar"><i style="width:${r.pct}%"></i></div><span class="num">${r.pct}%</span></div>`).join("") : `<p class="muted">還沒有足夠的作答資料。</p>`}
-    </div>
+    </div>`}
     <div class="card"><h2>最常答錯的題目</h2><p class="small muted" style="margin:0">至少 3 人次作答，依答錯率排序；並列出學生最常選的錯因。</p>
       ${hardQs.length ? hardQs.map(h => { const q = BY_ID[h.id], top = h.r.indexOf(Math.max(...h.r));
         return `<div class="qrow"><div class="meta"><b>${h.id}</b><span class="rate">答錯率 ${h.rate}%</span><span>${h.a} 人次</span></div><div>${q.gen && window.VARY ? q.gen(VARY.mk(1)).stem + '<span class="small muted">（數字變形題，數字每次不同，這是其中一例）</span>' : q.stem}</div>${Math.max(...h.r) > 0 ? `<div class="small muted">最常選的錯因：${top === 3 ? "不知道錯在哪" : q.reasons[top]}</div>` : ""}</div>`; }).join("") : `<p class="muted">還沒有足夠的作答資料。</p>`}
@@ -241,6 +280,7 @@ root.addEventListener("click", async e => {
   if (a === "range") set({range: k, open: null});
   if (a === "reload") loadData();
   if (a === "open") set({open: A.open === k ? null : k});
+  if (a === "allweak") set({allWeak: !A.allWeak});
   if (a === "doimport") doImport();
   if (a === "export") exportCSV();
 });
